@@ -1,0 +1,286 @@
+\documentclass[11pt, letterpaper]{article}
+\usepackage{geometry}
+\geometry{margin=1in} 
+\usepackage{setspace}
+\linespread{1}
+\usepackage{hyperref}
+\usepackage{totcount}
+\usepackage{termcal}
+\usepackage{enumerate}
+\usepackage{fancybox}
+\usepackage{amsmath, amssymb}
+
+
+% Some useful commands (our classes always meet either on Monday and Wednesday 
+% or on Tuesday and Thursday)
+\newcommand{\MWClass}{%
+\calday[Monday]{\classday} % Monday
+\skipday % Tuesday (no class)
+\calday[Wednesday]{\classday} % Wednesday
+\skipday % Thursday (no class)
+\skipday % Friday 
+\skipday\skipday % weekend (no class)
+}
+
+\newcommand{\TRClass}{%
+\skipday % Monday (no class)
+\calday[Tuesday]{\classday} % Tuesday
+\skipday % Wednesday (no class)
+\calday[Thursday]{\classday} % Thursday
+\skipday % Friday 
+\skipday\skipday % weekend (no class)
+}
+
+\newcommand{\Holiday}[2]{%
+\options{#1}{\noclassday}
+\caltext{#1}{#2}
+}
+
+\begin{document}
+
+
+\thispagestyle{plain}
+
+\begin{center}
+\Large
+\sc
+Statistical Learning and Causal Inference for Economics\\
+\large
+Economics 224\\
+\large
+Fall 2018
+\end{center}
+
+
+
+\normalsize
+
+\noindent \textbf{Course Instructor:} Francis DiTraglia \\
+Office: MCNB 535\\
+Office Hours: M 2--4pm 
+
+\medskip
+
+
+%\noindent \textbf{Recitation Instructors:}
+%
+%\medskip
+%\noindent
+%
+%\begin{tabular}{llll}
+%  & Assa Cohen & Philippe Goulet Coulombe & Gabrielle Vasey\\
+%Office:& MCNB 421 & MCNB 342 & MCNB 420 \\ 
+%Office Hours:& T 6:30--8:30pm & W 1--3pm & R 1--3pm  
+%\end{tabular}
+%
+%\medskip
+% 
+\noindent \textbf{Lecture Time and Location:} TR 9-10:30AM, location TBA
+
+
+
+\medskip
+ 
+\noindent \textbf{Course Website:} Course materials will be posted at \url{http://ditraglia.com/econ224}.
+You can view your grades and log-on to the course discussion forum, Piazza, at \url{https://canvas.upenn.edu}.
+
+\medskip
+
+\noindent \textbf{Email Policy:}
+Please direct all written communication concerning Econ 224 to the course discussion forum, Piazza, rather than to the instructor or RI's personal email accounts.
+For questions about course material and logistics, please make your post visible to the whole class, so that others can benefit from your question and our response.
+(You are welcome to post anonymously.)
+For personal issues, use the private messaging feature to communicate directly with the instructor. 
+
+\medskip
+
+
+
+\noindent \textbf{Course Description:} 
+
+
+\medskip
+
+
+\noindent \textbf{Prerequisites:} 
+The prerequisite for this course is Econ 103 (Statistics for Economists) or comparable coursework from the Statistics Department, e.g.\ STAT 430 and 431. 
+You are expected to be conversant with the basics of probability and statistics, including confidence intervals, hypothesis testing, and simple linear regression.
+
+
+
+
+
+\medskip
+
+\noindent \textbf{Required Texts:} There are three required texts for this course:
+\begin{itemize}
+  \item ``Mastering `Metrics'' (MM) by Angrist \& Pischke
+  \item ``An Introduction to Statistical Learning'' (ISL) by James, Witten, Hastie, \& Tibshirani: \url{http://www-bcf.usc.edu/~gareth/ISL/}
+  \item ``R for Data Science'' (RDS) by Wickham \& Grolemund: \url{http://r4ds.had.co.nz}
+\end{itemize}
+Note that ISL and RDS are freely available from their respective authors at the listed urls. 
+If you prefer a physical copy, printed versions are available at the Penn bookstore and on Amazon.
+While MM is not available for free, it is quite inexpensive: around \$30 new or \$20 used on Amazon. 
+Because MM contains many equations 
+ 
+
+\medskip
+
+
+\noindent \textbf{Required Software:} 
+We will use the statistical package R via a front-end called RStudio throughout the course. 
+Both R and RStudio are free and open source. Installation instructions appear on the last page of this syllabus.
+RStudio is also available in the Undergraduate Data Analysis Lab (UDAL) in McNeil rooms 104 and 108--9. 
+
+\medskip
+
+\noindent \textbf{Departmental Course Policies: } 
+All Economics Department course policies are in force in Econ 103 even if not explicitly listed on this syllabus. 
+See: \url{http://economics.sas.upenn.edu/undergraduate-program/course-information/guidelines/policies} for full details. 
+
+
+\bigskip
+
+
+\noindent \textbf{Academic Integrity: } 
+All suspected violations of the code of academic integrity as set forth in the Pennbook will be reported to the Office of Student Conduct. 
+Confirmed violations will result in a failing grade for the course. 
+
+\medskip
+
+\noindent \textbf{Piazza:} 
+We will be using an online discussion forum called Piazza, accessible via \href{http://upenn.instructure.com}{Canvas}, for all written communication in this course.
+We will use Piazza to make course announcements, answer questions about course material and respond to private messages from individual students regarding personal issues.
+By asking your question and getting an answer on Piazza, you create a positive externality: other students benefit from your questions and you benefit from theirs.
+You can even post anonymously if asking questions publicly makes you uncomfortable.
+The instructor and RIs will actively moderate Piazza both to answer questions and approve (or correct) answers written by your fellow-students.
+As mentioned above under ``Email Policy,'' all written communication for Econ 103 should be directed to Piazza, not to the instructor's personal email accounts.
+
+\medskip
+
+\noindent \textbf{Homework:} 
+
+
+
+\section*{Assignments and Grading}
+
+Grades for this course will be determined based on ???
+Specifically,
+	\begin{equation*}
+	\begin{split}
+		\mbox{Overall Score} = (30\% \times \mbox{Quizzes})  + (20\% \times \mbox{Midterm 1}) + (20\% \times \mbox{Midterm 2}) + (30\% \times \mbox{Final}).
+	\end{split}
+	\end{equation*}
+
+\medskip 
+
+\noindent \textbf{Course Curve:}
+
+\medskip
+
+
+\noindent \textbf{Quizzes:} 
+
+\medskip
+
+\noindent \textbf{Exams:} 
+
+\medskip
+
+\noindent \textbf{Regrade Requests:}
+Exam regrade requests must be made in writing within a week of receiving your graded exam. 
+As we re-grade the entire exam, your score could rise or fall. 
+You may not discuss your answers with an RI or the instructor before submitting a regrade request. 
+
+
+\section*{Installing R and RStudio} First, download and install R from \url{http://cran.r-project.org/}. Second, download and install RStudio by visiting \url{http://rstudio.org/download/desktop} and clicking the link listed under ``Recommended for Your System.'' 
+
+\newpage
+
+
+%NOTE: don't use leading zeros in dates! In other words, use 1/1/2014 rather than 01/01/2014
+
+\begin{center}
+\footnotesize
+\begin{calendar}{8/27/2018}{15} %Date of Monday in first week of classes, NOT the date of the first class!
+\setlength{\calboxdepth}{.25in}
+\TRClass
+
+% schedule
+\caltexton{1}{Course Outline/Policies, Pre-test\\ Lab 1: R Review, RMarkdown Overview} 
+
+\caltextnext{Intro.\ to Prediction and Classification (ISL Ch.\ 2)\\ Lab 2: Graduation Rates at US Colleges}
+% College dataset: ISL Chapter 2, exercise 8
+
+\caltextnext{Randomized Trials, Potential Outcomes (MM Ch.\ 1)\\ Lab 3: Racial Discrimination in the Labor Market}
+% Pischke Problem Set: Chapter 1 Questions 2 and 3. (Bertrand \& Mullainathan experiment vs.\ CPS data)
+% Homework: STAR dataset (Imai Exercise 2.8.1)
+
+\caltextnext{Linear Regression for Prediction I (ISL 3.1--3.2)\\ Lab 4: Predicting Election Outcomes}
+% Various examples from Imai Chapter 4 on prediction
+
+\caltextnext{Linear Regression for Prediction II (ISL 3.3--3.5)\\ Lab 5:  Crime and House Prices in Boston}
+% Boston House Prices data (from MASS), covered in ISL Chapter 3, also covered in Exercise 10 from Chapter 2
+
+\caltextnext{Regression and Causality I (MM 2.1--2.2)\\ Lab 6: Data Visualization with \texttt{ggplot}}
+% From Angrist's problem set for MM. The point is to get a baseline for when we later do the regression discontinuity analysis of the same data
+
+\caltextnext{Regression and Causality II (MM 2.3, Appendix)\\ Lab 7: Class Size and Student Achievement}
+% From Angrist's problem set for MM. The point is to get a baseline for when we later do the regression discontinuity analysis of the same data
+
+
+\caltextnext{Logistic Regression (ISL 4.1--4.3)\\ Lab 8: Contaminated Drinking Water in Bangladesh}
+% The example is from Gelman and Hill. Could also try the Rodent example from the problems to accompany that chapter.
+% Homework: weekly stock market returns: problem 10 from ISL Chapter 4
+
+\caltextnext{Using Bayes' Theorem for Classification (ISL 4.4)\\ Lab 9:  Predicting Individual Ethnicity}
+% Also simple linear discriminant analysis (p = 2)
+% Imai instructor's repo: Probability chapter
+
+\caltextnext{Instrumental Variables I (MM 3.1--3.2) \\ Lab 10: Transforming Data with \texttt{dplyr}}
+
+\caltextnext{Instrumental Variables II (MM 3.3) \\ Lab 11: Institutions and Economic Development}
+% Angrist has problem set questions comparing AJR and Sachs
+% Pischke has an even better one!
+
+\caltextnext{Cross-validation and the Bootstrap (ISL Ch.\ 5) \\ Lab 12: Predicting Credit Card Default}
+% One of the examples from ISL Chapter 5
+
+\caltextnext{Model Selection (ISL 6.1) \\ Lab 13: Baseball Player Salaries}
+
+\caltextnext{Shrinkage Methods (ISL 6.2, 6.4) \\ Lab 14: Predicting College Applications}
+% Example 9 from Chapter 6 of ISL
+
+\caltextnext{Tree-Based Methods (ISL 8.1 [1 \& 3], 8.2 [1 \& 2])\\ Lab 15: American Housing Survey}
+
+\caltextnext{Prediction Competition I}
+
+\caltextnext{Prediction Competition II}
+
+\caltextnext{Regression Discontinuity I (MM 4.1)\\ Lab 15:}
+
+\caltextnext{Regression Discontinuity II (MM 4.2)\\ Lab 16:}
+
+\caltextnext{Differences-in-Differences I (MM 5.1) \\ Lab 17:}
+
+\caltextnext{Differences-in-Differences II (MM 5.2)\\ Lab 18:}
+
+% This one should follow the diff-in-diff lecture
+\caltextnext{Clustering Methods (ISL 10.3) \\ Lab 19: The Fox News Effect - Media Bias and Voting}
+% QSS instructor repo: Chapter 4 Prediction 
+
+
+
+
+% Holidays
+\Holiday{10/4/2018}{\textbf{Fall Break -- No Class}}
+\Holiday{11/22/2018}{\textbf{Thanksgiving -- No Class}}
+%\Holiday{12/11/2018}{\textbf{Reading Day -- No Class}}
+%\Holiday{12/13/2018}{\textbf{Exam Period -- No Class}}
+\end{calendar}
+\end{center}
+
+
+% Some other interesting exercises: the Fox News Effect (QSS instructors material)
+
+\end{document}
