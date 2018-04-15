@@ -1,1 +1,6 @@
+# Site Settings
+title: Econ 224 - Statistical Learning and Causal Inference for Economics
+
+# Build Settings
 theme: minima
+markdown: kramdown
