@@ -1,5 +1,6 @@
 ---
 layout: home 
+title: Course Homepage
 ---
 
 ## Course Documents
