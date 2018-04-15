@@ -1,7 +1,6 @@
 ---
 layout: home 
 ---
-# Econ 224 - Statistical Learning and Causal Inference for Economics
 
 ## Course Documents
 - [Syllabus](./syllabus.pdf)
