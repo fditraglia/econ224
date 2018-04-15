@@ -1,5 +1,8 @@
 # Site Settings
 title: Econ 224 - Statistical Learning and Causal Inference for Economics
+author: Francis J. DiTraglia
+email: fditra@sas.upenn.edu
+description: Course website for Econ 224 for UPenn
 
 # Build Settings
 theme: minima
