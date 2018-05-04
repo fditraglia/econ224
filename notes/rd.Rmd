@@ -25,9 +25,22 @@ Sharp RD is very different since there is no way to carry out matching using the
 This is because everyone who has $x < x_0$ is untreated while everyone who has $x \geq x_0$ is treated.
 Instead of matching people who have the same covariate values, sharp RD *extrapolates* by comparing people with *different* covariate values.
 The basic idea is very simple: we compare people whose $x$ is close to but slightly *below* the cutoff $x_0$ to people whose $x$ is close to but slightly *above* the cutoff.
-The idea here is that both $D$ and $x$ could effect $Y$, but at the cutoff $x_0$, $D$ "jumps."
-As long as the direct effect of $x$ on $Y$ (i.e. the effect that doesn't go through $D$) doesn't jump too, we'll be able to notice the jump, or discontinuity, in our dataset.
-This is how we'll isolate the causal effect of $D$ on $Y$.
+Both $D$ and $x$ could affect $Y$, but since $D$ abruptly switches from 0 to 1 at $x_0$, a causal relationship between $D$ and $Y$ should show up as a "jump" in the relationship between $x$ and $Y$ at $x_0$.
+For example, in the left panel there is clearly a jump at $x_0 = 0.5$ and in the right panel there is not: 
+
+```{r,echo=FALSE,fig.width=3,fig.height=2}
+set.seed(4321)  
+n <- 100
+x <- runif(n)
+x0 <- 0.5
+y1 <- 0.2 + 2 * (x > x0) + 3 * x + rnorm(n) / 3
+y2 <- 0.2 + 3 * x + rnorm(n) / 3
+library(ggplot2)
+par(mfrow = c(1,2))
+qplot(x, y1, ylab = 'y') 
+qplot(x, y2, ylab = 'y') 
+par(mfrow = c(1,1))
+```
 
 Now we'll be a little more precise about the intuition from the preceding paragraph by thinking about exactly how $x$ and $Y$ are related.
 The key will be to create a link to potential outcomes, since this is our main tool for thinking about causality.
@@ -53,7 +66,7 @@ Now suppose we also knew that the potential outcome when treated was equal to th
 $$ Y_{1,i} = Y_{0,i} + \rho$$
 
 
-``` {r qplot, fig.width=3, message=FALSE}
+```{r qplot, fig.width=3, message=FALSE}
 library(ggplot2)
 summary(cars)
 qplot(speed, dist, data=cars) + 
