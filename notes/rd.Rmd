@@ -89,17 +89,15 @@ Crucially, we never observe $E[Y_{0i}|x_i]$ for anyone with $x_i \geq x_0$, and 
 
 So how can we proceed?
 In RD, the key assumption is that $E[Y_{0i}|x_i]$ and $E[Y_{1i}|x_i]$ are   *continuous functions* of $x$. 
-In other words, while we allow for the possibility that people with different values of $x$ will have different potential outcomes, we assume that people with values of $x$ that are *very similar* have will have potential outcomes that are *nearly equal*.  
-Note that this implies $\mbox{ATE}(x + \Delta)\approx \mbox{ATE}(x)$ for small $\Delta$.
+In other words, while we allow for the possibility that people with different values of $x$ will have different potential outcomes, we assume that people with values of $x$ that are *very similar* have will have potential outcomes that are *nearly equal*.
+In particular, we assume that $\lim_{\Delta \rightarrow 0} E[Y_{1i}|x_i = x_0 + \Delta] = E[Y_{1i}|x_i = x_0]$ and similarly that $\lim_{\Delta \rightarrow 0} E[Y_{0i}|x_i = x_0 - \Delta] = E[Y_{0i}|x_i = x_0]$.
+But since $E[Y_i|x_i]$ equals $E[Y_{0i}|x_i]$ for $x$ above the threshold and $E[Y_{1i}|x_i]$ for $x$ below the threshold, this implies that 
+$$\lim_{\Delta \rightarrow 0} E[Y_i|x_i = x_0 + \Delta] - E[Y_i|x_i = x_0 - \Delta] = E[Y_{1i} - Y_{0i}|x_i = x_0] = \mbox{ATE}(x_0)$$
+So by using predictive regression to estimate $E[Y_i|x_i]$ for $x_i$ *just below* $x_0$ and comparing it to an estimate of $E[Y_i|x_i]$ for $x_i$ *just above* $x_0$, RD allows us to learn the average treatment effect for individuals with $x = x_0$.
 
 
+# "Fuzzy" Regression Discontinuity
 
-
-Let's start by looking at a very simple example.
-Suppose we happened to know that the potential outcome when untreated, $Y_0$ was linearly related to $x$, namely
-$$E[Y_{0,i}|x_i] = \alpha + \beta x_i$$
-Now suppose we also knew that the potential outcome when treated was equal to the potential outcome when untreated, plus a constant shift $\rho$, that is
-$$ Y_{1,i} = Y_{0,i} + \rho$$
 
 
 ```{r qplot, fig.width=3, message=FALSE}
