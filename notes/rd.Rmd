@@ -42,20 +42,56 @@ qplot(x, y2, ylab = 'y')
 par(mfrow = c(1,1))
 ```
 
-Now we'll be a little more precise about the intuition from the preceding paragraph by thinking about exactly how $x$ and $Y$ are related.
+If the threshold $x_0$ equals 0.5, then the left figure suggests that $D$ has a substantial causal effect on $Y$: when $D$ switches from zero to one as $x$ crosses the threshold, the mean of $Y$ jumps from around 2 to around 4.
+In contrast, the right panel doesn't show evidence of a causal effect of $D$ on $Y$: when $D$ switches from zero to one, there is no discernible change in the mean of $Y$.
+Now we'll be a little more precise about this intuition by thinking about exactly how $x$ and $Y$ are related.
 The key will be to create a link to potential outcomes, since this is our main tool for thinking about causality.
-To make things simple, let's imagine that the running variable $x$ is between zero and one, and that the cutoff $x_0$ equals 0.5.
+Let's stick with the same $x$-axis as in the preceding figures: imagine that the running variable $x$ is between zero and one, and that the cutoff $x_0$ equals 0.5.
 This means that anyone with $x < 0.5$ is untreated while anyone with $x\geq 0.5$ is treated.
 
-To begin, suppose we had a data for a large random sample of people who all had $x_i = 0.3$.
+To begin, suppose we had a data for a large random sample of people who all had $x = 0.3$.
 If we took the mean $Y$ for these people we would get an unbiased estimate of $E[Y_i|x_i = 0.3]$.
 The crucial point about sharp RD is that treatment is *completely determined* by $x$.
-This means that there is no way that someone with $x_i = 0.3$ could have chosen to be treated: everyone with $x < 0.5$ is untreated.
-This means that there is no selection bias, so $E[Y_i|x_i = 0.3] = E[Y_{0,i}|x_i = 0.3]$.
-Note that this is *not* the same thing as $E[Y_{0,i}]$ since the running variable $x$ could *directly* affect $Y$.
-For example, $E[Y_{0,i} |x_i = 0.3]$ may not equal $E[Y_{0,i}|x_i =0.4]$ even though neither someone with $x$ equal to 0.3 nor someone with $x$ equal to 0.4 is treated.
+This means that there is *no selection bias* since individuals are not free to choose their treatment status.
+Since everyone with $x_i = 0.3$ is untreated, we have $E[Y_i|x_i = 0.3] = E[Y_{0i}|x_i = 0.3]$.
+Note that this is *not* the same thing as $E[Y_{0i}]$ since the running variable $x$ could have a direct effect on $Y$. 
+In words, a person's potential outcome when untreated could depend on her value of $x$.
+For example, $E[Y_{0i} |x_i = 0.3]$ may not equal $E[Y_{0i}|x_i = 0.4]$ even though neither someone with $x$ equal to 0.3 nor someone with $x$ equal to 0.4 is treated.
 But this is fine, since we know how to use *predictive* modeling tools to estimate a conditional mean function.
-Here is the key point: since there is no selection into treatment for people 
+Here is the key point: since there is no selection into treatment for people with $x < x_0$, we can use *predictive regression* to estimate $E[Y_i|x_i]$ and this will give us an estimate of $E[Y_{0,i}|x]$ for any $x$ below the threshold.
+
+What about when $x$ is above the threshold?
+Consider for example, a large group of people with $x = 0.6$ and suppose as above that $x_0 = 0.5$.
+All of these people are treated since their $x$ exceeds the threshold.
+If we take the average $Y$ for this group of people, we will obtain an unbiased estimator of $E[Y_i|x_i=0.6]$.
+But since this group of people could not possibly select *out* of treatment, there is once again no selection bias and hence $E[Y_i|x_i=0.6] = E[Y_{1i}|x_i = 0.6]$. 
+This is not the same thing as $E[Y_{1i}]$ since $x$ could affect $Y$ directly.
+But, again, this doesn't present a problem: since there is no selection out of treatment for people with $x \geq x_0$, we can use *predictive regression* to estimate $E[Y_i|x_i]$ and this will give us an estimate of $E[Y_{1i}|x_i]$. 
+To summarize the reasoning from this and the preceding paragraph, 
+$$ E[Y_i|x_i] = \left\{\begin{array}{ll}
+E[Y_{0i}|x_i], &\mbox{if } x_i < x_0\\
+E[Y_{1i}|x_i], &\mbox{if } x_i \geq x_0
+\end{array}\right.$$
+Again, this relationship holds because individuals are *not* free to choose their treatment: everyone with $x \geq x_0$ is treated and no one with $x < x_0$ is treated.
+
+There is a key distinction you need to bear in mind: $E[Y_i|x_i]$ includes the effect of *both* $D$ and $x$ while $E[Y_{0i}|x_i]$ and $E[Y_{1i}|x_i]$ hold $D$ *fixed*.
+The function $E[Y_i|x_i]$ answers the question "what value should we predict for $Y$ for someone who has a covariate value of $x_i$?"
+In contrast, the function $E[Y_{0i}|x_i]$ answers the question "what would be the average outcome for a person with covariate value $x_i$ if I randomly assigned her $D=0$?"
+Similarly, $E[Y_{1i}|x_i]$ answers the question "what would be the average outcome for a person with covariate value $x_i$ if I randomly assigned her $D=1$?"
+If we knew $E[Y_{0i}|x_i]$ and $E[Y_{1i}|x_i]$ for all values of $x$, then by taking the difference, we could learn how the ATE *varies* across people with different values of $x$:
+$$\mbox{ATE}(x) = E[Y_{1i}|x_i = x] - E[Y_{0i}|x_i = x] = E[Y_{1i} - Y_{0i}|x_i = x]$$
+using the linearity of expectation.
+The idea of estimating an ATE as a function of some covariate $x$ is called "heterogeneous treatment effects."
+For example, a treatment may be more effective for younger people than older people.
+If we had experimental data, we could estimate $\mbox{ATE}(x)$.
+But in the RD setting we only have *observational data*.
+Crucially, we never observe $E[Y_{0i}|x_i]$ for anyone with $x_i \geq x_0$, and we never observe $E[Y_{1i}|x_i]$ for anyone with $x_i < x_0$.
+
+So how can we proceed?
+In RD, the key assumption is that $E[Y_{0i}|x_i]$ and $E[Y_{1i}|x_i]$ are   *continuous functions* of $x$. 
+In other words, while we allow for the possibility that people with different values of $x$ will have different potential outcomes, we assume that people with values of $x$ that are *very similar* have will have potential outcomes that are *nearly equal*.  
+Note that this implies $\mbox{ATE}(x + \Delta)\approx \mbox{ATE}(x)$ for small $\Delta$.
+
 
 
 
