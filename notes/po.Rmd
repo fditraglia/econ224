@@ -114,10 +114,26 @@ $$Y_i = Y_{0i}(1 - D_i) + Y_{1i} D_i.$$
 Taking conditional expectations, we obtain $E[Y_i|D_i=0] = E[Y_{0i}|D_i=0]$ and $E[Y_i|D_i=1] = E[Y_{1i}|D_i=1]$.
 Combining these,
 $$E[Y_i|D_i = 1] - E[Y_i|D_i = 0] = E[Y_{1i}|D_i = 1] - E[Y_{0i}|D_i = 0]$$
-If we add and subtract $E[Y_{0i}|D_i=1]$ from the preceding expression, we obtain a very useful expression, namely
-$$\underbrace{E[Y_i|D_i=1] - E[Y_i|D_i=0]}_{\mbox{Observed Difference}} = \underbrace{E[Y_{1i}|D_i=1] - E[Y_{0i}|D_i=1]}_{\mbox{Treatment on the Treated}} + \underbrace{E[Y_{0i}|D_i=1] - E[Y_{0i}|D_i=1]}_{\mbox{Selection Bias}}$$
-
 If treatment assignment $D_i$ is *independent* of the potential outcomes $(Y_{0i}, Y_{1i})$, then $E[Y_{1i}|D_i = 1] = E[Y_{1i}]$ and $E[Y_i|D_i = 0] = E[Y_{0i}]$ so $E[Y_i|D_i=1] - E[Y_i|D_i=0]$ equals the ATE.
 This is the case in an experimental dataset: since $D_i$ is randomly assigned, it is definitely independent of the potential outcomes.
 
-But in an observational dataset, potential outcomes and treatment assignment are often correlated: sicker people are more likely to go to the hospital, and dogs who are unlikely to get fleas or ticks because they have attentive owners are also more likely to be given flea-and-tick treatment.
+In an observational dataset, potential outcomes and treatment assignment are often correlated: sicker people are more likely to go to the hospital, and dogs who are unlikely to get fleas or ticks because they have attentive owners are also more likely to be given flea-and-tick treatment.
+If we add and subtract $E[Y_{0i}|D_i=1]$ from the expression for $E[Y_i|D_i=1] - E[Y_i|D_i=0]$ from above, we obtain a very useful expression:
+$$\underbrace{E[Y_i|D_i=1] - E[Y_i|D_i=0]}_{\mbox{Observed Difference}} = \underbrace{E[Y_{1i}|D_i=1] - E[Y_{0i}|D_i=1]}_{\mbox{Treatment on the Treated}} + \underbrace{E[Y_{0i}|D_i=1] - E[Y_{0i}|D_i=0]}_{\mbox{Selection Bias}}$$
+This expression decomposes the observed difference in $Y$ between treated and untreated individuals into two pieces, neither of which is the ATE.
+The first piece is called the effect of treatment on the treated or TOT for short.
+Since expectation is linear, we can rewrite this piece as $\mbox{TOT} = E[Y_{1i} - Y_{0i} |D_i = 1] = E[\Delta_i|D_i =1]$.
+In the hospital example, TOT is the causal effect of going to the hospital for the sort of person who *chooses* to go to the hospital.
+In other words, this is the causal effect of going to the hospital for a sick person.
+On average, hospitals make sick people healthier than they would otherwise be, so TOT is positive for this example.
+The second term is the *selection bias*.
+People with $D_i = 0$ are those who did not choose to go to the hospital: they are *healthy people*.
+Healthy people will still be healthy even if they don't go to the hospital: they have a high value of $Y_{0i}$.
+People with $D_i = 1$ are those who did choose to go to the hospital: they are *sick people*.
+Sick people will be very sick if they don't go to the hospital: they will have a low value of $Y_{0i}$.
+Putting these pieces together, the selection bias term $E[Y_{0i}|D_i=1] - E[Y_{0i}|D_i = 0]$ will be *negative* in the hospital example.
+Because of selection bias, comparing observed differences will make it look like hospitals cause people to get sicker, even though the TOT is positive.
+
+
+
+
