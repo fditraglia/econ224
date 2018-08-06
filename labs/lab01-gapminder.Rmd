@@ -41,15 +41,16 @@ gapminder
 ```
 If you're used to working with dataframes in R, this may surprise you.
 Rather than filling up the screen with lots of useless information, R shows us a helpful summary of the information contained in `gapminder`.
-This is because `gapminder` is *not* a dataframe; it's a *tibble*.
+This is because `gapminder` is *not* a dataframe; it's a *tibble*, often abbreviated *tbl*.
 For the moment, all you need to know about tibbles is that they are souped up versions of R dataframes that are designed to work seamlessly with `dplyr`.
-(If you want to learn more, see Chapter 7 of *R for Data Science*)
-But what is `dplyr` in the first place?
+(If you want to learn more, see the chapter entitled "Tibbles" in *R for Data Science*)
+But what exactly is `dplyr`?
 
 # What is `dplyr`?
 The `dplyr` package provides a number of powerful but easy-to-use tools for data manipulation in R.
-We'll be making heavy use of this package throughout the semester.
-Rather than trying to explain everything in advance, let's just dive straight in.
+A good reference is the chapter entitled "Data Transformation" in *R for Data Science*.
+We'll be making heavy use of `dplyr` throughout the semester.
+Rather than trying to explain everything in advance, let's just dive right in.
 
 # Filter Rows with `filter`
 Let's run the following command in R and see what happens:
@@ -161,4 +162,193 @@ gapminder %>% arrange(desc(lifeExp))
 ```
 <!-- ANS_END -->
 
+# Understanding the pipe: `%>%`
+Let's revisit the pipe, `%>%`, that we've used in the code examples above.
+I told you that the command `gapminder %>% filter(year == 2007)` "pipes" the tibble `gapminder` into the function `filter()`.
+But what exactly does this mean?
+Take a look at the R help file for the `dplyr` function `filter`.
+We see that `filter()` takes something called `.data` as its first argument.
+Moving on to the "Arguments" section of the help file, we see that `.data` is "A tbl" i.e. a tibble.
+To better understand what this means, let's try using `filter` *without* the pipe:
+```{r}
+filter(gapminder, year == 2007, country == 'United States')
+```
+Notice that this gives us *exactly* the same result as
+```{r}
+gapminder %>% filter(year == 2007, country == 'United States')
+```
+In other words __*The pipe is gives us an alternative way of supplying the first argument to a function*__.
+Let's try this with a more familiar R function: `mean`.
+The first argument of `mean` is a vector `x`. 
+So let's try using the pipe to compute the mean of some data:
+```{r}
+x <- c(1, 5, 2, 7, 2)
+x %>% mean
+```
+The pipe supplies a function with its *first* argument.
+If we want to specify additional arguments, we need to do so within the function call itself.
+For example, here's how we could use the pipe to compute the mean after dropping missing observations:
+```{r}
+y <- c(1, 5, NA, 7, 2)
+y %>% mean(na.rm = TRUE)
+```
+One important note about the pipe: it's *not* a base R command.
+Instead it's a command provided by the package `Magrittr`.
+(If you're familiar with the Belgian painter Magritte, you may realize that the name of this package is quite witty!)
+This package is installed automatically along with `dplyr`.
+So if we load the `tidyverse` package, which includes `dplyr`, the pipe is automatically available.
+
+# Exercise \#5
+
+1. Write R code that uses the pipe to calculate the sample variance of `z <- c(4, 1, 5, NA, 3)` excluding the missing observation from the calculation.
+2. Re-write the code from your solution to Exercise \#4 *without* using the pipe.
+
+# Solution to Exercise \#5
+*Write your code and solutions here*
+
+<!-- ANS_START -->
+1. Use the following code:
+```{r}
+z <- c(4, 1, 5, NA, 3)
+z %>% var(na.rm = TRUE)
+```
+2. Use the following code: 
+```{r}
+arrange(gapminder,lifeExp)
+arrange(gapminder, desc(lifeExp))
+```
+<!-- ANS_END -->
+
+
+
 # Chaining commands
+In the examples we've looked at so far, the pipe doesn't seem all that useful: it's just an alternative way of specifying the first argument to a function.
+The true power and convenience of the pipe only becomes apparent we need to *chain* a series of commands together.
+For example, suppose we wanted to display the 1952 data from `gapminder` sorted by `gdpPercap` in descending order.
+Using the pipe, this is easy:
+```{r}
+gapminder %>% 
+  filter(year == 1952) %>% 
+  arrange(desc(gdpPercap))
+```
+Notice how I split the commands across multiple lines.
+This is good practice: it makes your code much easier to read.
+So what's happening when we chain commands in this way? 
+The first step in the chain `gapminder %>% filter(year == 1952)` returns a tibble: the subset of `gapminder` for which `year` is `1952`.
+The next step `%>% arrange(gdpPercap)`  pipes this *new* tibble into the function `arrange()`, giving us the desired result.
+I hope you agree with me that this is pretty intuitive: even if we didn't know anything about `dplyr` we could *almost* figure out what this code is supposed to do.
+In stark contrast, let's look at the code we'd have to use if we wanted to accomplish the same task *without* using the pipe:
+```{r}
+arrange(filter(gapminder, year == 1952), desc(gdpPercap))
+```
+There are may reasons why this code is harder to read, but the most important one is that the commands `arrange` and `filter` have to appear in the  code in the *opposite* of the order in which they are actually being carried out.
+This is because parentheses are evaluated from *inside to outside*.
+This is what's great about the pipe: it lets us write our code in a way that accords with the actual order of the steps we want to carry out.
+
+# Exercise \#6
+
+1. What was the most populous European country in 1992? Write appropriate `dplyr` code using the pipe to display the information you need to answer this question.
+2. Re-write your code from part 1. *without* using the pipe. 
+
+# Solution to Exercise \#6
+*Write your code and solutions here*
+
+<!-- ANS_START -->
+1. The most populous European country in 1992 was Germany.
+```{r}
+gapminder %>%
+  filter(year == 1992, continent == 'Europe') %>%
+  arrange(desc(pop))
+```
+2. Use the following code: 
+```{r}
+arrange(filter(gapminder, year == 1992, continent == 'Europe'), desc(pop))
+```
+<!-- ANS_END -->
+
+# Change an existing variable or create a new one with `mutate`
+It's a little hard to read the column `pop` in `gapminder` since there are so many digits.
+Suppose that, instead of raw population, we wanted to display population *in millions*.
+This requires us to `pop` by `1000000`, which we can do using the function `mutate()` from `dplyr` as follows:
+```{r}
+gapminder %>% 
+  mutate(pop = pop / 1000000)
+```
+Note the syntax here: within `mutate()` we have an assignment statement, namely `pop = pop / 1000000`. 
+This tells R to calculate `pop / 1000000` and assign the result to `pop`, in place of the original variable.
+
+We can also use `mutate()` to create a new variable.
+The `gapminder` dataset doesn't contain overall GDP, only GDP per capita.
+To calculate GDP, we need to multiply `gdpPercap` by `pop`.
+But wait! 
+Didn't we just change pop so it's expressed in millions?
+No: we never *stored* the results of our previous command, we simply displayed them.
+Just as I discussed above, unless you *overwrite* it, the original `gapminder` dataset will be unchanged.
+With this in mind, we can create the `gdp` variable as follows:
+```{r}
+gapminder %>% mutate(gdp = pop * gdpPercap)
+```
+
+# Exercise \#7
+
+1. Explain why we used `=` rather than `==` in the `mutate()` examples above.   
+2. Which country in the Americas had the shortest life expectancy *in months* in the year 1962? Write appropriate `dplyr` code using the pipe to display the information you need to answer this question.
+
+# Solution to Exercise \#7
+*Write your code and solutions here*
+
+<!-- ANS_START -->
+1. We used `=` because this is the assigment operator. In contrast `==` tests for equality, returning TRUE or FALSE.
+2. Bolivia had the shortest life expectancy: 521 months. 
+```{r}
+gapminder %>%
+  mutate(lifeExpMonths = 12 * lifeExp) %>%
+  filter(year == 1962, continent == 'Americas') %>%
+  arrange(lifeExpMonths)
+```
+<!-- ANS_END -->
+
+# Some `dplyr` terminology
+In the examples above, we've learned how to use a number of `dplyr` function: `filter`, `arrange`,  
+
+
+# A simple scatterplot using `ggplot2`
+Now that we know the basics of `dplyr`, we'll turn our attention to graphics.
+R has many powerful build-in graphics functions that may be familiar to you from Econ 103.
+In this class, however, we'll use a very powerful package for statistical visualization called `ggplot2`.
+There's nothing more for you to instead or load, since `ggplot2` is included in the `tidyverse` package, which you've already installed and loaded.
+We'll start off by constructing a subset of the `gapminder` dataset that contains information from the year 2007 that we'll use for our plots below.
+```{r}
+gapminder_2007 <- gapminder %>% filter(year == 2007)
+```
+
+It takes some time to grow accustomed to `ggplot2` syntax, so rather than giving you a lot of detail, we're going to look at a series of increasingly more complicated examples.
+Our first example will be a simple scatterplot using `gapminder_2007`. 
+Each point will correspond to a single country in 2007.
+Its x-coordinate will be GDP per capita and its y-coordinate will be life expectancy.
+Here's the code:
+```{r}
+ggplot(gapminder_2007, aes(x = gdpPercap, y = lifeExp)) + geom_point()
+```
+We see that GDP per capita is a very strong predictor of life expectancy, although the relationship is non-linear.
+
+# Exercise \#8
+1. Using my code example as a template, make a scatterplot with `pop` on the x-axis and `lifeExp` on the y-axis using `gapminder_2007`. Does there appear to be a relationship between population and life expectancy?
+2. Repeat 1. with `gdpPercap` on the y-axis.
+
+# Solution to Exercise \#8
+*Write your code and solutions here*
+
+<!-- ANS_START -->
+1. There is no clear relationship between population and life expectancy based on the 2007 data:
+```{r}
+ggplot(gapminder_2007, aes(x = pop, y = lifeExp)) + geom_point()
+```
+2. There is no clear relationship between population and GDP per capita based on the 2007 data:
+
+```{r}
+ggplot(gapminder_2007, aes(x = pop, y = gdpPercap)) + geom_point()
+```
+<!-- ANS_END -->
+
+
