@@ -149,14 +149,16 @@ gapminder %>% arrange(desc(gdpPercap))
 
 # Solution to Exercise \#4
 *Write your code and solutions here*
+
 <!-- ANS_START -->
-1. The lowest life expectancy was Rwanda in 1992: 23.6 years at birth:
+1. The lowest life expectancy was Rwanda in 1992: 23.6 years at birth.
 ```{r}
 gapminder %>% arrange(lifeExp)
 ```
-2. The highest life expectancy was in 2007 in Japan: 82.6 years at birth:
+2. The highest life expectancy was in 2007 in Japan: 82.6 years at birth.
 ```{r}
 gapminder %>% arrange(desc(lifeExp))
 ```
 <!-- ANS_END -->
 
+# Chaining commands
