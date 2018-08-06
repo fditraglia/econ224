@@ -1,0 +1,126 @@
+---
+title: "Lab #1 - Gapminder Dataset"
+author: "Econ 224"
+date: "August 28th, 2018"
+---
+
+# Installing Required Packages 
+Welcome to the first lab of Econ 224!
+Today we'll be giving you a crash course in two R packages that we'll be using throughout the semester: `dplyr` and `ggplot2`.
+Before we can get started, you'll need to install both of these packages.
+A quick way to install both of them at once, along with several other packages that may come in handy later, is `install.packages('tidyverse')`.
+Note that you only need to do this *once*.
+The dataset we'll work with today is also available as an R package called `gapminder`.
+Make sure that you have both `tidyverse` and `gapminder` installed before continuing.
+
+# The Gapminder Dataset
+
+Our next step is to load both `tidyverse`, which contains `dplyr` and `ggplot2`, and `gapminder`, which contains the data we'll be analyzing today:
+```{r, message = FALSE}
+library(tidyverse)
+library(gapminder)
+```
+
+# Exercise \#1
+Now that you've loaded `gapminder`, use the command `?gapminder` to view the R help file for this dataset and read the documentation you find there and answer the following questions:
+
+- What information does this dataset contain? 
+- How may rows and columns does it have?
+- What are the names of each of the columns, and what information does each contain?
+- What is the source of the dataset?
+
+<!-- ANS_START -->
+# Solution to Exercise \# 1
+*Answer Goes Here*
+<!-- ANS_END -->
+
+# What is a tibble?
+Let's see what happens if we display the `gapminder` dataset:
+```{r}
+gapminder
+```
+If you're used to working with dataframes in R, this may surprise you.
+Rather than filling up the screen with lots of useless information, R shows us a helpful summary of the information contained in `gapminder`.
+This is because `gapminder` is *not* a dataframe; it's a *tibble*.
+For the moment, all you need to know about tibbles is that they are souped up versions of R dataframes that are designed to work seamlessly with `dplyr`.
+(If you want to learn more, see Chapter 7 of *R for Data Science*)
+But what is `dplyr` in the first place?
+
+# What is `dplyr`?
+The `dplyr` package provides a number of powerful but easy-to-use tools for data manipulation in R.
+We'll be making heavy use of this package throughout the semester.
+Rather than trying to explain everything in advance, let's just dive straight in.
+
+# Filter Rows with `filter`
+Let's run the following command in R and see what happens:
+```{r}
+gapminder %>% filter(year == 2007)
+```
+Compare the results of running this command to what we got when we typed `gapminder` into the console above.
+Rather than displaying the whole dataset, now R is only showing us the 142 rows for which the column `year` has a value of `2007`.
+
+So how does this work?
+The `%>%` symbol is called a *pipe*.
+Pipes play very nicely with `dplyr` and make our code very easy to understand.
+The tibble `gapminder` is being piped into the function `filter()`.
+The argument `year == 2007` tells `filter()` that it should find all the rows such that the logical condition `year == 2007` is `TRUE`.
+
+Oh no! Have we accidentally deleted all of the other rows of `gapminder`?
+Nope: we haven't made any changes to `gapminder` at all.
+If you don't believe me try entering `gapminder` at the console.
+All that this command does is *display* a subset of `gapminder`.
+If we wanted to store the result of running this command, we'd need to assign it to a variable, for example
+```{r}
+gapminder2007 <- gapminder %>% filter(year == 2007)
+gapminder2007
+```
+
+
+# Exercise \#2
+1. Explain the difference between `x = 3` and `x == 3` in R.
+2. Use `filter` to choose the subset of `gapminder` for which `year` is 2002.
+3. If you instead try to choose the subset with `year` equal to 2005, something will go wrong. Try it and explain what happens and why.
+3. Store the data for Asian countries in a tibble called `gapminder_asia`. Display this tibble.
+
+
+<!-- ANS_START -->
+# Solution to Exercise \#2
+1. The first assigns the value `3` to the variable `x`; the second tests whether `x` is equal to `3` and returns either `TRUE` or `FALSE`.
+2. Use the following code: 
+```{r}
+gapminder %>% filter(year == 2002)
+```
+3. If you go back to the help file for `gapminder` you'll see that it only contains data for every fifth year.
+   The year 2005 isn't in our dataset so `dplyr` will display an empty tibble:
+```{r}
+gapminder %>% filter(year == 2005)
+```
+4. Use the following code:
+```{r}
+gapminder_asia <- gapminder %>% filter(continent == 'Asia')
+gapminder_asia
+```
+<!-- ANS_END -->
+
+# Filtering two variables
+We can use `filter` to subset on two or more variables.
+For example, here we display data for the US in 2007:
+```{r}
+gapminder %>% filter(year == 2007, country == 'United States')
+```
+
+# Exercise \# 3
+1. When I displayed data for the US in 2007, I put quotes around `United States` but not around `year`. Explain why.
+2. Which country had the higher life expectancy in 1977: Ireland or Brazil?
+Which had the higher GDP per capita?
+
+<!-- ANS_START -->
+# Solution to Exercise \# 3
+1. This is because `year` contains numeric data while `country` contains character data, aka string data.
+2. From the results of the following code, we see that Ireland had both a higher life expectancy and GDP per capita.
+```{r}
+gapminder %>% filter(year == 1977, country == 'Ireland')
+gapminder %>% filter(year == 1977, country == 'Brazil')
+```
+<!-- ANS_END -->
+
