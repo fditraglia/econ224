@@ -4,6 +4,11 @@ author: "Econ 224"
 date: "August 28th, 2018"
 ---
 
+<!-- knitr global options -->
+```{r}
+knitr::opts_chunk$set(comment=NA, fig.width=3.5, fig.height=3.5, fig.align = 'center')
+```
+
 # Installing Required Packages 
 Welcome to the first lab of Econ 224!
 Today we'll be giving you a crash course in two R packages that we'll be using throughout the semester: `dplyr` and `ggplot2`.
@@ -308,9 +313,6 @@ gapminder %>%
 ```
 <!-- ANS_END -->
 
-# Some `dplyr` terminology
-In the examples above, we've learned how to use a number of `dplyr` function: `filter`, `arrange`,  
-
 
 # A simple scatterplot using `ggplot2`
 Now that we know the basics of `dplyr`, we'll turn our attention to graphics.
@@ -351,4 +353,51 @@ ggplot(gapminder_2007, aes(x = pop, y = gdpPercap)) + geom_point()
 ```
 <!-- ANS_END -->
 
+# Plotting on the log scale
+It's fairly common to transform data onto a log scale before carrying out further analysis or plotting.
+If you've taken Econ 104, you may already be familiar with log transformations.
+If not, don't worry about it: we'll discuss them later in the course.
+For now, we'll content ourselves with learning how to transform the axes  in a `ggplot` to the log base 10 scale.
+To transform the x-axis, it's as easy as adding a `+ scale_x_log10()` to the end of our command from above:
+```{r}
+ggplot(gapminder_2007, aes(x = gdpPercap, y = lifeExp)) + 
+  geom_point() + 
+  scale_x_log10()
+```
+Notice how I split the code across multiple lines and ended each of the intermediate lines with the `+`.
+This makes things much easier to read.
+
+# Exercise \#9
+1. Using my code example as a template, make a scatterplot with the log base 10 of `pop` on the x-axis and `lifeExp` on the y-axis using the `gapminder_2007` dataset.
+2. Suppose that rather than putting the x-axis on the log scale, we wanted to put the *y-axis* on the log scale.
+Figure out how to do this, either by clever guesswork or a google search, and then redo my example with `gdpPercap` and `lifeExp`  with `gdpPercap` in levels and `lifeExp` in logs.
+3. Repeat 2. but with *both* axes on the log scale.
+
+# Solution to Exercise \#9
+*Write your code and solutions here*
+
+<!-- ANS_START -->
+1. Use the following code:
+```{r}
+ggplot(gapminder_2007, aes(x = pop, y = lifeExp)) + 
+  geom_point() + 
+  scale_x_log10()
+```
+2. Use the following code:
+```{r}
+ggplot(gapminder_2007, aes(x = gdpPercap, y = lifeExp)) + 
+  geom_point() + 
+  scale_y_log10()
+```
+3. Use the following code:
+```{r}
+ggplot(gapminder_2007, aes(x = gdpPercap, y = lifeExp)) + 
+  geom_point() + 
+  scale_x_log10() + 
+  scale_y_log10()
+```
+<!-- ANS_END -->
+
+# The color and size aesthetics
+While we've seen a number of examples, I haven't yet spent any time clarifying the syntax of `ggplot`.
 
