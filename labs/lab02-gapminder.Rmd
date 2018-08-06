@@ -83,7 +83,8 @@ ggplot(gapminder_1977) +
 3. You'll get something crazy if you try this.
    Population is continuous rather than categorical so every country has a different value for this variable.
    You'll end up with one plot for every country, containing a single point:
-```{r}
+```{r,eval= FALSE}
+# Not run: it takes a long time and looks nasty!
 gapminder_1977 <- gapminder %>% 
   filter(year == 1977)
 ggplot(gapminder_1977) +
@@ -93,6 +94,118 @@ ggplot(gapminder_1977) +
 ```
 <!-- ANS_END -->
 
+# `dplyr` verbs
+For the next few sections we'll take a short break from `ggplot2` and turn our attention to `dplyr`.
+In lab \#1 we learned about the pipe, `%>%`, and two `dplyr` functions: `filter()` and `arrange()`.
+In the parlance of the `dplyr` documentation, these are called "verbs."
+In `dplyr` we use `%>%` to combine these verbs in various ways to manipulate a tibble. 
+In this section and the following two, we'll learn three more `dplyr` verbs: `select`, `summarize` and `group_by`.
+
+# The `select` verb
+We use the `select` verb to select columns.
+Using `select` we could do this as follows:
+```{r}
+gapminder %>% select(pop)
+```
+To display only `pop`, `country`, and `year`, use the following:
+```{r}
+gapminder %>% select(pop, country, year)
+```
+Now suppose that we wanted to select every column *except* `pop`. 
+Here's one way to do it:
+```{r}
+gapminder %>% select(country, continent, year, lifeExp, gdpPercap)
+```
+but that takes a lot of typing!
+If there were more than a handful of columns in our tibble it would be very difficult to *deselect* a column in this way.
+Fortunately there's a shortcut: use the minus sign 
+```{r}
+gapminder %>% select(-pop)
+```
+Just as we could when *selecting*, we can *deselect* multiple columns by separating their names with a comma:
+```{r}
+gapminder %>% select(-pop, -year)
+```
+
+It's easy to mix up the `dplyr` verbs `select` and `filter`.
+Here's a handy mnemonic: `filteR` filters Rows while `seleCt` selects Columns. 
+Suppose we wanted to select only the column `pop` from `gapminder`.
+
+# Exercise \#2
+1. Select only the columns `year`, `lifeExp`, and `country` in `gapminder`.
+2. Select all the columns *except* `year`, `lifeExp`, and `country` in `gapminder`.
 
 
+# Solution to Exercise \#2
+*Write your code and solutions here*
 
+<!-- ANS_START -->
+1. Use the following:
+```{r}
+gapminder %>% select(year, lifeExp, country)
+```
+2. Use the following:
+```{r}
+gapminder %>% select(-year, -lifeExp, -country)
+```
+<!-- ANS_END -->
+
+# The `summarize` verb
+Suppose we want to calculate the sample mean of the column `lifeExp` in `gapminder`.
+We can do this using the `summarize` verb as follows:
+```{r}
+gapminder %>% summarize(mean_lifeExp = mean(lifeExp))
+```
+Note the syntax: within `summarize` we have an *assignment statement*.
+In particular, we assign `mean(lifeExp)` to the variable `mean_lifeExp`.
+The key thing to know about `summarize` is that it always returns *collapses* a tibble with many rows into a single row.
+When we think about computing a sample mean, this makes sense: we want to summarize the column `lifeExp` as a single number.
+It doesn't actually make much sense to compute the mean of `lifeExp` because this involves averaging over different countries *and* different years.
+Instead let's compute the mean for a single year: 1952:
+```{r}
+gapminder %>% 
+  filter(year == 1952) %>%
+  summarize(mean_lifeExp = mean(lifeExp))
+```
+
+We can use summarize to compute multiple summary statistics for a single variable, the same summary statistic for multiple variables, or both:
+```{r}
+gapminder %>% 
+  filter(year == 1952) %>%
+  summarize(mean_lifeExp = mean(lifeExp),
+            sd_lifeExp = sd(lifeExp), 
+            mean_pop = mean(pop))
+```
+Note that if we *don't* explicitly use an assignment statement, R will make up names for us based on the commands that we used:
+```{r}
+gapminder %>% 
+  filter(year == 1952) %>%
+  summarize(mean(lifeExp), median(lifeExp), max(lifeExp))
+```
+
+
+# Exercise \#3
+1. Use `summarize` to compute the 75th percentile of life expectancy in 1977.
+2. Use `summarize` to compute the 75th percentile of life expectancy among Asian countries in 1977.
+
+
+# Solution to Exercise \#3
+*Write your code and solutions here*
+
+<!-- ANS_START -->
+1. The 75th percentile of life expectancy in 1977 was 70.4 years at birth.
+```{r}
+gapminder %>% 
+  filter(year == 1977) %>%
+  summarize(quantile(lifeExp, 0.75))
+```
+2. The 75th percentile of life expectancy in 1977 among African countries was
+```{r}
+gapminder %>% 
+  filter(year == 1977, continent == 'Asia') %>%
+  summarize(quantile(lifeExp, 0.75))
+```
+<!-- ANS_END -->
+
+# The `group_by` verb
+The true power of `summarize` is its ability to compute grouped summary statistics in combination with another `dplyr` verb: `group_by`
