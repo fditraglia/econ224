@@ -440,43 +440,46 @@ ggplot(data = gapminder_2007) +
 ```
 
 # Exercise \#10
-1. The following code is slightly different from what I've written above. What is different. Try running it. What happens? Explain briefly.
+1. Would it make sense to set `size = continent`? What about setting `col = pop`?
+   Explain briefly.
+2. The following code is slightly different from what I've written above. What is different. Try running it. What happens? Explain briefly.
 ```{r,eval=FALSE}
 ggplot(gapminder_2007) +
   geom_point(aes(x = gdpPercap, y = lifeExp)) + 
   scale_x_log10()  
 ```
-2. Create a tibble called `gapminder_1952` that contains data from `gapminder` from 1952.
-3. Use `gapminder_1952` from the previous part  to create a scatter plot with population on the x-axis, life expectancy on the y-axis, and continent represented by the color of the points. Plot population on the log scale (base 10).
-4. Suppose that instead of indicating continent using color, you wanted all the points in the plot from 3. to be blue.
+3. Create a tibble called `gapminder_1952` that contains data from `gapminder` from 1952.
+4. Use `gapminder_1952` from the previous part  to create a scatter plot with population on the x-axis, life expectancy on the y-axis, and continent represented by the color of the points. Plot population on the log scale (base 10).
+5. Suppose that instead of indicating continent using color, you wanted all the points in the plot from 3. to be blue.
    Consult the chapter "Visualising Data" from *R for Data Science* to find out how to do this.
 
 # Solution to Exercise \#10
 *Write your code and solutions here*
 
 <!-- ANS_START -->
-1. It still works! You don't have to explicitly write `data` or `mapping` when using `ggplot`. I only included these above for clarity.
+1. Neither of these makes sense since `continent` is categorical and `pop` is continuous: `color` is useful for categorical variables and `size` for continuous ones.
+2. It still works! You don't have to explicitly write `data` or `mapping` when using `ggplot`. I only included these above for clarity.
    In the future I'll leave them out to make my code more succinct. 
 ```{r}
 ggplot(gapminder_2007) +
   geom_point(aes(x = gdpPercap, y = lifeExp)) + 
   scale_x_log10()  
 ```
-2. Use the following code:
+3. Use the following code:
 ```{r}
 gapminder_1952 <- gapminder %>% 
   filter(year == 1952)
 ```
-3. Use the following code:
+4. Use the following code:
 ```{r}
 ggplot(gapminder_1952) + 
-  geom_point(aes(x = pop, y = lifeExp, col = continent)) +
+  geom_point(aes(x = pop, y = lifeExp, color = continent)) +
   scale_x_log10()
 ```
-4. When you want color to be a variable from your dataset, put `col = <VARIABLE>` *inside* of `aes`; when you simply want to set the colors of all the points, put `col = '<COLOR>'` *outside* of `aes`, for example
+5. When you want color to be a variable from your dataset, put `color = <VARIABLE>` *inside* of `aes`; when you simply want to set the colors of all the points, put `color = '<COLOR>'` *outside* of `aes`, for example
 ```{r}
 ggplot(gapminder_1952) + 
-  geom_point(aes(x = pop, y = lifeExp), col = 'blue') +
+  geom_point(aes(x = pop, y = lifeExp), color = 'blue') +
   scale_x_log10()
 ```
 <!-- ANS_END -->
