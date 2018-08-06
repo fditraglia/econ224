@@ -29,9 +29,9 @@ Now that you've loaded `gapminder`, use the command `?gapminder` to view the R h
 - What are the names of each of the columns, and what information does each contain?
 - What is the source of the dataset?
 
-<!-- ANS_START -->
 # Solution to Exercise \# 1
-*Answer Goes Here*
+*Write your answer here.*
+<!-- ANS_START -->
 <!-- ANS_END -->
 
 # What is a tibble?
@@ -83,8 +83,10 @@ gapminder2007
 3. Store the data for Asian countries in a tibble called `gapminder_asia`. Display this tibble.
 
 
-<!-- ANS_START -->
 # Solution to Exercise \#2
+*Write your answer and code here*
+
+<!-- ANS_START -->
 1. The first assigns the value `3` to the variable `x`; the second tests whether `x` is equal to `3` and returns either `TRUE` or `FALSE`.
 2. Use the following code: 
 ```{r}
@@ -109,18 +111,52 @@ For example, here we display data for the US in 2007:
 gapminder %>% filter(year == 2007, country == 'United States')
 ```
 
-# Exercise \# 3
+# Exercise \#3
 1. When I displayed data for the US in 2007, I put quotes around `United States` but not around `year`. Explain why.
 2. Which country had the higher life expectancy in 1977: Ireland or Brazil?
 Which had the higher GDP per capita?
 
+# Solution to Exercise \#3
+*Write your answer and code here*
+
 <!-- ANS_START -->
-# Solution to Exercise \# 3
 1. This is because `year` contains numeric data while `country` contains character data, aka string data.
 2. From the results of the following code, we see that Ireland had both a higher life expectancy and GDP per capita.
 ```{r}
 gapminder %>% filter(year == 1977, country == 'Ireland')
 gapminder %>% filter(year == 1977, country == 'Brazil')
+```
+<!-- ANS_END -->
+
+# Sort data with `arrange`
+Suppose we wanted to sort `gapminder` by `gdpPercap`.
+To do this we can use the `arrange` command along with the pipe `%>%` as follows:
+```{r}
+gapminder %>% arrange(gdpPercap)
+```
+The logic is very similar to what we saw above for `filter`.
+Here, we pipe the tibble `gapminder` into the function `arrange()`.
+The argument `gdpPercap` tells `arrange()` that we want to sort by GDP per capita.
+Note that by default `arrange()` sorts in *ascending order*.
+If we want to sort in *descending* order, we use the function `desc()` as follows:
+```{r}
+gapminder %>% arrange(desc(gdpPercap))
+```
+
+# Exercise \#4
+1. What is the lowest life expectancy in the `gapminder` dataset? Which country and year does it correspond to?
+2. What is the highest life expectancy in the `gapminder` dataset? Which country and year does it correspond to?
+
+# Solution to Exercise \#4
+*Write your code and solutions here*
+<!-- ANS_START -->
+1. The lowest life expectancy was Rwanda in 1992: 23.6 years at birth:
+```{r}
+gapminder %>% arrange(lifeExp)
+```
+2. The highest life expectancy was in 2007 in Japan: 82.6 years at birth:
+```{r}
+gapminder %>% arrange(desc(lifeExp))
 ```
 <!-- ANS_END -->
 
