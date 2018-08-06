@@ -5,8 +5,8 @@ date: "August 28th, 2018"
 ---
 
 <!-- knitr global options -->
-```{r}
-knitr::opts_chunk$set(comment=NA, fig.width=3.5, fig.height=3.5, fig.align = 'center')
+```{r, include = FALSE}
+knitr::opts_chunk$set(comment=NA, fig.width=4.5, fig.height=3.5, fig.align = 'center')
 ```
 
 # Installing Required Packages 
@@ -319,6 +319,8 @@ Now that we know the basics of `dplyr`, we'll turn our attention to graphics.
 R has many powerful build-in graphics functions that may be familiar to you from Econ 103.
 In this class, however, we'll use a very powerful package for statistical visualization called `ggplot2`.
 There's nothing more for you to instead or load, since `ggplot2` is included in the `tidyverse` package, which you've already installed and loaded.
+For more details on `ggplot2` see the chapter entitled "Data Visualisation" in *R for Data Science*.
+
 We'll start off by constructing a subset of the `gapminder` dataset that contains information from the year 2007 that we'll use for our plots below.
 ```{r}
 gapminder_2007 <- gapminder %>% filter(year == 2007)
@@ -330,7 +332,7 @@ Each point will correspond to a single country in 2007.
 Its x-coordinate will be GDP per capita and its y-coordinate will be life expectancy.
 Here's the code:
 ```{r}
-ggplot(gapminder_2007, aes(x = gdpPercap, y = lifeExp)) + geom_point()
+ggplot(gapminder_2007) + geom_point(mapping = aes(x = gdpPercap, y = lifeExp))
 ```
 We see that GDP per capita is a very strong predictor of life expectancy, although the relationship is non-linear.
 
@@ -344,12 +346,12 @@ We see that GDP per capita is a very strong predictor of life expectancy, althou
 <!-- ANS_START -->
 1. There is no clear relationship between population and life expectancy based on the 2007 data:
 ```{r}
-ggplot(gapminder_2007, aes(x = pop, y = lifeExp)) + geom_point()
+ggplot(gapminder_2007) + geom_point(mapping = aes(x = pop, y = lifeExp))
 ```
 2. There is no clear relationship between population and GDP per capita based on the 2007 data:
 
 ```{r}
-ggplot(gapminder_2007, aes(x = pop, y = gdpPercap)) + geom_point()
+ggplot(gapminder_2007) + geom_point(mapping = aes(x = pop, y = gdpPercap))
 ```
 <!-- ANS_END -->
 
@@ -360,8 +362,8 @@ If not, don't worry about it: we'll discuss them later in the course.
 For now, we'll content ourselves with learning how to transform the axes  in a `ggplot` to the log base 10 scale.
 To transform the x-axis, it's as easy as adding a `+ scale_x_log10()` to the end of our command from above:
 ```{r}
-ggplot(gapminder_2007, aes(x = gdpPercap, y = lifeExp)) + 
-  geom_point() + 
+ggplot(data = gapminder_2007) + 
+  geom_point(mapping = aes(x = gdpPercap, y = lifeExp)) + 
   scale_x_log10()
 ```
 Notice how I split the code across multiple lines and ended each of the intermediate lines with the `+`.
@@ -379,25 +381,106 @@ Figure out how to do this, either by clever guesswork or a google search, and th
 <!-- ANS_START -->
 1. Use the following code:
 ```{r}
-ggplot(gapminder_2007, aes(x = pop, y = lifeExp)) + 
-  geom_point() + 
+ggplot(data = gapminder_2007) + 
+  geom_point(mapping = aes(x = pop, y = lifeExp)) + 
   scale_x_log10()
 ```
 2. Use the following code:
 ```{r}
-ggplot(gapminder_2007, aes(x = gdpPercap, y = lifeExp)) + 
-  geom_point() + 
+ggplot(data = gapminder_2007) +
+  geom_point(mapping = aes(x = gdpPercap, y = lifeExp)) + 
   scale_y_log10()
 ```
 3. Use the following code:
 ```{r}
-ggplot(gapminder_2007, aes(x = gdpPercap, y = lifeExp)) + 
-  geom_point() + 
+ggplot(data = gapminder_2007) +
+  geom_point(mapping = aes(x = gdpPercap, y = lifeExp)) + 
   scale_x_log10() + 
   scale_y_log10()
 ```
 <!-- ANS_END -->
 
 # The color and size aesthetics
-While we've seen a number of examples, I haven't yet spent any time clarifying the syntax of `ggplot`.
+It's time to start unraveling the somewhat mysterious-looking syntax of `ggplot`.
+To make a graph using `ggplot` we use the following template:
+```{r eval=FALSE}
+ggplot(data = <DATA>) +
+  <GEOM_FUNCTION>(mapping = aes(<MAPPINGS>))
+```
+replacing `<DATA>`, `<GEOM_FUNCTION>`, and `<MAPPINGS>` to specify what we want to plot and how it should appear.
+The first part is easy: we replace `<DATA>` with the dataset we want to plot, for example `gapminder_2007` in the example from above.
+The second part is also fairly straightforward: we replace `<GEOM_FUNCTION>` with the name of a function that specifies the kind of plot we want to make.
+So far we've only seen one example: `geom_point()` which tells `ggplot` that we want to make a scatterplot.
+We'll see more examples in a future lab.
+For now, I want to focus on the somewhat more complicated-looking `mapping = aes(<MAPPINGS>)`.
+
+The abbreviation `aes` is short for *aesthetic* and the code `mapping = aes(<MAPPINGS>)` defines what is called an *aesthetic mapping*.
+This is just a fancy way of saying that it tells R how we want our plot to look.
+The information we need to put in place of `<MAPPINGS>` depends on what kind of plot we're making.
+Thus far we've only examined `geom_point()` which produces a scatterplot. 
+For this kind of plot, the minimum information we need to provide is the location of each point.
+For example, in our example above we wrote `aes(x = gdpPercap, y = lifeExp)` to tell R that `gdpPercap` gives the x-axis location of each point, and `lifeExp` gives the y-axis location.
+
+When making a scatterplot with `geom_point` we are not limited to specifying the x and y coordinates of each point; we can also specify the size and color of each point.
+This gives us a useful way of displaying more than two variables in a two-dimensional plot.
+We do this using `aes`.
+For example, let's use the color of each point to indicate `continent`
+```{r}
+ggplot(data = gapminder_2007) +
+  geom_point(mapping = aes(x = gdpPercap, y = lifeExp, color = continent)) +
+  scale_x_log10()
+```
+Notice how `ggplot` automatically generates a helpful legend.
+This plot makes it easy to see at a glance that the European countries in 2007 ten to have high GDP per capita and high life expectancy, while the African countries have the opposite.
+We can also use the *size* of each point to encode information, e.g. population:
+```{r}
+ggplot(data = gapminder_2007) +
+  geom_point(mapping = aes(x = gdpPercap, y = lifeExp, color = continent, size = pop)) +
+  scale_x_log10()
+```
+
+# Exercise \#10
+1. The following code is slightly different from what I've written above. What is different. Try running it. What happens? Explain briefly.
+```{r,eval=FALSE}
+ggplot(gapminder_2007) +
+  geom_point(aes(x = gdpPercap, y = lifeExp)) + 
+  scale_x_log10()  
+```
+2. Create a tibble called `gapminder_1952` that contains data from `gapminder` from 1952.
+3. Use `gapminder_1952` from the previous part  to create a scatter plot with population on the x-axis, life expectancy on the y-axis, and continent represented by the color of the points. Plot population on the log scale (base 10).
+4. Suppose that instead of indicating continent using color, you wanted all the points in the plot from 3. to be blue.
+   Consult the chapter "Visualising Data" from *R for Data Science* to find out how to do this.
+
+# Solution to Exercise \#10
+*Write your code and solutions here*
+
+<!-- ANS_START -->
+1. It still works! You don't have to explicitly write `data` or `mapping` when using `ggplot`. I only included these above for clarity.
+   In the future I'll leave them out to make my code more succinct. 
+```{r}
+ggplot(gapminder_2007) +
+  geom_point(aes(x = gdpPercap, y = lifeExp)) + 
+  scale_x_log10()  
+```
+2. Use the following code:
+```{r}
+gapminder_1952 <- gapminder %>% 
+  filter(year == 1952)
+```
+3. Use the following code:
+```{r}
+ggplot(gapminder_1952) + 
+  geom_point(aes(x = pop, y = lifeExp, col = continent)) +
+  scale_x_log10()
+```
+4. When you want color to be a variable from your dataset, put `col = <VARIABLE>` *inside* of `aes`; when you simply want to set the colors of all the points, put `col = '<COLOR>'` *outside* of `aes`, for example
+```{r}
+ggplot(gapminder_1952) + 
+  geom_point(aes(x = pop, y = lifeExp), col = 'blue') +
+  scale_x_log10()
+```
+<!-- ANS_END -->
+
+
+
 
