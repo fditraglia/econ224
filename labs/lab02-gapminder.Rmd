@@ -208,4 +208,90 @@ gapminder %>%
 <!-- ANS_END -->
 
 # The `group_by` verb
-The true power of `summarize` is its ability to compute grouped summary statistics in combination with another `dplyr` verb: `group_by`
+The true power of `summarize` is its ability to compute grouped summary statistics in combination with another `dplyr` verb: `group_by`.
+In essence, `group_by` allows us to tell `dplyr` that we don't want to work with the whole dataset at once; rather we want to work with particular *subsets* or groups.
+The basic idea is similar to what we've done using `filter` in the past.
+For example, to calculate mean population (in millions) and mean life expectancy in the year 2007, we could use the following code:
+```{r}
+gapminder %>%
+  filter(year == 2007) %>%
+  summarize(meanPop = mean(pop) / 1000000, meanLifeExp = mean(lifeExp))
+```
+Using `group_by` we could do the same thing for *all* years in the dataset at once:
+```{r}
+gapminder %>%
+  group_by(year) %>%
+  summarize(meanPop = mean(pop) / 1000000, meanLifeExp = mean(lifeExp))
+```
+Notice what has changed in the second code block: we replaced `filter(year == 2007)` with `group_by(year)`.
+This tells `dplyr` that, rather than simply restricting attention to data from 2007, we want to form *subsets* (groups) of the dataset that correspond to the values of the `year` variable.
+Whatever comes after `group_by` will then be calculated for these subsets.
+
+Here's another example.
+Suppose we wanted to calculate mean life expectancy and total population in each *continent* during the year 2007.
+To accomplish this, we can chain together the `filter`, `group_by` and `summarize` verbs as follows:
+```{r}
+gapminder %>% 
+  filter(year == 2007) %>%
+  group_by(continent) %>%
+  summarize(meanPop = mean(pop) / 1000000, meanLifeExp = mean(lifeExp))
+```
+
+We can also use `group_by` to subset over multiple variables at once.
+For example, to calculate mean life expectancy and total population in each continent *separately* for every year, we can use the following code:
+```{r}
+gapminder %>% 
+  group_by(year, continent) %>%
+  summarize(meanPop = mean(pop) / 1000000, meanLifeExp = mean(lifeExp))
+```
+
+# Exercise \#4
+1. Why doesn't the following code work as expected?
+```{r,eval = FALSE}
+gapminder %>%
+  summarize(meanLifeExp = mean(lifeExp)) %>%
+  group_by(year)
+```
+2. Calculate the median GDP per capita in each continent in 1977.
+3. Repeat 2. but sort your results in descending order.
+4. Calculate the mean and standard deviation of life expectancy for separately for each continent in every year *after* 1977. Sort your results in ascending order by the standard deviation of life expectancy.
+
+
+
+# Solution to Exercise \#3
+*Write your code and solutions here*
+
+<!-- ANS_START -->
+1. The steps are carried out in the wrong order: we need to form groups *first* and then calculate our desired summaries.
+2. Use the following:
+```{r}
+gapminder %>% 
+  filter(year == 1977) %>%
+  group_by(continent) %>%
+  summarize(medGDPc = median(gdpPercap))
+```
+3. Use the following:
+```{r}
+gapminder %>% 
+  filter(year == 1977) %>%
+  group_by(continent) %>%
+  summarize(medGDPc = median(gdpPercap)) %>%
+  arrange(desc(medGDPc))
+```
+4. Use the following:
+```{r}
+gapminder %>% 
+  filter(year > 1977) %>%
+  group_by(continent, year) %>%
+  summarize(meanGDPc = mean(gdpPercap), sdGDPc = sd(gdpPercap)) %>%
+  arrange(sdGDPc)
+```
+<!-- ANS_END -->
+
+# Plotting summarized data
+
+```{r}
+#by_year <- gapminder %>%
+#  group_by(year) %>% 
+#  summarize(totalPop = sum(pop) 
+```
