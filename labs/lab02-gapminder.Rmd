@@ -257,8 +257,7 @@ gapminder %>%
 4. Calculate the mean and standard deviation of life expectancy for separately for each continent in every year *after* 1977. Sort your results in ascending order by the standard deviation of life expectancy.
 
 
-
-# Solution to Exercise \#3
+# Solution to Exercise \#4
 *Write your code and solutions here*
 
 <!-- ANS_START -->
@@ -289,9 +288,99 @@ gapminder %>%
 <!-- ANS_END -->
 
 # Plotting summarized data
-
+By combining `summarize` and `group_by` with `ggplot`, it's easy to make plots of grouped data.
+For example, here's how we could plot total world population in millions from 1952 to 2007.
+First we construct a tibble which I'll name `by_year` containing the desired summary statistic grouped by year and display it:
 ```{r}
-#by_year <- gapminder %>%
-#  group_by(year) %>% 
-#  summarize(totalPop = sum(pop) 
+by_year <- gapminder %>%
+  mutate(popMil = pop / 1000000) %>%
+  group_by(year) %>% 
+  summarize(totalpopMil = sum(popMil))
+by_year
 ```
+Then we make a scatterplot using `ggplot`:
+```{r}
+ggplot(by_year) +
+  geom_point(aes(x = year, y = totalpopMil)) 
+```
+Here's a more complicated example where we additionally use color to plot each continent separately:
+```{r}
+by_year_continent <- gapminder %>%
+  mutate(popMil = pop / 1000000) %>%
+  group_by(year, continent) %>%
+  summarize(totalpopMil = sum(popMil))
+by_year
+ggplot(by_year_continent) +
+  geom_point(aes(x = year, y = totalpopMil, color = continent)) 
+```
+Make sure you understand how the preceding example works before attempting the exercise.
+
+
+# Exercise \#5
+1. What happens if you append `+ expand_limits(y = 0)` to the preceding `ggplot` code? 
+   Why might this be helpful in some cases?
+2. Make a scatter with average GDP per capita across all countries in `gapminder` in the y-axis and `year` on the x-axis.
+3. Repeat 2. broken down by continent, using color to distinguish the points. Put mean GDP per capita on the log scale.
+
+
+# Solution to Exercise \#5
+*Write your code and solutions here*
+
+<!-- ANS_START -->
+1. The function `expand_limits()` lets us tweak the limits of our x or y-axis in a `ggplot`. In this particular example `expand_limits(y = 0)` ensures that the y-axis begins at zero.
+   Without using this command, `ggplot` will choose the y-axis on its own so that there is no "empty space" in the plot.
+   Sometimes we may want to override this behavior.
+2. Use the following:
+```{r}
+by_year <- gapminder %>%
+  group_by(year) %>% 
+  summarize(meanGDPc = mean(gdpPercap))
+ggplot(by_year) +
+  geom_point(aes(x = year, y = meanGDPc)) 
+```
+3. Use the following
+```{r}
+by_year <- gapminder %>%
+  group_by(year, continent) %>% 
+  summarize(meanGDPc = mean(gdpPercap))
+ggplot(by_year) +
+  geom_point(aes(x = year, y = meanGDPc, color = continent)) +
+  scale_y_log10()
+```
+<!-- ANS_END -->
+
+# Line plots
+Thus far we've only learned how to make one kind of plot with `ggplot`: a scatterplot, which we constructed using `geom_scatter()`.
+Sometimes we want to *connect* the dots in a scatterplot, for example when we're interested in visualizing a trend over time. 
+The resulting plot is called a *line plot*.
+To make one, simply replace `geom_scatter()` with `geom_line()`.
+For example:
+```{r}
+by_year_continent <- gapminder %>%
+  mutate(popMil = pop / 1000000) %>%
+  group_by(year, continent) %>%
+  summarize(totalpopMil = sum(popMil))
+by_year
+ggplot(by_year_continent) +
+  geom_line(aes(x = year, y = totalpopMil, color = continent)) 
+```
+# Exercise \#6
+Repeat exercise 5-3 with a line plot rather than a scatterplot.
+
+# Solution to Exercise \#5
+*Write your code and solutions here*
+
+<!-- ANS_START -->
+```{r}
+by_year <- gapminder %>%
+  group_by(year, continent) %>% 
+  summarize(meanGDPc = mean(gdpPercap))
+ggplot(by_year) +
+  geom_line(aes(x = year, y = meanGDPc, color = continent)) +
+  scale_y_log10()
+```
+<!-- ANS_END -->
+
+# Bar plots
+
+# Maybe in this lecture we'll also get them started on the college dataset? Need to teach them how to import data...
