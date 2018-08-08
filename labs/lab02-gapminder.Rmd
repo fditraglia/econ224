@@ -424,7 +424,6 @@ ggplot(by_year) +
 ```
 <!-- ANS_END -->
 
-# Maybe in this lecture we'll also get them started on the college dataset? Need to teach them how to import data...
 
 # Histograms
 To make a `ggplot2` histogram, we use the function `geom_histogram()`.
