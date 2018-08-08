@@ -364,10 +364,11 @@ by_year
 ggplot(by_year_continent) +
   geom_line(aes(x = year, y = totalpopMil, color = continent)) 
 ```
+
 # Exercise \#6
 Repeat exercise 5-3 with a line plot rather than a scatterplot.
 
-# Solution to Exercise \#5
+# Solution to Exercise \#6
 *Write your code and solutions here*
 
 <!-- ANS_START -->
@@ -382,5 +383,128 @@ ggplot(by_year) +
 <!-- ANS_END -->
 
 # Bar plots
+To make a bar plot, we use `geom_col()`.
+Note that the `x` argument of `aes` needs to be a *categorical variable* for a bar plot to make sense.
+Here's a simple example:
+```{r}
+by_continent <- gapminder %>%
+  filter(year == 2007) %>%
+  group_by(continent) %>%
+  summarize(meanLifeExp = mean(lifeExp))
+ggplot(by_continent) +
+  geom_col(aes(x = continent, y = meanLifeExp))
+```
+Sometimes we want to turn a bar plot, or some other kind of plot, on its side.
+This can be particularly helpful if the x-axis labels are very long.
+To do this, simply add `+ coord_flip()` to your `ggplot` command, for example:
+```{r}
+ggplot(by_continent) +
+  geom_col(aes(x = continent, y = meanLifeExp)) +
+  coord_flip()
+```
+
+
+# Exercise \#7
+Make a collection of bar plots faceted by year that compare mean GDP per capita across countries in a given year.
+Orient your plots so it's easy to read the continent labels.
+
+
+# Solution to Exercise \#7
+*Write your code and solutions here*
+
+<!-- ANS_START -->
+```{r, fig.width = 7, fig.height = 6}
+by_continent <- gapminder %>%
+  group_by(continent) %>% 
+  summarize(meanGDPc = mean(gdpPercap))
+ggplot(by_year) +
+  geom_col(aes(x = continent, y = meanGDPc)) +
+  facet_wrap(~ year) +
+  coord_flip()
+```
+<!-- ANS_END -->
 
 # Maybe in this lecture we'll also get them started on the college dataset? Need to teach them how to import data...
+
+# Histograms
+To make a `ggplot2` histogram, we use the function `geom_histogram()`.
+Recall from Econ 103 that a histogram summarizes a *single* variable at a time by forming non-overlapping bins of equal width and calculating the fraction of observations in each bin.
+If we choose a different width for the bins, we'll get a different histogram.
+Here's an example of two different bin widths:
+```{r}
+gapminder_2007 <- gapminder %>%
+  filter(year == 2007)
+ggplot(gapminder_2007) +
+  geom_histogram(aes(x = lifeExp), binwidth = 5)
+ggplot(gapminder_2007) +
+  geom_histogram(aes(x = lifeExp), binwidth = 1)
+```
+
+# Exercise \# 8
+
+1. All of the examples we've seen that use `ggplot` *besides* histograms have involved specifying both `x` and `y` within `aes()`. Why are histograms different?
+2. What happens if you don't specify a bin width in either of my two examples? 
+3. Make a histogram of GDP per capita in 1977. Play around with different bin widths until you find one that gives a good summary of the data.
+4. Repeat 3. but put GDP per capita on the log scale.
+5. Compare and contrast the two different histograms you've made.
+
+# Solution to Exercise \#8
+*Write your code and solutions here*
+
+
+<!-- ANS_START -->
+1. This is because histograms only depict a single variable while the other plots we've made show two variables at once.
+2. If you don't specify a bin width, `ggplot2` will pick one for you and possibly give you a warning suggesting that you pick a better bin width manually.
+3. There's no obvious *right answer* for the bin width, but here's one possibility:
+```{r}
+gapminder1977 <- gapminder %>%
+  filter(year == 1977)
+ggplot(gapminder_1977) +
+  geom_histogram(aes(x = gdpPercap), binwidth = 5000)
+```
+4. You'll need a much smaller bin width when using the log scale, for example:
+```{r}
+ggplot(gapminder_1977) +
+  geom_histogram(aes(x = gdpPercap), binwidth = 0.2) + 
+  scale_x_log10()
+```
+5. No right answer: it's a discussion question! But the idea is to see how taking logs gets rid of the huge positive skewness in GDP per capita.
+<!-- ANS_END -->
+
+# Boxplots 
+The final kind of `ggplot` we'll learn how to produce is a boxplot.
+Recall from Econ 103 that a boxplot is a visualization of the *five-number summary* of a variable: minimum, 25th percentile, median, 75th percentile, and maximum.
+To make a boxplot in `ggplot` we use the function `geom_boxplot()`, for example:
+```{r}
+ggplot(gapminder_2007) +
+  geom_boxplot(aes(x = continent, y = lifeExp))
+```
+Compared to histograms, boxplots provide less detail but allow us to easily compare across groups.
+
+# Exercise \# 9
+1. What is the meaning of the little "dots" that appear in the boxplot above? Use a Google search to find out what they are and how they are computed.
+2. Use faceting to construct a collection of boxplots, each of which compares log GDP per capita across continents in a given year.
+3. Use a Google search to find out how to add a title to a `ggplot`. Use it to add a title to the plot you created in 2.
+
+
+
+# Solution to Exercise \#9
+*Write your code and solutions here*
+
+
+<!-- ANS_START -->
+1. They are outliers: `ggplot` considers any observation that is more than 1.5 times the interquartile range away from the "box" to be an outlier, and adds a point to indicate it.
+   Turn your boxplots sideways to make it easier to read the continent labels.
+2. Use the following code:
+```{r, fig.width = 7, fig.height = 6}
+ggplot(gapminder) +
+  geom_boxplot(aes(x = continent, y = gdpPercap)) +
+  facet_wrap(~ year) +
+  scale_y_log10() +
+  coord_flip() +
+  ggtitle('GDP per Capita by Continent: 1952-2007')
+```
+3. Use `ggtitle('YOUR TITLE HERE')` as I did in my solution to 2. above. 
+<!-- ANS_END -->
+
+
