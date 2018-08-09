@@ -1,7 +1,7 @@
 ---
 title: "Problem Set #1 - The College Dataset"
 author: "Econ 224"
-date: "Due Date: Sunday, September 2nd 11:59pm "
+date: "Due Date: Sunday, September 2nd by 11:59pm "
 ---
 
 <!-- knitr global options -->
@@ -10,27 +10,45 @@ knitr::opts_chunk$set(comment=NA, fig.width=4.5, fig.height=3.5, fig.align = 'ce
 ```
 
 # Instructions 
-Complete both of the following parts.
-For part 2, submit your code and solutions as an RMarkdown document.
+Submit your code and solutions to the following questions as an RMarkdown document.
 In particular, upload both the `.Rmd` file you used to generate your report and the resulting `.html` output to *canvas* by the due date listed above.
+If you need extra help with R Markdown, we suggest that you complete Chapters 1 and 2 of the course "Reporting with R Markdown" on *Datacamp*.
 Late work will only be accepted in exceptional circumstances, so you are better off submitting an incomplete problem set rather than nothing at all.
+
+# Collaboration Policy
 You may discuss this problem set with your classmates, provided that you adhere to the *empty hands* policy: after any such discussion, all parties must leave the room *empty-handed* i.e. without code files or written notes or any kind.
 In other words, the final code and write-up that you produce must be entirely your own work.
 If you discuss the problem set with any other students be sure to list their names at the top of your problem set.
 Copying of problem set code or solutions in violation of the empty hands policy constitutes cheating and will be reported to the Office of Student Conduct. 
 
 
-# Part 1
-Complete Chapters 1-3 of the course "Reporting with R Markdown" on *Datacamp*.
+# Questions
+Begin by installing the R package `ISLR` using the command `install.packages('ISLR')`.
+Then load both the `ISLR` and `tidyverse` packages.
+The dataset we'll be working with is `College` from the `ISLR` package.
+Before proceeding, we'll convert it to a tibble as follows:
+```{r, eval = FALSE}
+college <- as.tibble(College, rownames = 'name')
+```
+The preceding command adds a column called `name` to the tibble that contains the rownames of the original `College` dataset. (We'll need these to know which college is which!)
+Note the differences between `College` with a lowercase "c" versus `college` with an uppercase "c" -- the latter is the tibble we'll use in this assignment.
+Answer each of the following, using appropriate `dplyr` and `ggplot2` code where required.
 
-# Part 2
-1. Install the R package `ISLR` using the command `install.packages('ISLR')`. Load the package using `library(ISLR)` and then read the help file for the `College` dataset using the command `?College`.
-2. Pose 3 empirical questions that could be answered by constructing plots and calculating summary statistics for the `College` dataset.
-3. For each of your 3 questions, write `dplyr` and `ggplot2` code to produce the summary statistics and plots you will need to determine the answer, and write a brief summary of your findings.
+1. Read the help file for the `College` dataset using the command `?College`.
+   What is the source of this dataset?
+   How many variables and observations are there, and what information does each variable contain?
+2. The selectivity of a college is defined as the total number of acceptances divided by the total number of applications.
+Create a corresponding column called `selectivity` and store it in `college`.
+3. What are the five most selective institutions in the dataset?
+What are the five most selective public institutions in the dataset?
+5. On average which are more selective: private or public institutions?
+4. A college's matriculation rate is defined as the number of students who enroll as a fraction of those who are accepted.
+Create a corresponding column called `matricRate` 
+
+4. What is the most selective? What is the least?
 
 ## Note: 
-You will get 100% for Part 1 as long as you complete the required chapters before the deadline.
-For Part 2 you will be graded both on the quality of your questions and the quality of your answers to them.
+For Question \#??? you will be graded both on the quality of your question and the quality of your answer to it.
 A question such as "what is the average graduation rate across colleges?" is not very interesting and does not give you an opportunity to show what you've learned in class.
 In contrast, a question like "how does the average graduation rate vary with selectivity and whether a school is public?" is much more interesting. 
 Be sure to write clean code following the guidelines discussed in class.
