@@ -1,0 +1,40 @@
+---
+title: "Reading Questions"
+author: "Econ 224"
+date: "Fall 2018"
+---
+
+# Instructions
+This document lists the all of the reading assignments for Econ 224 along with the associated reading questions. 
+For each reading assignment there will be an in-class quiz. 
+The dates of these quizzes are listed below.
+Quiz questions will be randomly selected from the reading questions listed on this document, so if you thoroughly prepare your answers in advance, you will be sure to get 100\% on each quiz of the semester.
+The abbreviation *ISL* refers to "An Introduction to Statistical Learning" by James et al.\ while *MM* refers to "Mastering 'Metrics" by Angrist and Pischke.
+
+
+## Quiz \#1: Thursday, August 30th -- ISL 2
+1. We use $Y$ to denote the variable we want to predict and $X$ to denote a variable used to predict $Y$. List the different names that ISL uses interchangeably for $Y$. Do the same for $X$. 
+2. Define reducible and irreducible error. Which of these errors do the authors of ISL say that their book is focused on minimizing?
+3. What is a parametric method? In particular, what are the two steps involved in using a parametric method? Give an example.
+4. Contrast parametric and nonparametric methods. What is the main advantage and disadvantage of each?
+5. What is the difference between supervised and unsupervised learning?
+6. What is the difference between regression and classification? 
+7. Explain the difference between *training* MSE and *test* MSE. Which of these do we want our statistical learning method to minimize?
+8. Define bias and variance. How would we expect each of these quantities to change as we increase the flexibility of our statistical learning model?
+9. In place of MSE, what measure of prediction accuracy is used in classification problems?
+10. What is a Bayes classifier?
+11. Is it possible for a statistical learning model to attain an error rate *lower* than the Bayes error rate? Why or why not?
+12. Briefly explain the K-nearest Neighbors classifier. What trade-off involved in choosing a value of K?
+
+## Quiz \#2: Tuesday, September 4th -- MM Intro & 1.1
+1. Define the term *ceteris paribus*
+
+## Quiz \#3: Thursday, September 6th -- MM 1.2 & Appendix
+
+## Quiz \#4: Tuesday, September 11th -- ISL 3.1-3.2
+
+## Quiz \#5: Thursday, September 13th -- ISL 3.3-3.5
+
+## Quiz \#6: Tuesday, September 18th -- MM 2.1-2.2
+
+## Quiz \#7: Thursday, September 20th -- MM 2.3 & Appendix
