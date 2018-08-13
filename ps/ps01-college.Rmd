@@ -15,11 +15,11 @@ In particular, upload both the `.Rmd` file you used to generate your report and 
 If you need extra help with R Markdown, we suggest that you complete Chapters 1 and 2 of the course "Reporting with R Markdown" on *Datacamp*.
 Late work will only be accepted in exceptional circumstances, so you are better off submitting an incomplete problem set rather than nothing at all.
 
-# Collaboration Policy
 You may discuss this problem set with your classmates, provided that you adhere to the *empty hands* policy: after any such discussion, all parties must leave the room *empty-handed* i.e. without code files or written notes or any kind.
 In other words, the final code and write-up that you produce must be entirely your own work.
 If you discuss the problem set with any other students be sure to list their names at the top of your problem set.
-Copying of problem set code or solutions in violation of the empty hands policy constitutes cheating and will be reported to the Office of Student Conduct. 
+You are likewise welcome to consult printed or internet resources provided that you cite them.
+Violations of this policy constitute cheating and will be reported to the Office of Student Conduct. 
 
 
 # Questions
@@ -32,28 +32,18 @@ college <- as.tibble(College, rownames = 'name')
 ```
 The preceding command adds a column called `name` to the tibble that contains the rownames of the original `College` dataset. (We'll need these to know which college is which!)
 Note the differences between `College` with a lowercase "c" versus `college` with an uppercase "c" -- the latter is the tibble we'll use in this assignment.
-Answer each of the following, using appropriate `dplyr` and `ggplot2` code where required.
+Answer each of the following using appropriate `dplyr` and `ggplot2`.
 
 1. Read the help file for the `College` dataset using the command `?College`.
    What is the source of this dataset?
    How many variables and observations are there, and what information does each variable contain?
-2. The selectivity of a college is defined as the total number of acceptances divided by the total number of applications.
-Create a corresponding column called `selectivity` and store it in `college`.
-3. What are the five most selective institutions in the dataset?
-What are the five most selective public institutions in the dataset?
-5. On average which are more selective: private or public institutions?
-4. A college's matriculation rate is defined as the number of students who enroll as a fraction of those who are accepted.
-Create a corresponding column called `matricRate` 
-
-4. What is the most selective? What is the least?
-
-## Note: 
-For Question \#??? you will be graded both on the quality of your question and the quality of your answer to it.
-A question such as "what is the average graduation rate across colleges?" is not very interesting and does not give you an opportunity to show what you've learned in class.
-In contrast, a question like "how does the average graduation rate vary with selectivity and whether a school is public?" is much more interesting. 
-Be sure to write clean code following the guidelines discussed in class.
-
-
-
+2. Create a column called `acceptRate` that contains the number of acceptances divided by the total number of applications, and store it in the `college` tibble. 
+3. What are the five most selective institutions in the dataset, based on their acceptance rates? What are the five most selective public institutions in the dataset?
+4. Judging by acceptance rates, which are more selective on average: private or public institutions?
+5. A college's matriculation rate is defined as the number of students who enroll as a fraction of those who are accepted.
+Create a corresponding column called `matricRate` and store it in the `college` tibble.
+6. Make a scatterplot of acceptance rates versus matriculation rates, using different colors to indicate public and private institutions. Be sure to add an appropriate title to your plot.
+7. Calculate the sample correlation between acceptance and matriculation rates separately for public and private institutions. Briefly discuss your results.
+8. Pose a question that interests you and answer it by computing summary statistics and making appropriate plots based on the `college` dataset. This question will be graded both on the interestingness of your question and the quality of your answer to it. (Suggestion: a question such as "what is the average graduation rate?" is too simple to be very interesting.)
 
 
