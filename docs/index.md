@@ -5,7 +5,7 @@ title: Course Homepage
 
 ## Course Documents
 - [Syllabus](./syllabus.pdf)
-- Reading Assignments
+- [Reading Assignments](./reading-questions.pdf)
 - Problem Sets
 - Final Project Requirements
 
