@@ -4,40 +4,35 @@ library(tidyverse)
 
 college <- as.tibble(College, rownames = 'name')
 
-college <- college %>% mutate(selectivity = Accept / Apps, 
-                              matricRate = Enroll / Accept,
-                              sticker = Outstate + Room.Board + Books + Personal)
+# For simplicity, create all the extra variables used below at once
+college <- college %>% 
+  mutate(acceptRate = Accept / Apps,  
+         matricRate = Enroll / Accept, 
+         sticker = Outstate + Room.Board + Books + Personal)
 
-# What are the 5 most selective? Are any of them public?
+# Which schools have the lowest acceptance rate? Are any of them public?
 college %>% 
-  select(name, selectivity, Private) %>%
-  arrange(selectivity)
+  select(name, acceptRate, Private) %>%
+  arrange(acceptRate)
 
-# What are the 5 most selective public?
+# Which public schools have the lowest acceptance rate?
 college %>% 
   filter(Private == 'No') %>%
-  select(name, selectivity) %>%
-  arrange(selectivity)
+  select(name, acceptRate) %>%
+  arrange(acceptRate)
   
-# What are the 5 with the highest matriculation rate? Are any of them public?
-college %>% 
-  select(name, matricRate, Private) %>%
-  arrange(desc(matricRate))
-
-# Make a scatterplot of selectivity versus matriculation rate using different colors to indicate public and private. Be sure to add an appropriate title to your plot
+# Make a scatterplot of acceptance versus matriculation rate using different 
+# colors to indicate public and private. Be sure to add an appropriate title to 
+# your plot
 ggplot(college) + 
-  geom_point(aes(x = selectivity, y = matricRate, color = Private)) +
-  ggtitle('Matriculation Rate vs. Selectivity')
+  geom_point(aes(x = acceptRate, y = matricRate, color = Private)) +
+  ggtitle('Matriculation Rate vs. Acceptance Rate')
 
-# Calculate the sample correlation between selectivity and matriculation rate separately for public and private. Discuss briefly.
+# Calculate the sample correlation between acceptance and matriculation rate 
+# separately for public and private. Discuss briefly.
 college %>% 
   group_by(Private) %>%
-  summarize(cor(selectivity, matricRate))
+  summarize(cor(acceptRate, matricRate))
 
-
-# Sticker price and instructional expenditure per student by selectivity decile
-
-
-
-
-
+# Come up with your own question and answer it!
+                           
