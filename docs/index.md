@@ -6,7 +6,7 @@ title: Course Homepage
 ## Course Documents
 - [Syllabus](./syllabus.pdf)
 - [Reading Assignments](./reading-questions.pdf)
-- Problem Sets
+- Problem Sets: [ps1](./ps1-college.pdf)
 - Final Project Requirements
 
 ## Course Description
