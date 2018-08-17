@@ -131,6 +131,61 @@ bm %>%
 The outcome of interest in `bm` is `call` which takes on the value `1` if the corresponding resume elicts an email or telephone callback for an interview. 
 Check your results in this section against Table 1 of the paper.
 
+# Exercise \#4
+1. Calculate the average callback rate for all resumes in `bm`.
+2. Calculate the average callback rates separately for resumes with "white-sounding" and "black-sounding" names. What do your results suggest?
+3. Repeat part 2, but calculate the average rates for each combination of race and sex. What do your results suggest?
+
+# Solution to Exercise \#4
+*Write your code and solutions here*
+
+<!-- ANS_START -->
+```{r}
+# Part 1
+bm %>% 
+  summarize(avg_callback = mean(call))
+# Part 2
+bm %>% 
+  group_by(black) %>%
+  summarize(avg_callback = mean(call))
+# Part 3
+bm %>% 
+  group_by(female, black) %>%
+  summarize(avg_callback = mean(call))
+```
+<!-- ANS_END -->
+
+# Comparing Returns to Quality 
+Bertrand and Mullainathan write: "for most of the employment ads we respond to, we send four different resumes: two higher-quality and two-lower quality ones."
+The column `h` takes on the value `1` if a resume as classified *a priori* as "high quality" and `0` if it was classified as "low quality."
+The columns `col`, `military`, `email`, `volunteer` are indicators for: college degree, has an email address, has done volunteer work, and served in the military.
+
+# Exercise \#5
+1. Compare the average value of `col`, `military`, `email`, and `volunteer` across "high quality" and "low quality" resumes. 
+   Discuss your findings.
+2. Calculate average callback rates for black versus white-sounding names *separately* for "high-quality" and "low-quality" resumes.
+   Discuss your findings
+
+# Solution to Exercise \#5
+*Write your code and solutions here*
+
+<!-- ANS_START -->
+```{r}
+# Part 1
+bm %>% 
+  group_by(h) %>%
+  summarize(mean(col), mean(military), mean(email), mean(volunteer))
+# Part 2
+bm %>%
+  group_by(h, black) %>%
+  summarize(mean(call))
+```
+<!-- ANS_END -->
+
+
+# Interpreting the results
+Read Section IV of the paper.
+Also read intro and conclusion of Fryer and Levitt.
 
 # Solution to Exercise \#???
 *Write your code and solutions here*
