@@ -1,0 +1,141 @@
+---
+title: "Lab #3 - Racial Bias in the Labor Market"
+author: "Econ 224"
+date: "September 4th, 2018"
+---
+
+<!-- knitr global options -->
+```{r, include = FALSE}
+knitr::opts_chunk$set(comment=NA, fig.width=4.5, fig.height=3.5, fig.align = 'center')
+```
+
+
+
+
+# Introduction
+Today we'll replicate a well-known paper published 2004: "Are Emily and Greg More Employable Than Lakisha and Jamal? A Field Experiment on Labor Market Discrimination" by Marianne Bertrand and Sendhil Mullainathan.
+The paper, which I'll refer to as BM for short, appears in Volume 94, Issue \#4 of the *American Economic Review* (AER).
+Before beginning this lab, visit the website of the *American Economic Review* and search for the paper.
+Once you've found it, download both a pdf of the paper and the associated dataset, linked under "Additional Materials."
+
+# Exercise \#1
+Read the introduction and conclusion of BM, and then write a one-paragraph summary addressing the following points:
+1. What question does the paper try to answer?
+2. What data and methodology are used to address the question? 
+3. What are the key findings?
+
+# Solution to Exercise \#1
+*Write your solutions here*
+
+# Importing the Dataset 
+The dataset posted on the AER website is stored in a zip archive containing a single file: `lakisha_aer.dta`.
+You'll need to unzip this archive, and save the file `lakisha_aer.dta` to an appropriate directory on your machine.
+I suggest creating a directory called `econ224` with a subdirectory called `labs` and storing the data there along with your `.Rmd` file.
+
+The extension `.dta` indicates that `lakisha_aer.dta` is a STATA datafile.
+STATA is a commercial statistics package that is much less powerful than R but very expensive.
+Because of this, its makers need to resort to other means to try to encourage people to buy their program.
+For example, they lock data used in STATA in a proprietary file format that is incompatible with other statistical software packages.
+This way, if I want to open your dataset and you are a STATA user, I'll have to buy a copy of STATA myself.
+Fortunately, enterprising open-source programmers have written software that can decode `.dta` files and convert them into other formats.
+We'll use the function `read_dta` from the `readr` package to convert `lakisha_aer.dta` into a tibble that we can manipulate with `dplyr`. 
+We'll do this using the function `read_dta` in the package `haven`, which contains functions for converting data from SPSS, STATA, and SAS formats.
+When we want to read in data that is already in a non-proprietary format, we'll use the package `readr` that is included as part of `tidyverse`. See the chapter "Data Import" in *R for Data Science*.
+
+Make sure to install `haven` before proceeding.
+Start by loading both `tidyverse` and `ggplot2`.
+```{r, message = FALSE}
+library(haven)
+library(tidyverse)
+library(ggplot2)
+```
+Now we can read in the data as follows by using the `read_dta` function.
+Note that you'll have to specify the directory where you've saved the data.I've saved my copy in `~/econ224/labs` but you may have saved yours somewhere else. 
+If you're using Windows, it's a little trickier to specify the right file path: you may need to Google this.
+```{r}
+bm <- read_dta('~/econ224/labs/lakisha_aer.dta')
+```
+Each row in `bm` corresponds to a single fake resume.
+
+# Exercise \#2
+1. Display the tibble `bm`. How many rows and columns does it have? 
+2. Display only the columns `sex`, `race` and `firstname` of `bm`. What information do these columns contain? How are `sex` and `race` encoded?
+3. Add two new columns to `bm`: `female` should take the value `TRUE` if `sex` is female, and `black` should take value `TRUE` if `race` is black.
+
+# Solution to Exercise \#2
+*Write your code and solutions here*
+
+<!-- ANS_START -->
+```{r}
+bm
+bm <- bm %>% 
+  mutate(female = (sex == 'f'), 
+         black = (race == 'b')) 
+```
+<!-- ANS_END -->
+
+
+# Checking for Balance
+Because 
+The variable `computerskills` takes on the value `1` if a given resume says that the applicant has computer skills.
+The variables `education` and `yearsexp` indicate level of education and years experience, while `ofjobs` indicates the number of previous jobs listed on the resume.
+
+# Exercise \#3
+1. Read parts A-D of section II in BM and answer the following:
+   - How did the experimenters create their bank of resumes for the experiment?
+   - The experimenters classified the resumes into two groups. What were they and how did they make the classification?
+   - How did the experimenters generate identities for their fictitious job applicants?
+2. Is sex balanced across race? Use `dplyr` to answer this question. Hint: what happens if you apply the function `sum` to a vector of `TRUE` and `FALSE` values? 
+3. Are computer skills balanced across race? 
+   Hint: the summary statistic you'll want to use is the *proportion* of individuals in each group with computer skills. If you have a vector of ones and zeros, there is a very easy way to compute this.
+4. Are `education` and `ofjobs` balanced across race?
+5. Compute the mean and standard deviation of `yearsexp` by race. Comment on your findings.
+6. Why do we care if `sex`, `education`, `ofjobs`, `computerskills`, and `yearsexp` are balanced across race?
+7. Is `computerskills` balanced across `sex`? What about `education`? What's going on here? Is it a problem? Hint: re-read section II C of the paper.
+
+# Solution to Exercise \#3
+*Write your code and solutions here*
+
+<!-- ANS_START -->
+```{r}
+# Part 2
+bm %>% 
+  group_by(black) %>%
+  summarize(n_female = sum(female))
+# Part 3
+bm %>% 
+  group_by(black) %>%
+  summarize(avg_computerskills = mean(computerskills))
+# Part 4
+bm %>%
+  group_by(black) %>%
+  summarize(avg_numjobs = mean(ofjobs), avg_educ = mean(education))
+# Part 5
+bm %>% 
+  group_by(black) %>%
+  summarize(avg_exp = mean(yearsexp), sd_exp = sd(yearsexp))
+# Part 7
+# These aren't balanced across sex because:
+# "we use nearly exclusively female names for 
+# administrative and clerical jobs to increase 
+# callback rates" 
+bm %>% 
+  group_by(female) %>%
+  summarize(avg_computerskills = mean(computerskills),
+            avg_educ = mean(education))
+```
+<!-- ANS_END -->
+
+
+# Callbacks by Race and Sex
+The outcome of interest in `bm` is `call` which takes on the value `1` if the corresponding resume elicts an email or telephone callback for an interview. 
+Check your results in this section against Table 1 of the paper.
+
+
+# Solution to Exercise \#???
+*Write your code and solutions here*
+
+<!-- ANS_START -->
+<!-- ANS_END -->
+
+
