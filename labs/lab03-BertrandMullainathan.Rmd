@@ -13,13 +13,14 @@ knitr::opts_chunk$set(comment=NA, fig.width=4.5, fig.height=3.5, fig.align = 'ce
 
 
 # Introduction
-Today we'll replicate a well-known paper published 2004: "Are Emily and Greg More Employable Than Lakisha and Jamal? A Field Experiment on Labor Market Discrimination" by Marianne Bertrand and Sendhil Mullainathan.
+Today we'll replicate a well-known paper on racial bias in the labor market: "Are Emily and Greg More Employable Than Lakisha and Jamal? A Field Experiment on Labor Market Discrimination" by Marianne Bertrand and Sendhil Mullainathan.
 The paper, which I'll refer to as BM for short, appears in Volume 94, Issue \#4 of the *American Economic Review* (AER).
 Before beginning this lab, visit the website of the *American Economic Review* and search for the paper.
 Once you've found it, download both a pdf of the paper and the associated dataset, linked under "Additional Materials."
 
 # Exercise \#1
 Read the introduction and conclusion of BM, and then write a one-paragraph summary addressing the following points:
+
 1. What question does the paper try to answer?
 2. What data and methodology are used to address the question? 
 3. What are the key findings?
@@ -43,11 +44,10 @@ We'll do this using the function `read_dta` in the package `haven`, which contai
 When we want to read in data that is already in a non-proprietary format, we'll use the package `readr` that is included as part of `tidyverse`. See the chapter "Data Import" in *R for Data Science*.
 
 Make sure to install `haven` before proceeding.
-Start by loading both `tidyverse` and `ggplot2`.
+Start by loading `tidyverse`, `haven`, and `ggplot2`.
 ```{r, message = FALSE}
 library(haven)
 library(tidyverse)
-library(ggplot2)
 ```
 Now we can read in the data as follows by using the `read_dta` function.
 Note that you'll have to specify the directory where you've saved the data.I've saved my copy in `~/econ224/labs` but you may have saved yours somewhere else. 
@@ -55,7 +55,7 @@ If you're using Windows, it's a little trickier to specify the right file path: 
 ```{r}
 bm <- read_dta('~/econ224/labs/lakisha_aer.dta')
 ```
-Each row in `bm` corresponds to a single fake resume.
+Each row in `bm` corresponds to a single fictitious job applicant. 
 
 # Exercise \#2
 1. Display the tibble `bm`. How many rows and columns does it have? 
@@ -183,14 +183,17 @@ bm %>%
 <!-- ANS_END -->
 
 
-# Interpreting the results
-Read Section IV of the paper.
-Also read intro and conclusion of Fryer and Levitt.
 
-# Solution to Exercise \#???
-*Write your code and solutions here*
+# Interpreting the Results
+Read Section II E and Section IV of BM.
+Then search for the paper "The Causes and Consequences of Distinctively Black Names" by Roland Fryer and Steven Levitt. 
+(It was published in 2004 in Volume 119, Issue 3 of the Quarterly Journal of Economics.)
+Read the introduction and conclusion of Fryer & Levitt.
+Time permitting, we'll discuss both papers in class.
+Here are some questions for you to think about as you read through the papers:
 
-<!-- ANS_START -->
-<!-- ANS_END -->
-
-
+1. What are some weaknesses that BM acknowledge in their study?
+2. What are some potential confounds that may complicate the interpretation of results based on randomly assigning stereotypically black and white names to resumes?
+3. What is "taste-based" discrimination? What is "statistical" discrimination? How consistent are these models with the results of BM? 
+4. What are the key findings of Fryer and Levitt's study?
+5. How do Fryer and Levitt's results relate to those of BM? What are some possible ways to reconcile the two sets of findings?
