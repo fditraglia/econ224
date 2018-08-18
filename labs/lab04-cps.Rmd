@@ -1,0 +1,111 @@
+---
+title: "Lab #4 - Racial Bias in the Labor Market"
+author: "Econ 224"
+date: "September 4th, 2018"
+---
+
+<!-- knitr global options -->
+```{r, include = FALSE}
+knitr::opts_chunk$set(comment=NA, fig.width=4.5, fig.height=3.5, fig.align = 'center')
+```
+
+
+
+# Introduction
+In our last lab, we looked at experimental evidence for racial bias in the labor market.
+Today we'll look at the same question using an *observational* dataset drawn from the US Current Population Survey (CPS). 
+The dataset is available from [http://masteringmetrics.com/wp-content/uploads/2015/02/cps.dta](http://masteringmetrics.com/wp-content/uploads/2015/02/cps.dta).
+Download and save this file in an appropriate location on your machine before continuing. 
+Recall from last time that we use the function `read_dta` from `haven` to open files of this format in R.
+But before we examing the `cps` dataset, we will briefly revisit the data from Bertrand & Mullainathan from last time.
+
+
+# Exercise \#1 
+1. Visit [census.gov](http://census.gov) to find information about the CPS. Answer the following questions:
+   - What data is the CPS primarily concerned with?
+   - How often is the CPS carried out?
+   - How many households are included in the CPS?
+2. Use `dplyr` to calculate all the summary statistics you'll need to test the null hypothesis that there is no difference between callback rates for black and white-sounding names.
+Hint: you'll need to use the `dplyr` function called `n()` to calculate the sample size for each group. 
+Look this up in *R for Data Science*, online, or in the R Help files to find out how it works.
+3. Write R code to calculate the p-value for the test of the null hypothesis that there is no difference in callback rates across black and white-sounding names against the two-sided alternative, using the summary statistics you calculated in part 1. Do this "the hard way" i.e. not by using a built-in function like `t.test` to do it for you: I want to see that you understand all the steps in the calculation.
+4. It's a pain doing tests by hand. Figure out how to carry out the test from part 2 *without* manually computing all the of the summary statistics first. Hint: read the help file for the base R function `t.test` and the `dplyr` function `pull`. 
+5. Compare and interpret your results from parts 3 and 4.
+
+
+# Solution to Exercise \#1
+*Write your code and solutions here*
+
+1. Regarding the CPS: 
+  - Primarily labor market data: employment and earnings; also collects demographic data 
+  - Monthly
+  - 60,000 households
+
+<!-- ANS_START -->
+```{r, message = FALSE}
+library(haven)
+library(tidyverse)
+
+# Part 2
+bm <- read_dta('~/econ224/labs/lakisha_aer.dta')
+summary_stats <- bm %>%
+  group_by(race) %>%
+  summarize(p_call = mean(call),
+            sample_size = n())
+# Part 3
+summary_stats
+p <- 0.0645
+q <- 0.0965
+n <- m <- 2435
+SE <- sqrt(p * (1 - p) / n + q * (1 - q) / m)
+test_stat <- abs(p - q) / SE
+test_stat
+2 * pnorm(1 - test_stat)
+
+# Part 4
+call_black <- bm %>%
+  filter(race == 'b') %>%
+  pull(call)
+call_white <- bm %>%
+  filter(race == 'w') %>%
+  pull(call)
+t.test(call_black, call_white)
+```
+<!-- ANS_END -->
+
+# The `cps` Dataset
+The `cps` dataset contains information on employment, race, sex, education, and years of experience for 8,891 individuals living in Boston and Chicago in 2001.
+Note that these are the *same* cities used by Bertrand and Mullainathan in their experiment, which was carried out between 2001 and 2002.
+Three of the variables in this dataset are binary: `employed` equals 1 if  a given individual was employed at the time of the survey, `black` equals 1 if the individual is black, and `female` equals 1 if the individual is female.
+The variable `education` takes on four values: 1 indicates high school dropout, 2 indicates high school graduate, 3 indicates some college, and 4 indicates a college degree.
+Finally, `yearsexp` gives years of experience.
+
+
+# Exercise \#2
+1. Read in the `cps` dataset and store it in a tibble called `cps`.
+2. Create a dummy variable called `somecollege` that takes the value 1 if `education` equals 3 or 4 and store it in the tibble `cps`.
+3. Calculate the means of `employed`, `somecollege`, and `yearsexp` separately for blacks and whites.
+
+
+# Solution to Exercise \#2
+*Write your code and solutions here*
+
+<!-- ANS_START -->
+```{r}
+# Part 1
+cps <- read_dta('~/econ224/labs/cps.dta')
+cps <- cps %>% 
+  mutate(somecollege = (education == 3 | education == 4))
+cps %>%
+  group_by(black) %>%
+  summarize(mean(employed, na.rm = TRUE), 
+            mean(somecollege), mean(yearsexp))
+```
+<!-- ANS_END -->
+
+# Solution to Exercise \#???
+*Write your code and solutions here*
+
+<!-- ANS_START -->
+<!-- ANS_END -->
+
