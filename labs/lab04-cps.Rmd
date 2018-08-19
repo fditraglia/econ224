@@ -97,9 +97,11 @@ cps %>%
 <!-- ANS_END -->
 
 # Simplify Your Life by Writing a Function
+
 "Don't repeat yourself" is an important principal to keep in mind if you want to write clean, lean code.
 If you find yourself carrying out the same steps over and over, it's a good time to think about encapsulating these steps into a *function*.
-In this section we'll look at a simple example that is interesting in its own right: creating a function to transform a continuous variable to a categorical variable.
+In this section we'll look at a simple example: creating a function to transform a continuous variable to a categorical variable.
+This is something that you will sometimes need to do in a data analysis project, so pay close attention to the specific example as well as the general point about when and how to create an R function.
 
 Continuous variables contain a large amount of information.
 This is a good thing from a statistical modeling perspective.
@@ -197,8 +199,21 @@ test_across_black('yearsexp')
 <!-- ANS_END -->
 
 
-# Something else...
+# Recoding Variables
 
+```{r}
+starwars %>% 
+  select(name, height, mass, gender, species) %>%
+  mutate(type = case_when(height > 200 | mass > 200 ~ 'large',
+                          species == 'Droid' ~ 'robot',
+                          TRUE ~ 'other'))
+cps %>%
+  select(education, somecollege) %>%
+  mutate(ed_category = case_when(education == 1 ~ 'HS dropout',
+                                 education == 2 ~ 'HS grad',
+                                 education == 3 ~ 'some college',
+                                 education == 4 ~ 'college grad'))
+```
 
 # Solution to Exercise \#???
 *Write your code and solutions here*
