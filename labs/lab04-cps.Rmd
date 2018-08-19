@@ -200,24 +200,47 @@ test_across_black('yearsexp')
 
 
 # Recoding Variables
-
+Sometimes we'll need to change the values that a categorical variable takes, or to create a fairly complicated categorical variable on the basis of multiple other variables in our dataset.
+Fortunately, `dplyr` gives us an easy way to do this: `case_when`.
+Here's an example using the `starwars` dataset that is included as part of `dplyr`:
 ```{r}
 starwars %>% 
   select(name, height, mass, gender, species) %>%
   mutate(type = case_when(height > 200 | mass > 200 ~ 'large',
-                          species == 'Droid' ~ 'robot',
+                          species == 'Droid' ~ 'robot', 
                           TRUE ~ 'other'))
-cps %>%
-  select(education, somecollege) %>%
-  mutate(ed_category = case_when(education == 1 ~ 'HS dropout',
-                                 education == 2 ~ 'HS grad',
-                                 education == 3 ~ 'some college',
-                                 education == 4 ~ 'college grad'))
 ```
+Notice the syntax: a tilde "`~`" separates a *logical condition* on the left from a *value* on the right.
+Each of the pairs `[condition] ~ [value]` are separated by commas.
+In essence, `case_when` is designed to substitute for a collection of nested if-else blocks.
+For this reason, if the conditions are not mutually exclusive, *order will matter*.
+To specify a *default* value, we use a condition that always evaluates to `TRUE`.
+In the `starwars` example, this creates an `other` category.
 
-# Solution to Exercise \#???
+# Exercise \#4
+1. Try putting `TRUE ~ 'other'` *first* in the `case_when` example from above. What goes wrong? Why? If necessary, read the help file for `case_when`.
+2. Use `case_when` to recode the variable `education` in `cps` so that `1` becomes `HS dropout`, `2` becomes `HS grad`, `3` becomes `some college`, and `4` becomes `college grad`.
+
+
+# Solution to Exercise \#4
 *Write your code and solutions here*
 
 <!-- ANS_START -->
+```{r}
+# Part 1
+starwars %>% 
+  select(name, height, mass, gender, species) %>%
+  mutate(type = case_when(TRUE ~ 'other',
+                          height > 200 | mass > 200 ~ 'large',
+                          species == 'Droid' ~ 'robot'))
+
+# Part 2
+cps %>%
+  select(education, somecollege) %>%
+  mutate(educ_cat = case_when(education == 1 ~ 'HS dropout',
+                              education == 2 ~ 'HS grad',
+                              education == 3 ~ 'some college', 
+                              education == 4 ~ 'college grad'))
+```
 <!-- ANS_END -->
 
