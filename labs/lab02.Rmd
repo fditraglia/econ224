@@ -12,10 +12,17 @@ knitr::opts_chunk$set(comment=NA, fig.width=4.5, fig.height=3.5, fig.align = 'ce
 # Introduction 
 Today we'll revisit the `gapminder` dataset and use it to introduce some more advanced features of `dplyr` and `ggplot2`, building on the material from our first lab.
 Before you begin, make sure that you have loaded the `tidyverse` and `gapminder` packages.
-```{r, message = FALSE, include = FALSE}
+
+# Exercise \#0 
+Load both the `tidyverse` and `gapminder` packages.
+
+# Solution to Exercise \#0
+<!-- ANS_START -->
+```{r, message = FALSE}
 library(tidyverse)
 library(gapminder)
 ```
+<!-- ANS_END -->
 
 # Faceting - Plotting multiple subsets at once
 Let's pick up where we left off in lab \#1, with a plot of GDP per capita and life expectancy in 2007:
