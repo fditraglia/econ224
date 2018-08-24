@@ -1,0 +1,345 @@
+---
+title: "Lab #2 - Gapminder Dataset"
+author: "Econ 224"
+date: "August 30th, 2018"
+---
+
+<!-- knitr global options -->
+```{r, include = FALSE}
+knitr::opts_chunk$set(comment=NA, fig.width=4.5, fig.height=3.5, fig.align = 'center')
+```
+
+# Introduction 
+Today we'll revisit the `gapminder` dataset and use it to introduce some more advanced features of `dplyr` and `ggplot2`, building on the material from our first lab.
+Before you begin, make sure that you have loaded the `tidyverse` and `gapminder` packages.
+
+# Exercise \#0 
+Load both the `tidyverse` and `gapminder` packages.
+
+# Solution to Exercise \#0
+*Write your code and solutions here.*
+
+# Faceting - Plotting multiple subsets at once
+Let's pick up where we left off in lab \#1, with a plot of GDP per capita and life expectancy in 2007:
+```{r}
+gapminder_2007 <- gapminder %>%
+  filter(year == 2007)
+ggplot(gapminder_2007) +
+  geom_point(aes(x = gdpPercap, y = lifeExp, color = continent, size = pop)) +
+  scale_x_log10()  
+```
+
+This is an easy way to make a plot for a single year.
+But what if you wanted to make the same plot for *every year* in the `gapminder` dataset?
+It would take a lot of copying-and-pasting of the preceding code chunk to accomplish this.
+Fortunately there's a much easier way: *faceting*.
+In `ggplot2` a *facet* is a subplot that corresponds to a subset of your dataset, for example the year 2007.
+We'll now use faceting to reproduce the plot from above for all the years in `gapminder` simultaneously:
+```{r,fig.width = 7, fig.height=6}
+ggplot(gapminder) +
+  geom_point(aes(x = gdpPercap, y = lifeExp, color = continent, size = pop)) +
+  scale_x_log10() +
+  facet_wrap(~ year)
+```
+Note the syntax here: in a similar way to how we added `scale_x_log10()` to plot on the log scale, we add `facet_wrap(~ year)` to facet by `year`. 
+The tilde `~` is important: this has to precede the variable by which you want to facet.
+
+Now that we understand how to produce it, let's take a closer look at this plot.
+Notice how this plot allows us to visualize five variables *simultaneously*.
+By looking at how the plots change over time, we see a pattern of increasing GDP per capita and life expectancy throughout the world between 1952 and 2007.
+Notice in particular the dramatic improvements in both variables in the Asian economies.
+
+# Exercise \#1
+
+1. What would happen if I were to run the following code? Explain briefly.
+```{r, eval=FALSE}
+ggplot(gapminder_2007) +
+  geom_point(aes(x = gdpPercap, y = lifeExp, color = continent, size = pop)) +
+  scale_x_log10() +
+  facet_wrap(~ year)
+```
+2. Make a scatterplot with data from `gapminder` for the year 1977.
+   Your plot should be faceted by continent with GDP per capita on the log scale on the x-axis, life expectancy on the y-axis, and population indicated by the size of each point.
+3. What would happen if you tried to facet by `pop`? Explain briefly.
+
+# Solution to Exercise \#1
+*Write your code and solutions here.*
+
+# `dplyr` verbs
+For the next few sections we'll take a short break from `ggplot2` and turn our attention to `dplyr`.
+In lab \#1 we learned about the pipe, `%>%`, and two `dplyr` functions: `filter()` and `arrange()`.
+In the parlance of the `dplyr` documentation, these are called "verbs."
+In `dplyr` we use `%>%` to combine these verbs in various ways to manipulate a tibble. 
+In this section and the following two, we'll learn three more `dplyr` verbs: `select`, `summarize` and `group_by`.
+
+# The `select` verb
+We use the `select` verb to select columns.
+Using `select` we could do this as follows:
+```{r}
+gapminder %>% select(pop)
+```
+To display only `pop`, `country`, and `year`, use the following:
+```{r}
+gapminder %>% select(pop, country, year)
+```
+Now suppose that we wanted to select every column *except* `pop`. 
+Here's one way to do it:
+```{r}
+gapminder %>% select(country, continent, year, lifeExp, gdpPercap)
+```
+but that takes a lot of typing!
+If there were more than a handful of columns in our tibble it would be very difficult to *deselect* a column in this way.
+Fortunately there's a shortcut: use the minus sign 
+```{r}
+gapminder %>% select(-pop)
+```
+Just as we could when *selecting*, we can *deselect* multiple columns by separating their names with a comma:
+```{r}
+gapminder %>% select(-pop, -year)
+```
+
+It's easy to mix up the `dplyr` verbs `select` and `filter`.
+Here's a handy mnemonic: `filteR` filters Rows while `seleCt` selects Columns. 
+Suppose we wanted to select only the column `pop` from `gapminder`.
+
+# Exercise \#2
+1. Select only the columns `year`, `lifeExp`, and `country` in `gapminder`.
+2. Select all the columns *except* `year`, `lifeExp`, and `country` in `gapminder`.
+
+
+# Solution to Exercise \#2
+*Write your code and solutions here.*
+
+# The `summarize` verb
+Suppose we want to calculate the sample mean of the column `lifeExp` in `gapminder`.
+We can do this using the `summarize` verb as follows:
+```{r}
+gapminder %>% summarize(mean_lifeExp = mean(lifeExp))
+```
+Note the syntax: within `summarize` we have an *assignment statement*.
+In particular, we assign `mean(lifeExp)` to the variable `mean_lifeExp`.
+The key thing to know about `summarize` is that it always returns *collapses* a tibble with many rows into a single row.
+When we think about computing a sample mean, this makes sense: we want to summarize the column `lifeExp` as a single number.
+It doesn't actually make much sense to compute the mean of `lifeExp` because this involves averaging over different countries *and* different years.
+Instead let's compute the mean for a single year: 1952:
+```{r}
+gapminder %>% 
+  filter(year == 1952) %>%
+  summarize(mean_lifeExp = mean(lifeExp))
+```
+
+We can use summarize to compute multiple summary statistics for a single variable, the same summary statistic for multiple variables, or both:
+```{r}
+gapminder %>% 
+  filter(year == 1952) %>%
+  summarize(mean_lifeExp = mean(lifeExp),
+            sd_lifeExp = sd(lifeExp), 
+            mean_pop = mean(pop))
+```
+Note that if we *don't* explicitly use an assignment statement, R will make up names for us based on the commands that we used:
+```{r}
+gapminder %>% 
+  filter(year == 1952) %>%
+  summarize(mean(lifeExp), median(lifeExp), max(lifeExp))
+```
+
+
+# Exercise \#3
+1. Use `summarize` to compute the 75th percentile of life expectancy in 1977.
+2. Use `summarize` to compute the 75th percentile of life expectancy among Asian countries in 1977.
+
+
+# Solution to Exercise \#3
+*Write your code and solutions here.*
+
+# The `group_by` verb
+The true power of `summarize` is its ability to compute grouped summary statistics in combination with another `dplyr` verb: `group_by`.
+In essence, `group_by` allows us to tell `dplyr` that we don't want to work with the whole dataset at once; rather we want to work with particular *subsets* or groups.
+The basic idea is similar to what we've done using `filter` in the past.
+For example, to calculate mean population (in millions) and mean life expectancy in the year 2007, we could use the following code:
+```{r}
+gapminder %>%
+  filter(year == 2007) %>%
+  summarize(meanPop = mean(pop) / 1000000, meanLifeExp = mean(lifeExp))
+```
+Using `group_by` we could do the same thing for *all* years in the dataset at once:
+```{r}
+gapminder %>%
+  group_by(year) %>%
+  summarize(meanPop = mean(pop) / 1000000, meanLifeExp = mean(lifeExp))
+```
+Notice what has changed in the second code block: we replaced `filter(year == 2007)` with `group_by(year)`.
+This tells `dplyr` that, rather than simply restricting attention to data from 2007, we want to form *subsets* (groups) of the dataset that correspond to the values of the `year` variable.
+Whatever comes after `group_by` will then be calculated for these subsets.
+
+Here's another example.
+Suppose we wanted to calculate mean life expectancy and total population in each *continent* during the year 2007.
+To accomplish this, we can chain together the `filter`, `group_by` and `summarize` verbs as follows:
+```{r}
+gapminder %>% 
+  filter(year == 2007) %>%
+  group_by(continent) %>%
+  summarize(meanPop = mean(pop) / 1000000, meanLifeExp = mean(lifeExp))
+```
+
+We can also use `group_by` to subset over multiple variables at once.
+For example, to calculate mean life expectancy and total population in each continent *separately* for every year, we can use the following code:
+```{r}
+gapminder %>% 
+  group_by(year, continent) %>%
+  summarize(meanPop = mean(pop) / 1000000, meanLifeExp = mean(lifeExp))
+```
+
+# Exercise \#4
+1. Why doesn't the following code work as expected?
+```{r,eval = FALSE}
+gapminder %>%
+  summarize(meanLifeExp = mean(lifeExp)) %>%
+  group_by(year)
+```
+2. Calculate the median GDP per capita in each continent in 1977.
+3. Repeat 2. but sort your results in descending order.
+4. Calculate the mean and standard deviation of life expectancy for separately for each continent in every year *after* 1977. Sort your results in ascending order by the standard deviation of life expectancy.
+
+
+# Solution to Exercise \#4
+*Write your code and solutions here.*
+
+# Plotting summarized data
+By combining `summarize` and `group_by` with `ggplot`, it's easy to make plots of grouped data.
+For example, here's how we could plot total world population in millions from 1952 to 2007.
+First we construct a tibble which I'll name `by_year` containing the desired summary statistic grouped by year and display it:
+```{r}
+by_year <- gapminder %>%
+  mutate(popMil = pop / 1000000) %>%
+  group_by(year) %>% 
+  summarize(totalpopMil = sum(popMil))
+by_year
+```
+Then we make a scatterplot using `ggplot`:
+```{r}
+ggplot(by_year) +
+  geom_point(aes(x = year, y = totalpopMil)) 
+```
+Here's a more complicated example where we additionally use color to plot each continent separately:
+```{r}
+by_year_continent <- gapminder %>%
+  mutate(popMil = pop / 1000000) %>%
+  group_by(year, continent) %>%
+  summarize(totalpopMil = sum(popMil))
+by_year
+ggplot(by_year_continent) +
+  geom_point(aes(x = year, y = totalpopMil, color = continent)) 
+```
+Make sure you understand how the preceding example works before attempting the exercise.
+
+
+# Exercise \#5
+1. What happens if you append `+ expand_limits(y = 0)` to the preceding `ggplot` code? 
+   Why might this be helpful in some cases?
+2. Make a scatter with average GDP per capita across all countries in `gapminder` in the y-axis and `year` on the x-axis.
+3. Repeat 2. broken down by continent, using color to distinguish the points. Put mean GDP per capita on the log scale.
+
+
+# Solution to Exercise \#5
+*Write your code and solutions here.*
+
+# Line plots
+Thus far we've only learned how to make one kind of plot with `ggplot`: a scatterplot, which we constructed using `geom_scatter()`.
+Sometimes we want to *connect* the dots in a scatterplot, for example when we're interested in visualizing a trend over time. 
+The resulting plot is called a *line plot*.
+To make one, simply replace `geom_scatter()` with `geom_line()`.
+For example:
+```{r}
+by_year_continent <- gapminder %>%
+  mutate(popMil = pop / 1000000) %>%
+  group_by(year, continent) %>%
+  summarize(totalpopMil = sum(popMil))
+by_year
+ggplot(by_year_continent) +
+  geom_line(aes(x = year, y = totalpopMil, color = continent)) 
+```
+
+# Exercise \#6
+Repeat exercise 5-3 with a line plot rather than a scatterplot.
+
+# Solution to Exercise \#6
+*Write your code and solutions here.*
+
+# Bar plots
+To make a bar plot, we use `geom_col()`.
+Note that the `x` argument of `aes` needs to be a *categorical variable* for a bar plot to make sense.
+Here's a simple example:
+```{r}
+by_continent <- gapminder %>%
+  filter(year == 2007) %>%
+  group_by(continent) %>%
+  summarize(meanLifeExp = mean(lifeExp))
+ggplot(by_continent) +
+  geom_col(aes(x = continent, y = meanLifeExp))
+```
+Sometimes we want to turn a bar plot, or some other kind of plot, on its side.
+This can be particularly helpful if the x-axis labels are very long.
+To do this, simply add `+ coord_flip()` to your `ggplot` command, for example:
+```{r}
+ggplot(by_continent) +
+  geom_col(aes(x = continent, y = meanLifeExp)) +
+  coord_flip()
+```
+
+
+# Exercise \#7
+Make a collection of bar plots faceted by year that compare mean GDP per capita across countries in a given year.
+Orient your plots so it's easy to read the continent labels.
+
+
+# Solution to Exercise \#7
+*Write your code and solutions here.*
+
+
+# Histograms
+To make a `ggplot2` histogram, we use the function `geom_histogram()`.
+Recall from Econ 103 that a histogram summarizes a *single* variable at a time by forming non-overlapping bins of equal width and calculating the fraction of observations in each bin.
+If we choose a different width for the bins, we'll get a different histogram.
+Here's an example of two different bin widths:
+```{r}
+gapminder_2007 <- gapminder %>%
+  filter(year == 2007)
+ggplot(gapminder_2007) +
+  geom_histogram(aes(x = lifeExp), binwidth = 5)
+ggplot(gapminder_2007) +
+  geom_histogram(aes(x = lifeExp), binwidth = 1)
+```
+
+# Exercise \# 8
+
+1. All of the examples we've seen that use `ggplot` *besides* histograms have involved specifying both `x` and `y` within `aes()`. Why are histograms different?
+2. What happens if you don't specify a bin width in either of my two examples? 
+3. Make a histogram of GDP per capita in 1977. Play around with different bin widths until you find one that gives a good summary of the data.
+4. Repeat 3. but put GDP per capita on the log scale.
+5. Compare and contrast the two different histograms you've made.
+
+# Solution to Exercise \#8
+*Write your code and solutions here.*
+
+# Boxplots 
+The final kind of `ggplot` we'll learn how to produce is a boxplot.
+Recall from Econ 103 that a boxplot is a visualization of the *five-number summary* of a variable: minimum, 25th percentile, median, 75th percentile, and maximum.
+To make a boxplot in `ggplot` we use the function `geom_boxplot()`, for example:
+```{r}
+ggplot(gapminder_2007) +
+  geom_boxplot(aes(x = continent, y = lifeExp))
+```
+Compared to histograms, boxplots provide less detail but allow us to easily compare across groups.
+
+# Exercise \# 9
+1. What is the meaning of the little "dots" that appear in the boxplot above? Use a Google search to find out what they are and how they are computed.
+2. Use faceting to construct a collection of boxplots, each of which compares log GDP per capita across continents in a given year.
+3. Use a Google search to find out how to add a title to a `ggplot`. Use it to add a title to the plot you created in 2.
+
+
+
+# Solution to Exercise \#9
+*Write your code and solutions here.*
+
+
