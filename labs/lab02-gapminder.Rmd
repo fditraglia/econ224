@@ -61,8 +61,6 @@ ggplot(gapminder_2007) +
 3. What would happen if you tried to facet by `pop`? Explain briefly.
 
 # Solution to Exercise \#1
-*Write your code and solutions here*
-
 <!-- ANS_START -->
 1. We'll only get one facet since the tibble `gapminder_2007` only has data for 2007: 
 ```{r}
@@ -137,8 +135,6 @@ Suppose we wanted to select only the column `pop` from `gapminder`.
 
 
 # Solution to Exercise \#2
-*Write your code and solutions here*
-
 <!-- ANS_START -->
 1. Use the following:
 ```{r}
@@ -190,8 +186,6 @@ gapminder %>%
 
 
 # Solution to Exercise \#3
-*Write your code and solutions here*
-
 <!-- ANS_START -->
 1. The 75th percentile of life expectancy in 1977 was 70.4 years at birth.
 ```{r}
@@ -258,8 +252,6 @@ gapminder %>%
 
 
 # Solution to Exercise \#4
-*Write your code and solutions here*
-
 <!-- ANS_START -->
 1. The steps are carried out in the wrong order: we need to form groups *first* and then calculate our desired summaries.
 2. Use the following:
@@ -324,8 +316,6 @@ Make sure you understand how the preceding example works before attempting the e
 
 
 # Solution to Exercise \#5
-*Write your code and solutions here*
-
 <!-- ANS_START -->
 1. The function `expand_limits()` lets us tweak the limits of our x or y-axis in a `ggplot`. In this particular example `expand_limits(y = 0)` ensures that the y-axis begins at zero.
    Without using this command, `ggplot` will choose the y-axis on its own so that there is no "empty space" in the plot.
@@ -369,8 +359,6 @@ ggplot(by_year_continent) +
 Repeat exercise 5-3 with a line plot rather than a scatterplot.
 
 # Solution to Exercise \#6
-*Write your code and solutions here*
-
 <!-- ANS_START -->
 ```{r}
 by_year <- gapminder %>%
@@ -410,8 +398,6 @@ Orient your plots so it's easy to read the continent labels.
 
 
 # Solution to Exercise \#7
-*Write your code and solutions here*
-
 <!-- ANS_START -->
 ```{r, fig.width = 7, fig.height = 6}
 by_continent <- gapminder %>%
@@ -448,9 +434,6 @@ ggplot(gapminder_2007) +
 5. Compare and contrast the two different histograms you've made.
 
 # Solution to Exercise \#8
-*Write your code and solutions here*
-
-
 <!-- ANS_START -->
 1. This is because histograms only depict a single variable while the other plots we've made show two variables at once.
 2. If you don't specify a bin width, `ggplot2` will pick one for you and possibly give you a warning suggesting that you pick a better bin width manually.
@@ -488,9 +471,6 @@ Compared to histograms, boxplots provide less detail but allow us to easily comp
 
 
 # Solution to Exercise \#9
-*Write your code and solutions here*
-
-
 <!-- ANS_START -->
 1. They are outliers: `ggplot` considers any observation that is more than 1.5 times the interquartile range away from the "box" to be an outlier, and adds a point to indicate it.
    Turn your boxplots sideways to make it easier to read the continent labels.

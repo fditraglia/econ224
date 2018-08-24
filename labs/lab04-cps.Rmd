@@ -30,9 +30,6 @@ Look this up in *R for Data Science*, online, or in the R Help files to find out
 
 
 # Solution to Exercise \#1
-*Write your code and solutions here*
-
-
 <!-- ANS_START -->
 ```{r, message = FALSE}
 library(haven)
@@ -81,8 +78,6 @@ Finally, `yearsexp` gives years of experience.
 
 
 # Solution to Exercise \#2
-*Write your code and solutions here*
-
 <!-- ANS_START -->
 ```{r}
 # Part 1
@@ -179,8 +174,6 @@ You do not have to implement the test itself from scratch: feel free to use `t.t
 Comment on your results.
 
 # Solution to Exercise \#3
-*Write your code and solutions here*
-
 <!-- ANS_START -->
 ```{r}
 test_across_black <- function(varname) {
@@ -223,8 +216,6 @@ In the `starwars` example, this creates an `other` category.
 
 
 # Solution to Exercise \#4
-*Write your code and solutions here*
-
 <!-- ANS_START -->
 ```{r}
 # Part 1

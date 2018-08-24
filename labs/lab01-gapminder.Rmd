@@ -35,7 +35,6 @@ Now that you've loaded `gapminder`, use the command `?gapminder` to view the R h
 - What is the source of the dataset?
 
 # Solution to Exercise \# 1
-*Write your answer here.*
 <!-- ANS_START -->
 <!-- ANS_END -->
 
@@ -90,8 +89,6 @@ gapminder2007
 
 
 # Solution to Exercise \#2
-*Write your answer and code here*
-
 <!-- ANS_START -->
 1. The first assigns the value `3` to the variable `x`; the second tests whether `x` is equal to `3` and returns either `TRUE` or `FALSE`.
 2. Use the following code: 
@@ -123,8 +120,6 @@ gapminder %>% filter(year == 2007, country == 'United States')
 Which had the higher GDP per capita?
 
 # Solution to Exercise \#3
-*Write your answer and code here*
-
 <!-- ANS_START -->
 1. This is because `year` contains numeric data while `country` contains character data, aka string data.
 2. From the results of the following code, we see that Ireland had both a higher life expectancy and GDP per capita.
@@ -154,8 +149,6 @@ gapminder %>% arrange(desc(gdpPercap))
 2. What is the highest life expectancy in the `gapminder` dataset? Which country and year does it correspond to?
 
 # Solution to Exercise \#4
-*Write your code and solutions here*
-
 <!-- ANS_START -->
 1. The lowest life expectancy was Rwanda in 1992: 23.6 years at birth.
 ```{r}
@@ -209,8 +202,6 @@ So if we load the `tidyverse` package, which includes `dplyr`, the pipe is autom
 2. Re-write the code from your solution to Exercise \#4 *without* using the pipe.
 
 # Solution to Exercise \#5
-*Write your code and solutions here*
-
 <!-- ANS_START -->
 1. Use the following code:
 ```{r}
@@ -256,8 +247,6 @@ This is what's great about the pipe: it lets us write our code in a way that acc
 2. Re-write your code from part 1. *without* using the pipe. 
 
 # Solution to Exercise \#6
-*Write your code and solutions here*
-
 <!-- ANS_START -->
 1. The most populous European country in 1992 was Germany.
 ```{r}
@@ -300,8 +289,6 @@ gapminder %>% mutate(gdp = pop * gdpPercap)
 2. Which country in the Americas had the shortest life expectancy *in months* in the year 1962? Write appropriate `dplyr` code using the pipe to display the information you need to answer this question.
 
 # Solution to Exercise \#7
-*Write your code and solutions here*
-
 <!-- ANS_START -->
 1. We used `=` because this is the assigment operator. In contrast `==` tests for equality, returning TRUE or FALSE.
 2. Bolivia had the shortest life expectancy: 521 months. 
@@ -341,8 +328,6 @@ We see that GDP per capita is a very strong predictor of life expectancy, althou
 2. Repeat 1. with `gdpPercap` on the y-axis.
 
 # Solution to Exercise \#8
-*Write your code and solutions here*
-
 <!-- ANS_START -->
 1. There is no clear relationship between population and life expectancy based on the 2007 data:
 ```{r}
@@ -376,8 +361,6 @@ Figure out how to do this, either by clever guesswork or a google search, and th
 3. Repeat 2. but with *both* axes on the log scale.
 
 # Solution to Exercise \#9
-*Write your code and solutions here*
-
 <!-- ANS_START -->
 1. Use the following code:
 ```{r}
@@ -454,8 +437,6 @@ ggplot(gapminder_2007) +
    Consult the chapter "Visualising Data" from *R for Data Science* to find out how to do this.
 
 # Solution to Exercise \#10
-*Write your code and solutions here*
-
 <!-- ANS_START -->
 1. Neither of these makes sense since `continent` is categorical and `pop` is continuous: `color` is useful for categorical variables and `size` for continuous ones.
 2. It still works! You don't have to explicitly write `data` or `mapping` when using `ggplot`. I only included these above for clarity.

@@ -63,8 +63,6 @@ Each row in `bm` corresponds to a single fictitious job applicant.
 3. Add two new columns to `bm`: `female` should take the value `TRUE` if `sex` is female, and `black` should take value `TRUE` if `race` is black.
 
 # Solution to Exercise \#2
-*Write your code and solutions here*
-
 <!-- ANS_START -->
 ```{r}
 bm
@@ -94,8 +92,6 @@ The variables `education` and `yearsexp` indicate level of education and years e
 7. Is `computerskills` balanced across `sex`? What about `education`? What's going on here? Is it a problem? Hint: re-read section II C of the paper.
 
 # Solution to Exercise \#3
-*Write your code and solutions here*
-
 <!-- ANS_START -->
 ```{r}
 # Part 2
@@ -137,8 +133,6 @@ Check your results in this section against Table 1 of the paper.
 3. Repeat part 2, but calculate the average rates for each combination of race and sex. What do your results suggest?
 
 # Solution to Exercise \#4
-*Write your code and solutions here*
-
 <!-- ANS_START -->
 ```{r}
 # Part 1
@@ -167,8 +161,6 @@ The columns `col`, `military`, `email`, `volunteer` are indicators for: college 
    Discuss your findings
 
 # Solution to Exercise \#5
-*Write your code and solutions here*
-
 <!-- ANS_START -->
 ```{r}
 # Part 1
