@@ -53,6 +53,18 @@ Note that a complete answer to each of these questions requires at most a short 
 10. Write down the formula for the standard error of a difference of sample means from independent populations if: (1) both populations have the same variance, (2) each population has a different variance.
 
 ## Quiz \#4: Tuesday, September 11th -- ISL 3.1-3.2
+1. What are the formulas for calculating $\widehat{\beta}_0$ and $\widehat{\beta}_1$ in a *simple* linear regression?
+2. Explain the difference between the *population* regression line and the *least squares* regression line.
+3. In a simple linear regression, what is the formula for the standard error of $\widehat{\beta}_1$? Based on this formula, how is the standard error related to: $\mbox{Var}(\epsilon)$, sample size, and the sample standard deviation of $X$? 
+4. Write the general expression for a linear regression model with an intercept and $p$ predictor variables. What optimization problem does least squares solve to estimate the regression coefficients?
+5. Write down the formulas for: residual sum of squares, total sum of squares, and $R^2$.
+6. Explain how to carry out an F-test of the null hypothesis that none of the predictors $X_1,\hdots, X_p$ is helpful in predicting $Y$.
+7. Explain how to carry out an F-test of the null hypothesis that only a particular subset of $q$ out of the total set of $p$ predictors $X_1, \hdots, X_p$ is helpful in predicting $Y$.
+8. If we add more regressors to our model, what happens to the RSS? What happens to the $R^2$?
+9. Write down the formula relating the residual standard error to the residual sum of squares. Does the residual standard error always decrease if we add more regressors to the model? Why or why not?
+10. In the linear regression model, what is a source of reducible error? What is a source of irreducible error?
+
+
 
 ## Quiz \#5: Thursday, September 13th -- ISL 3.3-3.5
 
