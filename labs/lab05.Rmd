@@ -12,18 +12,7 @@ knitr::opts_chunk$set(comment=NA, fig.width=4.5, fig.height=3.5, fig.align = 'ce
 
 
 # Introduction
-We'll use the package `stargazer` to generate pretty tables of results like the ones you see in journal articles.
-Make sure to install this package before proceeding.
-
-```{r, message = FALSE}
-library(stargazer)
-```
-
-I chose to output my `.Rmd` file to a pdf using LaTeX, so I used the option `type = latex`. 
-If you're using `html` you'll need to change this to `type = 'html'`.
-If you want to see a "preview" of the table within R studio without compiling, choose `type = 'text'`.
-```{r, results = "asis"}
-stargazer(mtcars, type = 'latex', title = 'Descriptive Statistics')
-```
-
-
+- Regression basics in R: summary, residuals, coefficients, t-stats, predict, etc
+- F-test "by hand"
+- F-test using `car` package
+- Football example from Ray Fair
