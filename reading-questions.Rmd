@@ -64,9 +64,27 @@ Note that a complete answer to each of these questions requires at most a short 
 9. Write down the formula relating the residual standard error to the residual sum of squares. Does the residual standard error always decrease if we add more regressors to the model? Why or why not?
 10. In the linear regression model, what is a source of reducible error? What is a source of irreducible error?
 
-
-
 ## Quiz \#5: Thursday, September 13th -- ISL 3.3-3.5
+1. Consider the regression $y_i = \beta_0 + \beta_1 x_i + \epsilon_i$ where $x_i$ is a dummy variable that equals 1 if person $i$ is female. 
+   The book describes two ways to code the category *male*: (a) $x_i = 0$ if person $i$ is male, (b) $x_i = -1$ if person $i$ is male.
+   What is the meaning of $\beta_1$ in each case?
+   Does the choice between (a) and (b) affect our predictions?
+2. Suppose we wanted to include the categorical predictor `class` in a regression.
+   This predictor takes on one of the following values: *freshman*, *sophomore*, *junior*, or *senior*. Explain how we could use dummy variables to encode `class`.
+   How many dummy variables would we need?
+3. Define the term *interaction effect*.
+   How does including an interaction term in a regression relax the additive assumption?
+4. What is the *hierarchical principle*?
+5. Define *polynomial regression* and give a simple example. How does it extend the linear model?
+6. What goes wrong in a regression setting if the error terms are correlated and or have non-constant variance?
+7. Define the term *outlier* in the context of linear regression. Briefly explain a way of identifying outlying observations.
+8. Define the term *high leverage point*. How is this different from an *outlier*? Why should we worry about high leverage points?
+9. What is collinearity and why is it a problem? How can we detect it, and how can we address it?
+10. Explain the KNN regression method. What trade-off is involved in choosing a value for $K$?
+11. If the true form of $f$ is approximately linear, which would we expect to perform better: least squares linear regression or KNN regression? Why?
+12. Explain the *curse of dimensionality* as it relates to KNN regression.
+   When would we expect least squares regression to outperform KNN regression?
+   
 
 ## Quiz \#6: Tuesday, September 18th -- MM 2.1-2.2
 
