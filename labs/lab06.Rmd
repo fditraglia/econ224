@@ -1,0 +1,29 @@
+---
+title: "Lab #6 - Predictive Regression II"
+author: "Econ 224"
+date: "September 11th, 2018"
+---
+
+<!-- knitr global options -->
+```{r, include = FALSE}
+knitr::opts_chunk$set(comment=NA, fig.width=4.5, fig.height=3.5, fig.align = 'center')
+```
+
+- Implement KNN in one dimension and test on some simulated data
+- predicting birthweight based on gestation
+
+
+Child Health and Development Studies conducted at the Oakland, CA, Kaiser Foundation Hospital. The variables are
+
+    bwt: baby's weight in ounces at birth
+    gestation: duration of pregnancy in days
+    parity: parity indicator (first born = 1, later birth = 0)
+    age: mother's age in years
+    height: mother's height in inches
+    weight: mother's weight in pounds (during pregnancy)
+    smoke: indicator for whether mother smokes (1=yes, 0=no) 
+```{r}
+Bwt = read.csv("http://people.reed.edu/~jones/141/Bwt.dat")
+```
+
+
