@@ -10,7 +10,7 @@ knitr::opts_chunk$set(comment=NA, fig.width=4.5, fig.height=3.5, fig.align = 'ce
 ```
 
 # Predicting College Football Games
-
+This example is based on the paper "College Football Rankings and Market Efficiency" by Ray Fair and John F.\ Oster (*Journal of Sports Economics*, Vol. 8 No. 1, February 2007, pp. 3-18).
 
   The data for duplicating the football results in Table 10-1 on page 165 and in Table 10-3 on page 170 are in the file: football.txt. For example, for the regression in Table 10-3 have the students regress SPREAD on LV, H, SAG, BIL, COL, DUN, and REC (no constant term) using the 1,582 observations. 
 
@@ -42,22 +42,7 @@ For example if Richard Billingsley ranks Stanford \#10 and UCLA \#22, the predic
 This is how MAT, SAG, BIL, COL, MAS, and DUN are constructed.
 The remaining variable REC is different since it is based on *win-loss records*
 
-# Second Part: KNN, out-of-sample, etc
-- Implement KNN in one dimension and test on some simulated data
-- predicting birthweight based on gestation
+# Second Part: Implement KNN
+Test on `mtcars` dataset: `mpg` versus `disp`
 
-
-Child Health and Development Studies conducted at the Oakland, CA, Kaiser Foundation Hospital. The variables are
-
-    bwt: baby's weight in ounces at birth
-    gestation: duration of pregnancy in days
-    parity: parity indicator (first born = 1, later birth = 0)
-    age: mother's age in years
-    height: mother's height in inches
-    weight: mother's weight in pounds (during pregnancy)
-    smoke: indicator for whether mother smokes (1=yes, 0=no) 
-```{r}
-Bwt = read.csv("http://people.reed.edu/~jones/141/Bwt.dat")
-```
-
-
+Use this to teach `if` `else` and `for` loops
