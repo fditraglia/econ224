@@ -1,5 +1,5 @@
 ---
-title: "Lab #5 - Linear Regression Crash Course"
+title: "Lab #5 - Predictive Regression I"
 author: "Econ 224"
 date: "September 11th, 2018"
 ---
@@ -18,8 +18,10 @@ In our next lab and on the problem set you'll use what you've learned here to lo
 The built-in R dataset `mtcars` contains information on 32 models of automobile from 1973-74 as reported in *Motor Trend Magazine*.
 For more information on the variables, see the R help file `?mtcars`.
 Note that `mtcars` is a dataframe rather than a tibble.
-Just to keep things simple I'll leave things as-is.
-Everything I demonstrate in this tutorial will work just as well with a tibble as with a dataframe.
+Just to keep things simple I won't convert it to a tibble.
+But don't worry: everything I demonstrate in this tutorial will work just as well with a tibble as with a dataframe.
+A tibble *is* a dataframe even though a datafram is not a tibble.
+(C.f. a square is a rectangle, but a rectangle is not a square.)
 Here are the first few rows of the `mtcars`: 
 ```{r}
 head(mtcars)
@@ -166,6 +168,71 @@ with(mtcars, mean(mpg))
 <!-- ANS_END -->
 
 
+# F-tests
+Suppose we want to test the *joint* null hypothesis $H_0\colon \beta_1 = \beta_2 = \cdots = \beta_p = 0$ versus the alternative that at least one of these coefficients is non-zero.
+This is equivalent to testing the null hypothesis that none of the predictors $X_1, \cdots, X_p$ is helpful in predicting $Y$.
+This test is automatically carried out by `summary`.
+Consider a regression that uses `disp`, `hp`, `wt` and `cyl` to predict `mpg`
+```{r}
+reg2 <- lm(mpg ~ disp + hp + wt + cyl, mtcars)
+summary(reg2)
+```
+At the very bottom of the `summary` output is a line that begins `F-statistic`.
+This line contains the results of the F-test of the joint null described above.
+In this case the p-value is miniscule: there is very strong evidence that at least one of the predictors is helpful in predicting `mpg`.
+To get a better understanding of what's involved here, we can calculate the p-value "by hand" as follows:
+```{r}
+summary(reg2)$fstatistic
+curve(expr = df(x, 4, 27), 0, 40, n = 1001,
+      ylab = 'density',
+      main = 'Is 37.8 an F(2,29) random draw?')
+abline(v = 37.84413, lty = 2, col = 'red')
+1 - pf(37.84413, 4, 27)
+```
+Under the null hypothesis, the F-statistic is a draw from an $F$ random variable with numerator degrees of freedom $2$ and denominator degrees of freedom $29$.
+(If you are unfamiliar with the F-distribution see my Tutorial [Friends of the Normal Distribution](http://ditraglia.com/Econ103Public/Rtutorials/friends_of_normal.html).)
+So is is plausible that the value 37.8 came from an $F(2,29)$ distribution?
+From my plot of the corresponding density function, the answer is clearly *no*.
+We have very strong evidence against the null hypothesis.
+
+Sometimes we only want to test the null that a *subset* of our predictors is unhelpful for predicting $Y$.
+For example, in `reg2` we might ask whether `wt` and `cyl` provide *extra* information for predicting `mpg` after we have already included `disp` and `hp` in our model.
+To carry out this test, we use the function `linearHypothesis` from the package `car`.
+Make sure to install this package before proceeding.
+Note the syntax: `linearHypothesis([lm object], c('[first restriction]', ..., '[last restriction]')`
+```{r}
+library(car)
+linearHypothesis(reg2, c('wt = 0', 'cyl = 0'))
+```
+The two key numbers to look for in the output are `F`, the value of the F-statistic, and `Pr(>F)`, the p-value.
+The other values are the inputs used to calculate `F`.
+(See Equation 3.24 in ISL.)
+In this instance we strongly reject the null hypothesis that `wt` and `cyl` are irrelevant for predicting `mpg` after controlling for `disp` and `hp`.
+
+# Exercise \#5
+Generate two vectors of independent standard normal draws `x` and `z`.
+Each vector should contain as many elements as there are rows in `mtcars`.
+Use the command `set.seed(1234)` before making your random draws so that they are replicable.
+(By first setting the seed to a fixed number, you ensure that the same random draws will be made any time that you re-run this code chunk.) 
+Carry out a new regression, `reg3`, that *augments* `reg2` by adding the predictors `x` and `z`.
+Then carry out an F-test the null hypothesis that `x` and `z` are irrelevant for predicting `mpg` after controlling for `disp`, `hp`, `wt`, and `cyl`.
+Interpret your findings.
+Do the results of the test make sense?
+
+# Solution to Exercise \#5
+<!-- ANS_START -->
+```{r}
+set.seed(1234)
+n <- nrow(mtcars)
+x <- rnorm(n)
+z <- rnorm(n)
+reg3 <- lm(mpg ~ disp + hp + wt + cyl + x + z, mtcars)
+linearHypothesis(reg3, c('x = 0', 'z = 0'))
+```
+<!-- ANS_END -->
+
+
+
 # Plotting the Regression Line
 To get an idea of whether our regression model looks reasonable, it's always a good idea to make some plots.
 When we have a single predictor $X$, it is common to plot the raw $X$ and $Y$ observations along with the regression line.
@@ -178,9 +245,22 @@ ggplot(mtcars, aes(x = disp, y = mpg)) +
   geom_smooth(method = 'lm')
 ```
 Notice that I specified `aes` inside of `ggplot`.
-This ensures that both `geom_point` and `geom_smooth` known which variable is `x` and which variable is `y`.
+This ensures that both `geom_point` and `geom_smooth` "know" which variable is `x` and which variable is `y`.
 Notice moreover, that the `ggplot` way of doing this includes *error bounds* for the regression line.
 This is a handy way of visualizing the uncertainty in the line we've fit.
+
+
+# Exercise \#6
+Make a `ggplot` with `hp` on the x-axis and `mpg` on the y-axis that includes the regression line for predicting `mpg` from `hp`.
+
+# Solution to Exercise \#6
+<!-- ANS_START -->
+```{r}
+ggplot(mtcars, aes(x = hp, y = mpg)) +
+  geom_point() + 
+  geom_smooth(method = 'lm')
+```
+<!-- ANS_END -->
 
 # Polynomial Regression
 In your next reading assignment, you'll learn about *polynomial regression*.
@@ -204,14 +284,44 @@ ggplot(mtcars, aes(x = disp, y = mpg)) +
 ```
 Notice that this requires us to specify the `formula` argument so that `ggplot` knows that we want to plot a quadratic relationship.
 
+# Exercise \#7
+In my code above, I considered a quadratic relationship between `mpg` and `disp`.
+Add a cubic term to the regression, plot the points and regression function, and display the results using `summary`.
+Comment on the results.
+
+# Solution to Exercise \#7
+<!-- ANS_START -->
+```{r}
+reg4 <- lm(mpg ~ disp + I(disp^2) + I(disp^3), mtcars)
+ggplot(mtcars, aes(x = disp, y = mpg)) +
+  geom_point() +
+  geom_smooth(method = 'lm', formula = y ~ x + I(x^2) + I(x^3))
+summary(reg4)
+```
+<!-- ANS_END -->
+
+
 # Interaction Effects
 An idea closely related to polynomial regression that will also be discussed in your next reading assignment is that of an *interaction*. 
-In the model $Y = \beta_0 + \beta_1 X_1 + \beta_2 X_2 + \beta_3 X_1 X_3 + \epsilon$, $Y$ is a linear function of $\beta_0, \beta_1, \beta_2$, and $\beta_2$ but a *nonlinear* function of $X_1$ and $X_2$.
+In the model $Y = \beta_0 + \beta_1 X_1 + \beta_2 X_2 + \beta_3 X_1 X_3 + \epsilon$, $Y$ is a linear function of $\beta_0, \beta_1, \beta_2$, and $\beta_3$ but a *nonlinear* function of $X_1$ and $X_2$.
 The term $X_1 \times X_2$ is called an *interaction*.
 To run a regression with an interaction, we use the syntax `[One Predictor]:[Another Predictor]` for example
 ```{r}
 lm(mpg ~ disp + hp + disp:hp, mtcars)
 ```
+
+# Exercise \#8 
+Fit a regression using `disp`, `disp^2`, `wt`, `wt^2` and the interaction between `wt` and `disp` to predict `mpg` and display the coefficient estimates.
+
+
+# Solution to Exercise \#8
+<!-- ANS_START -->
+```{r}
+reg5 <- lm(mpg ~ disp + wt + I(disp^2) + I(wt^2) + disp:wt, mtcars)
+coef(reg5)
+```
+<!-- ANS_END -->
+ 
 
 
 
@@ -229,11 +339,12 @@ predict(reg1, mydat)
 ```
 Note the syntax: the first argument of `predict` is a set of regression results while the second is a dataframe (or tibble) with column names that *match* the variables in the regression we carried out.
 
-# Exercise \#5
+# Exercise \#9
 1. Check the predictions of `predict` in the preceding chunk "by hand" using `mydat`, `coef`, and `reg1`.
-2. 
+2. Consider three cars with `disp` equal to 125, 175, and 225, respectively.
+   Predict `mpg` for each of these based on the regression from Exercise \#7.
 
-# Solution to Exercise \#4
+# Solution to Exercise \#9
 <!-- ANS_START -->
 1. Many possibilities. Here's one:
 ```{r}
@@ -243,95 +354,10 @@ b1 <- b[2]
 b2 <- b[3]
 b0 + b1 * mydat$disp + b2 * mydat$hp 
 ```
-2. 
+2. Use the following:
+```{r}
+mydat <- data.frame(disp = c(125, 175, 225))
+predict(reg4, mydat)
+```
 <!-- ANS_END -->
-
-
-<!-- 
-
-
-# How does the predict function work?
-# If we don't give it any other information, it just returns the fitted values
-all.equal(predict(reg1), fitted.values(reg1))
-ggplot(mtcars) +
-  geom_line(aes(x = disp, y = predict(reg1))) +
-  geom_point(aes(x = disp, y = mpg))
-
-# If we supply a dataframe "newdata" it will predict a new observation. This
-# dataframe should have names to match those in the original regression
-predict(reg2, newdata = mydat)
-
-# Use coef to check that you get the same predictions "by hand" for mydat as you did using the predict function
-b <- coef(reg2)
-b0 <- b[1]
-b1 <- b[2]
-b2 <- b[3]
-b0 + b1 * mydat$disp + b2 * mydat$hp 
-
-# Some F-tests
-# -------------- Run a regression with more predictors
-reg3 <- lm(mpg ~ disp + hp + wt + cyl, mtcars)
-# -------------- Joint significance of everything in the regression
-# H0: b0 = b1 = ... = bp = 0
-# H1: at least one of b1, ..., bp is non-zero
-# -------------
-# Using summary:
-summary(reg3)
-# By hand:
-summary(reg3)$fstatistic
-curve(expr = df(x, 4, 27), 0, 40, n = 1001,
-      ylab = 'density',
-      main = 'We would not expect an F(2,29) RV to spit out 37.8')
-abline(v = 37.84413, lty = 2, col = 'red')
-1 - pf(37.84413, 4, 27)
-
-# Testing a subset of coefficients
-library(car)
-linearHypothesis(reg3, c('wt = 0', 'cyl = 0'))
-
-# Generate fake data x ~ N(0,1) and z ~ N(0,1) and add them to reg3 to create
-# reg4. Then F-test that these add no information for predicting mpg. Explain
-# the results.
-n <- nrow(mtcars)
-x <- rnorm(n)
-z <- rnorm(n)
-reg4 <- lm(mpg ~ disp + hp + wt + cyl + x + z, mtcars)
-linearHypothesis(reg4, c('x = 0', 'z = 0'))
--->
-
-
-# Predicting College Football Games
-
-
-  The data for duplicating the football results in Table 10-1 on page 165 and in Table 10-3 on page 170 are in the file: football.txt. For example, for the regression in Table 10-3 have the students regress SPREAD on LV, H, SAG, BIL, COL, DUN, and REC (no constant term) using the 1,582 observations. 
-
-Predictors: 6 ranking systems, win-loss record, and home team variable.
-
-1. Matthews/Scripps Howard (MAT)
-2. Jeff Sagarin's *USA Today* (SAG)
-3. Richard Billingsley (BIL)
-4. *Atlanta Journal-Constitution* Colley Matrix (COL)
-5. Kenneth Massey (MAS)
-6. Dunkel (DUN)
-7. System using *only* won-loss records (REC)
-
-Data for 1998, 1999, 2000, 2001. Ten weeks of data for each year, beginning with week 6 for a total of 1,582 games.
-Division I-A teams: 117 in 2001, 115 in 2000, 144 in 1999, and 112 in 1998.
-Data courtesy of Professor Ray Fair of Yale University.
-
-This example is base on Chapter 10 of Ray Fair's book *Predicting Presidential Elections and Other Things*
-
-Variable we are predicting is *point spread* in a game (SPREAD).
-Two teams in a game: A and B.
-The point spread is team A's score minus team B's score.
-For example, if A beat B 28 to 13, SPREAD equals 15.
-If B beats A 28 to 13, SPREAD equals -15.
-
-How are the predictors constructed?
-Difference in rankings for team A minus team B in the week when the game is scheduled to take place.
-For example if Richard Billingsley ranks Stanford \#10 and UCLA \#22, the predictor BIL equals 11 if we treat Stanford as team A and -11 if we treat UCLA as team A.
-This is how MAT, SAG, BIL, COL, MAS, and DUN are constructed.
-The remaining variable REC is different since it is based on *win-loss records*
-
-
 
