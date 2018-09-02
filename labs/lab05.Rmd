@@ -1,5 +1,5 @@
 ---
-title: "Lab #5 - Predictive Regression I"
+title: "Lab #5 - Linear Regression Crash Course"
 author: "Econ 224"
 date: "September 11th, 2018"
 ---
@@ -9,10 +9,329 @@ date: "September 11th, 2018"
 knitr::opts_chunk$set(comment=NA, fig.width=4.5, fig.height=3.5, fig.align = 'center')
 ```
 
+# Introduction 
+This lab provides a crash course on least squares regression in R.
+In the interest of time we'll work with a very simple, but somewhat boring, dataset that requires very little explanation. 
+In our next lab and on the problem set you'll use what you've learned here to look at much more interesting examples!
+
+# The `mtcars` Dataset
+The built-in R dataset `mtcars` contains information on 32 models of automobile from 1973-74 as reported in *Motor Trend Magazine*.
+For more information on the variables, see the R help file `?mtcars`.
+Note that `mtcars` is a dataframe rather than a tibble.
+Just to keep things simple I'll leave things as-is.
+Everything I demonstrate in this tutorial will work just as well with a tibble as with a dataframe.
+Here are the first few rows of the `mtcars`: 
+```{r}
+head(mtcars)
+```
+Our goal will be to predict `mpg` (fuel efficiency in miles/gallon) using the other variables such as `cyl` (\# of cylinders), `disp` (engine displacement in cubic inches), `hp` (horsepower), and `wt` (weight in thousands of pounds).
+
+# The `lm` Command
+The command for least squares regression in R is `lm` which stands for *linear model*.
+The basic syntax is as follows: `lm([Y variable] ~ [1st predictor] + ... + [pth predictor], [dataframe])`.
+For example, to predict `mpg` using `disp` and `hp` we would run the command
+```{r}
+lm(mpg ~ disp, mtcars)
+```
+
+# Exercise \#1
+Carry out a regression predicting `mpg` using `disp`, `hp`, `cyl` and `wt`
+<!-- ANS_START -->
+```{r}
+lm(mpg ~ disp + hp + cyl + wt, mtcars)
+```
+<!-- ANS_END -->
 
 
-# Introduction
-- Regression basics in R: summary, residuals, coefficients, t-stats, predict, etc
-- F-test "by hand"
-- F-test using `car` package
-- Football example from Ray Fair
+## Getting More Information from `lm`
+If we simply run `lm` as above, R will display only the estimated regression coefficients: $\widehat{\beta}_0, \widehat{\beta}_1, \hdots, \widehat{\beta}_p$ along with the command used to run the regression: `Call`.
+To get more information, we need to *store* the results of our regression.
+```{r}
+reg1 <- lm(mpg ~ disp + hp, mtcars)
+```
+If you run the preceding line of code in the R console, it won't produce any output.
+But if you check your R environment after running it, you'll see a new `List` object: `reg1`.
+To see what's inside this list, we can use the command `str`:
+```{r}
+str(reg1)
+```
+Don't panic: you don't need to know what all of these list elements are.
+The important thing to understand is that `lm` returns a *list* from which we can extract important information about the regression we have run.
+To extract the regression coefficient estimates, we use `coef`
+```{r}
+coef(reg1)
+```
+To extract the regression residuals, we use `resid`
+```{r}
+resid(reg1)
+```
+and to extract the *fitted values* i.e. the predicted values of $Y$, we use `fitted.values`
+```{r}
+fitted.values(reg1)
+```
+
+# Exercise \# 2
+1. Plot a histogram of the residuals from `reg1` using `ggplot` with a bin width of 1.25. Is there anything noteworthy about this plot?
+2. Calculate the residuals "by hand" by subtracting the fitted values from `reg1` from the column `mpg` in mtcars. Use the R function `all.equal` to check that this gives the same result as `resid`.
+
+# Solution to Exercise \#2
+<!-- ANS_START -->
+1. There seems to be some right skewness in the residuals.
+```{r}
+library(ggplot2)
+ggplot() +
+  geom_histogram(aes(x = resid(reg1)), binwidth = 1.25)
+```
+2. They give exactly the same result:
+```{r}
+all.equal(resid(reg1), mtcars$mpg - fitted.values(reg1))
+```
+<!-- ANS_END -->
+
+# Summarizing Regression Output
+To view the usual summary of regression output, we use the `summary` command:
+```{r}
+summary(reg1)
+```
+Among other things, `summary` shows us the coefficient estimates and associated standard errors.
+It also displays the t-value (Estimate / SE) and associated p-value for a test of the null hypothesis $H_0\colon \beta = 0$ versus $H_1\colon \beta \neq 0$.
+Farther down in the output, `summary` provides the residual standard error and R-squared.
+It turns out the summary command *itself* returns a list.
+In particular,
+```{r}
+str(summary(reg1))
+```
+This fact can come in handy when you want to *extract* some of the values from the regression summary table to use for some other purpose.
+For example, we can display *only* the R-squared as follows:
+We could do this as follows:
+```{r}
+summary(reg1)$r.squared
+```
+and only the F-statistic with its associated degrees of freedom as follows:
+```{r}
+summary(reg1)$fstatistic
+```
+
+# Exercise \#3
+1. Use `summary` to display the results of the regression you ran in Exercise \#1 above.
+2. Figure out how to extract and display *only* the regression standard error from the results of `summary` in part 1 of this exercise.
+3. Calculate the regression standard error for the regression from part 1 of this exercise "by hand" and make sure that your answer matches part 2. Hint: use `resid`
+
+# Solution to Exercise \#3
+<!-- ANS_START -->
+1. Store the result of `lm` and use `summary`:
+```{r}
+myreg <- lm(mpg ~ disp + hp + cyl + wt, mtcars)
+summary(myreg)
+```
+2. The appropriate list item is called `sigma` 
+```{r}
+summary(myreg)$sigma
+```
+3. Let $\widehat{\epsilon}_1, \hdots, \widehat{\epsilon}_n$ denote the residuals. Then the standard error of the regression is given by 
+   $$
+   \sqrt{\frac{\sum_{i = 1}^n \widehat{\epsilon}_i^2}{n - p - 1}}
+   $$
+where $p$ is the number of $X$-variables in the regression.
+We can implement this in R using `resid` and compare it to the results calculated automatically by `summary` as follows:
+```{r}
+ehat <- resid(myreg)
+n <- length(ehat)
+p <- length(coef(myreg)) - 1
+sqrt(sum(ehat^2) / (n - p - 1))
+summary(myreg)$sigma
+```
+<!-- ANS_END -->
+
+# Regression Without an Intercept
+More than 99% of the time, it makes sense for us to include an intercept $\beta_0$ in a linear regression.
+To see why, consider the meaning of $\beta_0$: this is the value of $Y$ that we would predict if $X_1 = X_2 = \hdots = X_p = 0$.
+Unless we have some very strong *a priori* knowledge, there is no reason to suppose that the mean of $Y$ should be zero when all of the predictors are zero.
+In some very special cases, however, we *do* have such special knowledge.
+To *force* the intercept in a regression to be zero we use the syntax `-1`, for example
+```{r}
+summary(lm(mpg ~ disp - 1, mtcars))
+```
+
+# Exercise \#4
+What do you get if you run the regression `lm(mpg ~ 1, mtcars)`?
+
+# Solution to Exercise \#4
+<!-- ANS_START -->
+This calculates the sample mean of `mpg`
+```{r}
+lm(mpg ~ 1, mtcars)
+with(mtcars, mean(mpg))
+```
+<!-- ANS_END -->
+
+
+# Plotting the Regression Line
+To get an idea of whether our regression model looks reasonable, it's always a good idea to make some plots.
+When we have a single predictor $X$, it is common to plot the raw $X$ and $Y$ observations along with the regression line.
+It's easy to do this using `ggplot`.
+Suppose we wanted to predict `mpg` using `disp`.
+Here's the `ggplot` way to plot the data and regression line:
+```{r}
+ggplot(mtcars, aes(x = disp, y = mpg)) +
+  geom_point() +
+  geom_smooth(method = 'lm')
+```
+Notice that I specified `aes` inside of `ggplot`.
+This ensures that both `geom_point` and `geom_smooth` known which variable is `x` and which variable is `y`.
+Notice moreover, that the `ggplot` way of doing this includes *error bounds* for the regression line.
+This is a handy way of visualizing the uncertainty in the line we've fit.
+
+# Polynomial Regression
+In your next reading assignment, you'll learn about *polynomial regression*.
+The "linear" in linear regression does not actually refer to the relationship between $Y$ and the predictors $X$; it refers to the relationship between $Y$ and the *coefficients* $\beta_0, \beta_1, ..., \beta_p$.
+In the expression $Y = \beta_0 + \beta_1 X + \epsilon$, $Y$ is a linear function of $\beta_0$ and $\beta_1$ and it is *also* a linear function of $X$.
+In the expression $Y = \beta_0 + \beta_1 X + \beta_2 X^2 + \epsilon$, $Y$ is *still* a linear function of the coefficients, but a *quadratic* function of $X$.
+This is a simple example of polynomial regression, which allows us to model more complicated relationships between $X$ and $Y$.
+Notice, for example, that the relationship between `mpg` and `disp` looks like it might be curved. 
+To accommodate such a relationship, let's try a polynomial regression that includes includes `disp` and `disp^2`.
+To do this we use the syntax `I([some transformation of a predictor)`
+```{r}
+reg3 <- lm(mpg ~ disp + I(disp^2), mtcars)
+summary(reg3)
+```
+Notice that the coefficient on the quadratic term is *highly* statistically significant, which is strong evidence of curvature in the relationship between `mpg` and `disp`.
+We can plot the polynomial regression as follows:
+```{r}
+ggplot(mtcars, aes(x = disp, y = mpg)) +
+  geom_point() +
+  geom_smooth(method = 'lm', formula = y ~ x + I(x^2))
+```
+Notice that this requires us to specify the `formula` argument so that `ggplot` knows that we want to plot a quadratic relationship.
+
+# Interaction Effects
+An idea closely related to polynomial regression that will also be discussed in your next reading assignment is that of an *interaction*. 
+In the model $Y = \beta_0 + \beta_1 X_1 + \beta_2 X_2 + \beta_3 X_1 X_3 + \epsilon$, $Y$ is a linear function of $\beta_0, \beta_1, \beta_2$, and $\beta_2$ but a *nonlinear* function of $X_1$ and $X_2$.
+The term $X_1 \times X_2$ is called an *interaction*.
+To run a regression with an interaction, we use the syntax `[One Predictor]:[Another Predictor]` for example
+```{r}
+lm(mpg ~ disp + hp + disp:hp, mtcars)
+```
+
+
+
+# Predicting New Observations
+To predict new observations based on a fitted linear regression model in R, we use the `predict` function.
+For example, consider three hypothetical cars with the following values of displacement and horsepower
+```{r}
+mydat <- data.frame(disp = c(100, 200, 300),
+                    hp = c(150, 100, 200))
+mydat
+```
+Based on the results of `reg1`, we would predict that these cars have the following values of `mpg`
+```{r}
+predict(reg1, mydat)
+```
+Note the syntax: the first argument of `predict` is a set of regression results while the second is a dataframe (or tibble) with column names that *match* the variables in the regression we carried out.
+
+# Exercise \#5
+1. Check the predictions of `predict` in the preceding chunk "by hand" using `mydat`, `coef`, and `reg1`.
+2. 
+
+# Solution to Exercise \#4
+<!-- ANS_START -->
+1. Many possibilities. Here's one:
+```{r}
+b <- coef(reg1)
+b0 <- b[1]
+b1 <- b[2]
+b2 <- b[3]
+b0 + b1 * mydat$disp + b2 * mydat$hp 
+```
+2. 
+<!-- ANS_END -->
+
+
+<!-- 
+
+
+# How does the predict function work?
+# If we don't give it any other information, it just returns the fitted values
+all.equal(predict(reg1), fitted.values(reg1))
+ggplot(mtcars) +
+  geom_line(aes(x = disp, y = predict(reg1))) +
+  geom_point(aes(x = disp, y = mpg))
+
+# If we supply a dataframe "newdata" it will predict a new observation. This
+# dataframe should have names to match those in the original regression
+predict(reg2, newdata = mydat)
+
+# Use coef to check that you get the same predictions "by hand" for mydat as you did using the predict function
+b <- coef(reg2)
+b0 <- b[1]
+b1 <- b[2]
+b2 <- b[3]
+b0 + b1 * mydat$disp + b2 * mydat$hp 
+
+# Some F-tests
+# -------------- Run a regression with more predictors
+reg3 <- lm(mpg ~ disp + hp + wt + cyl, mtcars)
+# -------------- Joint significance of everything in the regression
+# H0: b0 = b1 = ... = bp = 0
+# H1: at least one of b1, ..., bp is non-zero
+# -------------
+# Using summary:
+summary(reg3)
+# By hand:
+summary(reg3)$fstatistic
+curve(expr = df(x, 4, 27), 0, 40, n = 1001,
+      ylab = 'density',
+      main = 'We would not expect an F(2,29) RV to spit out 37.8')
+abline(v = 37.84413, lty = 2, col = 'red')
+1 - pf(37.84413, 4, 27)
+
+# Testing a subset of coefficients
+library(car)
+linearHypothesis(reg3, c('wt = 0', 'cyl = 0'))
+
+# Generate fake data x ~ N(0,1) and z ~ N(0,1) and add them to reg3 to create
+# reg4. Then F-test that these add no information for predicting mpg. Explain
+# the results.
+n <- nrow(mtcars)
+x <- rnorm(n)
+z <- rnorm(n)
+reg4 <- lm(mpg ~ disp + hp + wt + cyl + x + z, mtcars)
+linearHypothesis(reg4, c('x = 0', 'z = 0'))
+-->
+
+
+# Predicting College Football Games
+
+
+  The data for duplicating the football results in Table 10-1 on page 165 and in Table 10-3 on page 170 are in the file: football.txt. For example, for the regression in Table 10-3 have the students regress SPREAD on LV, H, SAG, BIL, COL, DUN, and REC (no constant term) using the 1,582 observations. 
+
+Predictors: 6 ranking systems, win-loss record, and home team variable.
+
+1. Matthews/Scripps Howard (MAT)
+2. Jeff Sagarin's *USA Today* (SAG)
+3. Richard Billingsley (BIL)
+4. *Atlanta Journal-Constitution* Colley Matrix (COL)
+5. Kenneth Massey (MAS)
+6. Dunkel (DUN)
+7. System using *only* won-loss records (REC)
+
+Data for 1998, 1999, 2000, 2001. Ten weeks of data for each year, beginning with week 6 for a total of 1,582 games.
+Division I-A teams: 117 in 2001, 115 in 2000, 144 in 1999, and 112 in 1998.
+Data courtesy of Professor Ray Fair of Yale University.
+
+This example is base on Chapter 10 of Ray Fair's book *Predicting Presidential Elections and Other Things*
+
+Variable we are predicting is *point spread* in a game (SPREAD).
+Two teams in a game: A and B.
+The point spread is team A's score minus team B's score.
+For example, if A beat B 28 to 13, SPREAD equals 15.
+If B beats A 28 to 13, SPREAD equals -15.
+
+How are the predictors constructed?
+Difference in rankings for team A minus team B in the week when the game is scheduled to take place.
+For example if Richard Billingsley ranks Stanford \#10 and UCLA \#22, the predictor BIL equals 11 if we treat Stanford as team A and -11 if we treat UCLA as team A.
+This is how MAT, SAG, BIL, COL, MAS, and DUN are constructed.
+The remaining variable REC is different since it is based on *win-loss records*
+
+
+
