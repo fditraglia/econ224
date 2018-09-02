@@ -20,7 +20,7 @@ For more information on the variables, see the R help file `?mtcars`.
 Note that `mtcars` is a dataframe rather than a tibble.
 Just to keep things simple I won't convert it to a tibble.
 But don't worry: everything I demonstrate in this tutorial will work just as well with a tibble as with a dataframe.
-A tibble *is* a dataframe even though a datafram is not a tibble.
+A tibble *is* a dataframe even though a dataframe is not a tibble.
 (C.f. a square is a rectangle, but a rectangle is not a square.)
 Here are the first few rows of the `mtcars`: 
 ```{r}
