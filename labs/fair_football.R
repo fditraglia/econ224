@@ -41,7 +41,7 @@ library(GGally)
 football %>%
   select(MAT:REC) %>%
   ggpairs
-''
+
 
 # Does each ranking system contain independent information?
 # (Regression *without* an intercept)

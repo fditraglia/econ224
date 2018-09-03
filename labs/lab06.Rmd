@@ -9,12 +9,39 @@ date: "September 11th, 2018"
 knitr::opts_chunk$set(comment=NA, fig.width=4.5, fig.height=3.5, fig.align = 'center')
 ```
 
-# Predicting College Football Games
-This example is based on the paper "College Football Rankings and Market Efficiency" by Ray Fair and John F.\ Oster (*Journal of Sports Economics*, Vol. 8 No. 1, February 2007, pp. 3-18).
+# College Football Rankings and Market Efficiency 
 
-  The data for duplicating the football results in Table 10-1 on page 165 and in Table 10-3 on page 170 are in the file: football.txt. For example, for the regression in Table 10-3 have the students regress SPREAD on LV, H, SAG, BIL, COL, DUN, and REC (no constant term) using the 1,582 observations. 
+This example is based on the paper "College Football Rankings and Market Efficiency" by Ray Fair and John F.\ Oster (*Journal of Sports Economics*, Vol. 8 No. 1, February 2007, pp. 3-18) and the related discussion in Chapter 10 of *Predicting Presidential Elections and Other Things* by Ray Fair.
+The data used in this exercise are courtesy of Professor Fair.
+For convenience I have posted a copy on the course website which can be read into R as follows:
+```{r, message = FALSE}
+library(tidyverse)
+football <- read_csv('http://ditraglia.com/econ224/fair_football.csv')
+football
+```
+Each row of the tibble `football` contains information on a single division I-A college football game.
+All of these games were played in 1998, 1999, 2000, or 2001.
+We have ten weeks of data for each year, beginning in week 6 of the college football season.
 
-Predictors: 6 ranking systems, win-loss record, and home team variable.
+## Response Variable: `SPREAD`
+Our goal is to predict `SPREAD`, the *point spread* in a given football game.
+This variable is constructed as follows.
+For each game, one of the two teams is *arbitrarily* designated "Team A" and the other "Team B."
+The point spread is defined as A's final score minus B's final score.
+For example, in the first row of `football` the value of `SPREAD` is 34.
+This means that team A scored 34 more points than team B.
+Again, the designations of A and B are *completely arbitrary*, so `SPREAD` can be positive or negative.
+The value of `-2` for `SPREAD` in row 6 indicates that the team designated A in that game scored two points *fewer* than team designated B.
+
+## Predictor Variables
+
+### Home Field Indicator: `H`
+The predictor `H` is a categorical variable that equals `1` if team A was the home team, `-1` if team B was the home team, and `0` if neither was the home team as in, e.g. the Rose Bowl.
+
+
+### Computer Ranking Systems: `(MAT, SAG, BIL, COL, MAS, DUN)`
+
+Our next set of predictors is constructed from the following computer ranking systems:
 
 1. Matthews/Scripps Howard (MAT)
 2. Jeff Sagarin's *USA Today* (SAG)
@@ -22,27 +49,134 @@ Predictors: 6 ranking systems, win-loss record, and home team variable.
 4. *Atlanta Journal-Constitution* Colley Matrix (COL)
 5. Kenneth Massey (MAS)
 6. Dunkel (DUN)
-7. System using *only* won-loss records (REC)
 
-Data for 1998, 1999, 2000, 2001. Ten weeks of data for each year, beginning with week 6 for a total of 1,582 games.
-Division I-A teams: 117 in 2001, 115 in 2000, 144 in 1999, and 112 in 1998.
-Data courtesy of Professor Ray Fair of Yale University.
+Fair and Oster (2007) describe these as follows:
 
-This example is base on Chapter 10 of Ray Fair's book *Predicting Presidential Elections and Other Things*
+> Each week during a college football season, there are many rankings of the Division I-A teams. Some rankings are based on the votes of sports writers, and some are based on computer algorithms ...  The algorithms are generally fairly complicated, and there is no easy way to summarize their main differences. 
 
-Variable we are predicting is *point spread* in a game (SPREAD).
-Two teams in a game: A and B.
-The point spread is team A's score minus team B's score.
-For example, if A beat B 28 to 13, SPREAD equals 15.
-If B beats A 28 to 13, SPREAD equals -15.
+The predictors `MAT, SAG, BIL, COL, MAS` and `DUN` are constructed as the *difference* of rankings for team A minus team B in the week when the corresponding game is scheduled to occur.
+Suppose, for example, that in a week when Stanford is schedule to play UCLA, Richard Billingsley has Stanford \#10 and UCLA \#22.
+The *difference* of ranks is 11.
+So if Stanford is team A, `BIL` will equal `11` and if Stanford is team B, `BIL` will equal `-11`.
+To be clear, each of these predictors will be *positive* when the team designated A is *more highly ranked*.
 
-How are the predictors constructed?
-Difference in rankings for team A minus team B in the week when the game is scheduled to take place.
-For example if Richard Billingsley ranks Stanford \#10 and UCLA \#22, the predictor BIL equals 11 if we treat Stanford as team A and -11 if we treat UCLA as team A.
-This is how MAT, SAG, BIL, COL, MAS, and DUN are constructed.
-The remaining variable REC is different since it is based on *win-loss records*
+### Win-Loss Record: `REC`
 
-# Second Part: Implement KNN
-Test on `mtcars` dataset: `mpg` versus `disp`
+Continuing their discussion of computer ranking systems, Fair and Oster (2007) write:
 
-Use this to teach `if/else` and `for` loops
+> Each system more or less starts with a team's win-loss record and makes adjustments from there. An interesting system to use as a basis of comparison is one in which only win-loss records are used ... denoted `REC`.
+
+The predictor `REC` is constructed differently from `MAT, SAG, BIL, COL, MAS` and `DUN`.
+This predictor equals the difference in *percentage of games won* for team A minus team B.
+For example, returning to the Stanford versus UCLA example, suppose that Stanford has won 80\% of its games thus far while UCLA has won 50\%.
+Then `REC` will equal `30` if Stanford is team A and `-30` if Stanford is team B.
+
+### Las Vegas Point Spread: `LV`
+Our final predictor is `LV`: the Las Vegas line point spread.
+[ESPN](http://www.espn.com/college-football/lines) defines a point spread as follows:
+
+> Also known as the line or spread, it [a point spread] is a number chosen by Las Vegas and overseas oddsmakers that will encourage an equal number of people to wager on the underdog as on the favorite. If fans believe that Team A is two touchdowns better than Team B, they may bet them as 14-point favorites. In a point spread, the negative value (-14) indicates the favorite and the positive value (+14) indicates the underdog. Betting a -14 favorite means the team must win by at least 15 points to cover the point spread. The +14 underdog team can lose by 13 points and still cover the spread. 
+
+For example, the value of 24 for `LV` row 1 of `football` indicates that fans believe team A is 24 points better than team B.
+The fact that a point spread is an *equilibrium value* chosen to balance the quantity of bets for and against a given team has some important economic implications that we will explore below.
+
+## Exercises
+1. Calculate the *home field advantage*.
+   How often does the home team win?
+   How many more point, on average, does the home team score?
+2. Run a linear regression *without an intercept* that uses `H` to predict `SPREAD`. Interpret the coefficient estimates, carry out appropriate inference, and summarize the model fit. Why *doesn't* it make sense to include an intercept in this regression, or indeed in *any* regression predicting `SPREAD`?
+3. Install the R package `GGally` and use the function `ggpairs` to make a pairs plot of the columns `MAT, SAG, BIL, COL, MAS, DUN,` and `REC`. Summarize your results. 
+4. Run a regression *without an intercept* using `H`, `REC` and the six computer ranking systems (`MAT, SAG, BIL, COL, MAS,` and `DUN`) to predict `SPREAD`. 
+   Do all of the ranking systems add additional predictive information beyond that contained in `H` and the other ranking systems? 
+   Carry out appropriate statistical inference to make this determination.
+   If, based on your results, some predictors appear to be redundant, re-estimate your regression dropping these.
+   Based on your results from part 4 of this question, is it possible to make better predictions of college football games than the *best* of the seven computer systems? 
+5. Run a regression *without an intercept* that predicts `SPREAD` using `LV`, `H` and whichever of the seven ranking systems you found to contain independent information in part 4 above. Does `H` or any of the ranking systems contain additional predictive information beyond that contained in `LV`? Carry out appropriate statistical inference to make this determination. 
+6. What do your findings from part 5 above have to do with the concept of market efficiency?
+   If betting markets are efficient, what should be the slope and intercept in a regression that uses `LV` *alone* to predict `SPREAD`?
+   Can you statistically reject these values for the regression coefficients?
+   How accurately does `LV` alone predict `SPREAD`?
+
+## Solutions 
+<!-- ANS_START -->
+### Exercise \#1
+
+```{r}
+# In games with a home team (i.e. not bowl games) how often does the home
+# team win?
+football %>%
+  filter(H != 0) %>%
+  mutate(Hwin = SPREAD * H > 0) %>%
+  summarize(mean(Hwin))
+```
+```{r}
+# In games with a home team (i.e. not bowl games) how many more points does the
+# home team score on average?
+football %>%
+  filter(H != 0) %>%
+  summarize(mean(SPREAD * H))
+```
+
+```{r}
+# Regression to predict SPREAD using H *without* a constant
+reg1 <- lm(SPREAD ~ H - 1, football)
+summary(reg1)
+```
+
+ Explain why it makes sense *not* to include a constant. Hint: which team was
+ designated A and which was designated B was *arbitrary*. How does it affect
+ the regression prediction?
+
+```{r}
+# Plot each of the seven systems one another using ggpairs                   
+library(GGally)
+football %>%
+  select(MAT:REC) %>%
+  ggpairs
+```
+```{r}
+# Does each ranking system contain independent information?
+# (Regression *without* an intercept)
+reg1 <- lm(SPREAD ~ H + MAT + SAG + BIL + COL + MAS + DUN + REC - 1, football)
+summary(reg1)
+```
+
+```{r}
+# Neither MAT nor MAS are significant individually. What about jointly?
+library(car)
+linearHypothesis(reg1, c('MAT = 0', 'MAS = 0'))
+```
+
+```{r}
+# The preceding results suggest that MAT and MAS do not add additional predictive
+# information beyond that contained in the other predictors, so it makes sense
+# to try a regression that doesn't include them:
+reg2 <- lm(SPREAD ~ H + SAG + BIL + COL + DUN + REC - 1, football)
+summary(reg2)
+
+# The preceding results suggest that MAT and MAS do not add additional predictive
+# information beyond that contained in the other predictors, so it makes sense
+# to try a regression that doesn't include them:
+reg2 <- lm(SPREAD ~ H + SAG + BIL + COL + DUN + REC - 1, football)
+summary(reg2)
+```
+
+```{r}
+# Once we add the Las Vegas line point spread (LV) nothing else is significant!
+reg3 <- lm(SPREAD ~ LV + H + SAG + BIL + COL + DUN + REC - 1, football)
+summary(reg3)
+linearHypothesis(reg3, c('H = 0', 'SAG = 0', 'BIL = 0', 'COL = 0', 'DUN = 0',
+                        'REC = 0'))
+
+# How well does LV predict on its own? Can we reject the null that the coef is 1?
+# What would it mean for this coef to equal 1? Make a plot.
+reg4 <- lm(SPREAD ~ LV - 1, football)
+summary(reg4)
+linearHypothesis(reg4, c('LV = 1'))
+ggplot(football, aes(x = LV, y = SPREAD)) +
+  geom_point() +
+  geom_smooth(method = 'lm')
+```
+
+
+<!-- ANS_END -->
