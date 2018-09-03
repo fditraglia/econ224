@@ -6,7 +6,7 @@ title: Course Homepage
 ## Course Documents
 - [Syllabus](./syllabus.pdf)
 - [Reading Assignments](./reading-questions.pdf)
-- Labs: [lab1](./lab01_student.Rmd), [lab2](./lab02_student.Rmd), [lab3](./lab03_student.Rmd), [lab4](./lab04_student.Rmd)
+- Labs: [lab1](./lab01_student.Rmd), [lab2](./lab02_student.Rmd), [lab3](./lab03_student.Rmd), [lab4](./lab04_student.Rmd), [lab5](./lab05_student.Rmd), [lab6](./lab06_student.Rmd)
 - Problem Sets: [ps1](./ps01-college.pdf), [ps2](./ps02-STAR.pdf)
 - Final Project Requirements
 

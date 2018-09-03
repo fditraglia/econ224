@@ -1,0 +1,277 @@
+---
+title: "Lab #5 - Predictive Regression I"
+author: "Econ 224"
+date: "September 11th, 2018"
+---
+
+<!-- knitr global options -->
+```{r, include = FALSE}
+knitr::opts_chunk$set(comment=NA, fig.width=4.5, fig.height=3.5, fig.align = 'center')
+```
+
+# Introduction 
+This lab provides a crash course on least squares regression in R.
+In the interest of time we'll work with a very simple, but somewhat boring, dataset that requires very little explanation. 
+In our next lab and on the problem set you'll use what you've learned here to look at much more interesting examples!
+
+# The `mtcars` Dataset
+The built-in R dataset `mtcars` contains information on 32 models of automobile from 1973-74 as reported in *Motor Trend Magazine*.
+For more information on the variables, see the R help file `?mtcars`.
+Note that `mtcars` is a dataframe rather than a tibble.
+Just to keep things simple I won't convert it to a tibble.
+But don't worry: everything I demonstrate in this tutorial will work just as well with a tibble as with a dataframe.
+A tibble *is* a dataframe even though a dataframe is not a tibble.
+(C.f. a square is a rectangle, but a rectangle is not a square.)
+Here are the first few rows of the `mtcars`: 
+```{r}
+head(mtcars)
+```
+Our goal will be to predict `mpg` (fuel efficiency in miles/gallon) using the other variables such as `cyl` (\# of cylinders), `disp` (engine displacement in cubic inches), `hp` (horsepower), and `wt` (weight in thousands of pounds).
+
+# The `lm` Command
+The command for least squares regression in R is `lm` which stands for *linear model*.
+The basic syntax is as follows: `lm([Y variable] ~ [1st predictor] + ... + [pth predictor], [dataframe])`.
+For example, to predict `mpg` using `disp` and `hp` we would run the command
+```{r}
+lm(mpg ~ disp, mtcars)
+```
+
+# Exercise \#1
+Carry out a regression predicting `mpg` using `disp`, `hp`, `cyl` and `wt`
+*Write your code and solutions here.*
+
+
+## Getting More Information from `lm`
+If we simply run `lm` as above, R will display only the estimated regression coefficients: $\widehat{\beta}_0, \widehat{\beta}_1, \hdots, \widehat{\beta}_p$ along with the command used to run the regression: `Call`.
+To get more information, we need to *store* the results of our regression.
+```{r}
+reg1 <- lm(mpg ~ disp + hp, mtcars)
+```
+If you run the preceding line of code in the R console, it won't produce any output.
+But if you check your R environment after running it, you'll see a new `List` object: `reg1`.
+To see what's inside this list, we can use the command `str`:
+```{r}
+str(reg1)
+```
+Don't panic: you don't need to know what all of these list elements are.
+The important thing to understand is that `lm` returns a *list* from which we can extract important information about the regression we have run.
+To extract the regression coefficient estimates, we use `coef`
+```{r}
+coef(reg1)
+```
+To extract the regression residuals, we use `resid`
+```{r}
+resid(reg1)
+```
+and to extract the *fitted values* i.e. the predicted values of $Y$, we use `fitted.values`
+```{r}
+fitted.values(reg1)
+```
+
+# Exercise \# 2
+1. Plot a histogram of the residuals from `reg1` using `ggplot` with a bin width of 1.25. Is there anything noteworthy about this plot?
+2. Calculate the residuals "by hand" by subtracting the fitted values from `reg1` from the column `mpg` in mtcars. Use the R function `all.equal` to check that this gives the same result as `resid`.
+
+# Solution to Exercise \#2
+*Write your code and solutions here.*
+
+# Summarizing Regression Output
+To view the usual summary of regression output, we use the `summary` command:
+```{r}
+summary(reg1)
+```
+Among other things, `summary` shows us the coefficient estimates and associated standard errors.
+It also displays the t-value (Estimate / SE) and associated p-value for a test of the null hypothesis $H_0\colon \beta = 0$ versus $H_1\colon \beta \neq 0$.
+Farther down in the output, `summary` provides the residual standard error and R-squared.
+It turns out the summary command *itself* returns a list.
+In particular,
+```{r}
+str(summary(reg1))
+```
+This fact can come in handy when you want to *extract* some of the values from the regression summary table to use for some other purpose.
+For example, we can display *only* the R-squared as follows:
+We could do this as follows:
+```{r}
+summary(reg1)$r.squared
+```
+and only the F-statistic with its associated degrees of freedom as follows:
+```{r}
+summary(reg1)$fstatistic
+```
+
+# Exercise \#3
+1. Use `summary` to display the results of the regression you ran in Exercise \#1 above.
+2. Figure out how to extract and display *only* the regression standard error from the results of `summary` in part 1 of this exercise.
+3. Calculate the regression standard error for the regression from part 1 of this exercise "by hand" and make sure that your answer matches part 2. Hint: use `resid`
+
+# Solution to Exercise \#3
+*Write your code and solutions here.*
+
+# Regression Without an Intercept
+More than 99% of the time, it makes sense for us to include an intercept $\beta_0$ in a linear regression.
+To see why, consider the meaning of $\beta_0$: this is the value of $Y$ that we would predict if $X_1 = X_2 = \hdots = X_p = 0$.
+Unless we have some very strong *a priori* knowledge, there is no reason to suppose that the mean of $Y$ should be zero when all of the predictors are zero.
+In some very special cases, however, we *do* have such special knowledge.
+To *force* the intercept in a regression to be zero we use the syntax `-1`, for example
+```{r}
+summary(lm(mpg ~ disp - 1, mtcars))
+```
+
+# Exercise \#4
+What do you get if you run the regression `lm(mpg ~ 1, mtcars)`?
+
+# Solution to Exercise \#4
+*Write your code and solutions here.*
+
+
+# F-tests
+Suppose we want to test the *joint* null hypothesis $H_0\colon \beta_1 = \beta_2 = \cdots = \beta_p = 0$ versus the alternative that at least one of these coefficients is non-zero.
+This is equivalent to testing the null hypothesis that none of the predictors $X_1, \cdots, X_p$ is helpful in predicting $Y$.
+This test is automatically carried out by `summary`.
+Consider a regression that uses `disp`, `hp`, `wt` and `cyl` to predict `mpg`
+```{r}
+reg2 <- lm(mpg ~ disp + hp + wt + cyl, mtcars)
+summary(reg2)
+```
+At the very bottom of the `summary` output is a line that begins `F-statistic`.
+This line contains the results of the F-test of the joint null described above.
+In this case the p-value is miniscule: there is very strong evidence that at least one of the predictors is helpful in predicting `mpg`.
+To get a better understanding of what's involved here, we can calculate the p-value "by hand" as follows:
+```{r}
+summary(reg2)$fstatistic
+curve(expr = df(x, 4, 27), 0, 40, n = 1001,
+      ylab = 'density',
+      main = 'Is 37.8 an F(2,29) random draw?')
+abline(v = 37.84413, lty = 2, col = 'red')
+1 - pf(37.84413, 4, 27)
+```
+Under the null hypothesis, the F-statistic is a draw from an $F$ random variable with numerator degrees of freedom $2$ and denominator degrees of freedom $29$.
+(If you are unfamiliar with the F-distribution see my Tutorial [Friends of the Normal Distribution](http://ditraglia.com/Econ103Public/Rtutorials/friends_of_normal.html).)
+So is is plausible that the value 37.8 came from an $F(2,29)$ distribution?
+From my plot of the corresponding density function, the answer is clearly *no*.
+We have very strong evidence against the null hypothesis.
+
+Sometimes we only want to test the null that a *subset* of our predictors is unhelpful for predicting $Y$.
+For example, in `reg2` we might ask whether `wt` and `cyl` provide *extra* information for predicting `mpg` after we have already included `disp` and `hp` in our model.
+To carry out this test, we use the function `linearHypothesis` from the package `car`.
+Make sure to install this package before proceeding.
+Note the syntax: `linearHypothesis([lm object], c('[first restriction]', ..., '[last restriction]')`
+```{r}
+library(car)
+linearHypothesis(reg2, c('wt = 0', 'cyl = 0'))
+```
+The two key numbers to look for in the output are `F`, the value of the F-statistic, and `Pr(>F)`, the p-value.
+The other values are the inputs used to calculate `F`.
+(See Equation 3.24 in ISL.)
+In this instance we strongly reject the null hypothesis that `wt` and `cyl` are irrelevant for predicting `mpg` after controlling for `disp` and `hp`.
+
+# Exercise \#5
+Generate two vectors of independent standard normal draws `x` and `z`.
+Each vector should contain as many elements as there are rows in `mtcars`.
+Use the command `set.seed(1234)` before making your random draws so that they are replicable.
+(By first setting the seed to a fixed number, you ensure that the same random draws will be made any time that you re-run this code chunk.) 
+Carry out a new regression, `reg3`, that *augments* `reg2` by adding the predictors `x` and `z`.
+Then carry out an F-test the null hypothesis that `x` and `z` are irrelevant for predicting `mpg` after controlling for `disp`, `hp`, `wt`, and `cyl`.
+Interpret your findings.
+Do the results of the test make sense?
+
+# Solution to Exercise \#5
+*Write your code and solutions here.*
+
+
+
+# Plotting the Regression Line
+To get an idea of whether our regression model looks reasonable, it's always a good idea to make some plots.
+When we have a single predictor $X$, it is common to plot the raw $X$ and $Y$ observations along with the regression line.
+It's easy to do this using `ggplot`.
+Suppose we wanted to predict `mpg` using `disp`.
+Here's the `ggplot` way to plot the data and regression line:
+```{r}
+ggplot(mtcars, aes(x = disp, y = mpg)) +
+  geom_point() +
+  geom_smooth(method = 'lm')
+```
+Notice that I specified `aes` inside of `ggplot`.
+This ensures that both `geom_point` and `geom_smooth` "know" which variable is `x` and which variable is `y`.
+Notice moreover, that the `ggplot` way of doing this includes *error bounds* for the regression line.
+This is a handy way of visualizing the uncertainty in the line we've fit.
+
+
+# Exercise \#6
+Make a `ggplot` with `hp` on the x-axis and `mpg` on the y-axis that includes the regression line for predicting `mpg` from `hp`.
+
+# Solution to Exercise \#6
+*Write your code and solutions here.*
+
+# Polynomial Regression
+In your next reading assignment, you'll learn about *polynomial regression*.
+The "linear" in linear regression does not actually refer to the relationship between $Y$ and the predictors $X$; it refers to the relationship between $Y$ and the *coefficients* $\beta_0, \beta_1, ..., \beta_p$.
+In the expression $Y = \beta_0 + \beta_1 X + \epsilon$, $Y$ is a linear function of $\beta_0$ and $\beta_1$ and it is *also* a linear function of $X$.
+In the expression $Y = \beta_0 + \beta_1 X + \beta_2 X^2 + \epsilon$, $Y$ is *still* a linear function of the coefficients, but a *quadratic* function of $X$.
+This is a simple example of polynomial regression, which allows us to model more complicated relationships between $X$ and $Y$.
+Notice, for example, that the relationship between `mpg` and `disp` looks like it might be curved. 
+To accommodate such a relationship, let's try a polynomial regression that includes includes `disp` and `disp^2`.
+To do this we use the syntax `I([some transformation of a predictor)`
+```{r}
+reg3 <- lm(mpg ~ disp + I(disp^2), mtcars)
+summary(reg3)
+```
+Notice that the coefficient on the quadratic term is *highly* statistically significant, which is strong evidence of curvature in the relationship between `mpg` and `disp`.
+We can plot the polynomial regression as follows:
+```{r}
+ggplot(mtcars, aes(x = disp, y = mpg)) +
+  geom_point() +
+  geom_smooth(method = 'lm', formula = y ~ x + I(x^2))
+```
+Notice that this requires us to specify the `formula` argument so that `ggplot` knows that we want to plot a quadratic relationship.
+
+# Exercise \#7
+In my code above, I considered a quadratic relationship between `mpg` and `disp`.
+Add a cubic term to the regression, plot the points and regression function, and display the results using `summary`.
+Comment on the results.
+
+# Solution to Exercise \#7
+*Write your code and solutions here.*
+
+
+# Interaction Effects
+An idea closely related to polynomial regression that will also be discussed in your next reading assignment is that of an *interaction*. 
+In the model $Y = \beta_0 + \beta_1 X_1 + \beta_2 X_2 + \beta_3 X_1 X_3 + \epsilon$, $Y$ is a linear function of $\beta_0, \beta_1, \beta_2$, and $\beta_3$ but a *nonlinear* function of $X_1$ and $X_2$.
+The term $X_1 \times X_2$ is called an *interaction*.
+To run a regression with an interaction, we use the syntax `[One Predictor]:[Another Predictor]` for example
+```{r}
+lm(mpg ~ disp + hp + disp:hp, mtcars)
+```
+
+# Exercise \#8 
+Fit a regression using `disp`, `disp^2`, `wt`, `wt^2` and the interaction between `wt` and `disp` to predict `mpg` and display the coefficient estimates.
+
+
+# Solution to Exercise \#8
+*Write your code and solutions here.*
+ 
+
+
+
+# Predicting New Observations
+To predict new observations based on a fitted linear regression model in R, we use the `predict` function.
+For example, consider three hypothetical cars with the following values of displacement and horsepower
+```{r}
+mydat <- data.frame(disp = c(100, 200, 300),
+                    hp = c(150, 100, 200))
+mydat
+```
+Based on the results of `reg1`, we would predict that these cars have the following values of `mpg`
+```{r}
+predict(reg1, mydat)
+```
+Note the syntax: the first argument of `predict` is a set of regression results while the second is a dataframe (or tibble) with column names that *match* the variables in the regression we carried out.
+
+# Exercise \#9
+1. Check the predictions of `predict` in the preceding chunk "by hand" using `mydat`, `coef`, and `reg1`.
+2. Consider three cars with `disp` equal to 125, 175, and 225, respectively.
+   Predict `mpg` for each of these based on the regression from Exercise \#7.
+
+# Solution to Exercise \#9
+*Write your code and solutions here.*
+
