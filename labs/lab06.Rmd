@@ -6,7 +6,7 @@ date: "September 11th, 2018"
 
 <!-- knitr global options -->
 ```{r, include = FALSE}
-knitr::opts_chunk$set(comment=NA, fig.width=4.5, fig.height=3.5, fig.align = 'center')
+knitr::opts_chunk$set(comment=NA, fig.width=6, fig.height=4.5, fig.align = 'center')
 ```
 
 # College Football Rankings and Market Efficiency 
@@ -83,9 +83,9 @@ The fact that a point spread is an *equilibrium value* chosen to balance the qua
 ## Exercises
 1. Calculate the *home field advantage*.
    How often does the home team win?
-   How many more point, on average, does the home team score?
+   How many more points, on average, does the home team score?
 2. Run a linear regression *without an intercept* that uses `H` to predict `SPREAD`. Interpret the coefficient estimates, carry out appropriate inference, and summarize the model fit. Why *doesn't* it make sense to include an intercept in this regression, or indeed in *any* regression predicting `SPREAD`?
-3. Install the R package `GGally` and use the function `ggpairs` to make a pairs plot of the columns `MAT, SAG, BIL, COL, MAS, DUN,` and `REC`. Summarize your results. 
+3. Install the R package `GGally` and use the function `ggpairs` to make a pairs plot of the columns `MAT, SAG, BIL, COL, MAS, DUN,` and `REC`. Summarize your results, including the numeric values included in the plot.
 4. Run a regression *without an intercept* using `H`, `REC` and the six computer ranking systems (`MAT, SAG, BIL, COL, MAS,` and `DUN`) to predict `SPREAD`. 
    Do all of the ranking systems add additional predictive information beyond that contained in `H` and the other ranking systems? 
    Carry out appropriate statistical inference to make this determination.
@@ -93,89 +93,96 @@ The fact that a point spread is an *equilibrium value* chosen to balance the qua
    Based on your results from part 4 of this question, is it possible to make better predictions of college football games than the *best* of the seven computer systems? 
 5. Run a regression *without an intercept* that predicts `SPREAD` using `LV`, `H` and whichever of the seven ranking systems you found to contain independent information in part 4 above. Does `H` or any of the ranking systems contain additional predictive information beyond that contained in `LV`? Carry out appropriate statistical inference to make this determination. 
 6. What do your findings from part 5 above have to do with the concept of market efficiency?
-   If betting markets are efficient, what should be the slope and intercept in a regression that uses `LV` *alone* to predict `SPREAD`?
+   If betting markets are efficient, what should be the slope in a regression that uses `LV` *alone* to predict `SPREAD`?
    Can you statistically reject these values for the regression coefficients?
    How accurately does `LV` alone predict `SPREAD`?
 
 ## Solutions 
 <!-- ANS_START -->
 ### Exercise \#1
-
+The home team wins approximately 58.6\% of the time which is an 8.6\% advantage.
+On average, the home team scores about 4.86 more points than the away team.
 ```{r}
-# In games with a home team (i.e. not bowl games) how often does the home
-# team win?
 football %>%
   filter(H != 0) %>%
-  mutate(Hwin = SPREAD * H > 0) %>%
-  summarize(mean(Hwin))
-```
-```{r}
-# In games with a home team (i.e. not bowl games) how many more points does the
-# home team score on average?
-football %>%
-  filter(H != 0) %>%
-  summarize(mean(SPREAD * H))
+  summarize(Hwin = mean(SPREAD * H > 0), Hpoints = mean(SPREAD * H))
 ```
 
+### Exercise \#2
+It doesn't make sense to include an intercept since the choice of which team was designated team A was *arbitrary*.
+The regression intercept is the prediction we should make if all of the predictors were zero.
+In our example, having all the predictors equal to zero means that neither team is expected to have an advantage over the other so our model should predict a `SPREAD` of zero in this case.
+Excluding an intercept ensures that this is precisely what it does.
+
+Since we have excluded the intercept, the coefficient on `H` is *precisely* the average number of additional points that the home team scores, relative to the away team.
+This matches our calculations from Exercise \#1 above, but using the regression output we can also carry out inference.
+The regression provides overwhelmingly strong statistical evidence of a home field advantage.
 ```{r}
-# Regression to predict SPREAD using H *without* a constant
 reg1 <- lm(SPREAD ~ H - 1, football)
 summary(reg1)
 ```
 
- Explain why it makes sense *not* to include a constant. Hint: which team was
- designated A and which was designated B was *arbitrary*. How does it affect
- the regression prediction?
-
-```{r}
-# Plot each of the seven systems one another using ggpairs                   
+### Exercise \#3
+These predictors are highly positively correlated, which makes sense: all of them are constructed by starting with `REC` and making adjustments from there.
+However, the correlations are far from perfect.
+For example, the correlation between `REC` and `DUN` is only 0.769.
+```{r, message = FALSE}
 library(GGally)
 football %>%
   select(MAT:REC) %>%
   ggpairs
 ```
-```{r}
-# Does each ranking system contain independent information?
-# (Regression *without* an intercept)
-reg1 <- lm(SPREAD ~ H + MAT + SAG + BIL + COL + MAS + DUN + REC - 1, football)
-summary(reg1)
-```
 
-```{r}
-# Neither MAT nor MAS are significant individually. What about jointly?
+### Exercise \#4
+Neither `MAT` nor `MAS` are statistically significant taken individually.
+Moreover, we cannot reject the null hypothesis that these two variables are jointly irrelevant for predicting `SPREAD`:
+```{r, message = FALSE}
+reg2 <- lm(SPREAD ~ H + MAT + SAG + BIL + COL + MAS + DUN + REC - 1, football)
+
+summary(reg2)
 library(car)
-linearHypothesis(reg1, c('MAT = 0', 'MAS = 0'))
+linearHypothesis(reg2, c('MAT = 0', 'MAS = 0'))
 ```
-
+This suggests that, after controlling for the other predictors, `MAT` and `MAS` do not add any additional predictive information.
+Estimating a model without them gives the following results:
 ```{r}
-# The preceding results suggest that MAT and MAS do not add additional predictive
-# information beyond that contained in the other predictors, so it makes sense
-# to try a regression that doesn't include them:
-reg2 <- lm(SPREAD ~ H + SAG + BIL + COL + DUN + REC - 1, football)
-summary(reg2)
-
-# The preceding results suggest that MAT and MAS do not add additional predictive
-# information beyond that contained in the other predictors, so it makes sense
-# to try a regression that doesn't include them:
-reg2 <- lm(SPREAD ~ H + SAG + BIL + COL + DUN + REC - 1, football)
-summary(reg2)
-```
-
-```{r}
-# Once we add the Las Vegas line point spread (LV) nothing else is significant!
-reg3 <- lm(SPREAD ~ LV + H + SAG + BIL + COL + DUN + REC - 1, football)
+reg3 <- lm(SPREAD ~ H + SAG + BIL + COL + DUN + REC - 1, football)
 summary(reg3)
-linearHypothesis(reg3, c('H = 0', 'SAG = 0', 'BIL = 0', 'COL = 0', 'DUN = 0',
-                        'REC = 0'))
-
-# How well does LV predict on its own? Can we reject the null that the coef is 1?
-# What would it mean for this coef to equal 1? Make a plot.
-reg4 <- lm(SPREAD ~ LV - 1, football)
+```
+This model predicts to an accuracy of approximately 16.53 points.
+This is slightly better than the best individual model, which uses only `H` and `SAG`. 
+```{r}
+reg4 <- lm(SPREAD ~ H + SAG - 1, football)
 summary(reg4)
-linearHypothesis(reg4, c('LV = 1'))
+```
+However, we strongly reject the null hypothesis that `BIL, COL, DUN` and `REC` are redundant after including `H` and `SAG`:
+```{r}
+linearHypothesis(reg3, c('BIL = 0', 'COL = 0', 'DUN = 0', 'REC = 0'))
+```
+
+### Exercise \#5
+After controlling for `LV` all of the other predictors are irrelevant:
+```{r}
+reg5 <- lm(SPREAD ~ LV + H + SAG + BIL + COL + DUN + REC - 1, football)
+summary(reg5)
+linearHypothesis(reg5, c('H = 0', 'SAG = 0', 'BIL = 0', 'COL = 0', 'DUN = 0', 'REC = 0'))
+```
+
+### Exercise \#6
+If betting markets are efficient, then `LV` should already contain all available information that would be helpful for predicting `SPREAD`.
+In line with the theory of market efficiency, we found all of the other predictors to be *redundant* in Exercise \#5 above.
+If betting markets are efficient, `LV` should also provide an *unbiased* prediction of `SPREAD` so that in the regression $\texttt{SPREAD} = \beta \texttt{LV} + \epsilon$, $\beta$ should equal $1$.
+If this were not the case, we could use historical data and linear regression to work out the true coefficient values and use this information to win money.
+But precisely because we have such an incentive to bet when if `LV` gets out of line with available information, any such anomalies should disappear quickly.
+Indeed, the estimate of $\beta$ is very close to 1 and we cannot reject the null hypothesis that it is equal to 1.
+The Las Vegas line predicts to an accuracy of about 15.6 points.
+```{r}
+reg6 <- lm(SPREAD ~ LV - 1, football)
+summary(reg6)
+linearHypothesis(reg6, c('LV = 1'))
 ggplot(football, aes(x = LV, y = SPREAD)) +
   geom_point() +
-  geom_smooth(method = 'lm')
+  geom_smooth(method = 'lm', formula = y ~ x - 1)
 ```
 
 
