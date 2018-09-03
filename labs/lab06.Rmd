@@ -45,4 +45,4 @@ The remaining variable REC is different since it is based on *win-loss records*
 # Second Part: Implement KNN
 Test on `mtcars` dataset: `mpg` versus `disp`
 
-Use this to teach `if` `else` and `for` loops
+Use this to teach `if/else` and `for` loops
