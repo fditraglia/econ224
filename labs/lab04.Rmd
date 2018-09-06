@@ -49,7 +49,7 @@ n <- m <- 2435
 SE <- sqrt(p * (1 - p) / n + q * (1 - q) / m)
 test_stat <- abs(p - q) / SE
 test_stat
-2 * pnorm(1 - test_stat)
+2 * (1 - pnorm(test_stat))
 
 # Part 3
 call_black <- bm %>%
