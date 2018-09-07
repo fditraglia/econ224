@@ -27,4 +27,90 @@ stargazer(mtcars, type = 'latex', title = 'Descriptive Statistics')
 ```
 
 # Robust Standard Errors
+Your reading assignment from Chapter 3 of ISL briefly discussed two ways that the standard regression inference formulas built into R can go wrong: (1) non-constant error variance, and (2) correlation between regression errors. 
+Today we'll briefly look at the first of these problems and how to correct for it.
+
+Consider the simple linear regression $y_i = \beta_0 + \beta_1 x_i + \epsilon_i$.
+If the variance of $\epsilon_i$ is unrelated to the value of the predictor $x_i$, we say that the regression errors are *homoskedastic*.
+This is just a fancy Greek work for *constant variance*.
+If instead, the variance of $\epsilon_i$ depends on the value of $x_i$, we say that the regression errors are *heteroskedastic*.
+This is just a fancy Greek word for *non-constant variance*.
+Heteroskedasticity does not invalidate our least squares estimates of $\beta_0$ and $\beta_1$, but it does invalidate the formulas used by `lm` to calculate standard errors and p-values.
+
+Let's look at a simple simulation example:
+```{r,message = FALSE}
+set.seed(4321)
+n <- 100
+x <- runif(n)
+e1 <- rnorm(n, mean = 0, sd = sqrt(2 * x))
+e2 <- rnorm(n, mean = 0, sd = 1)
+intercept <- 0.2
+slope <- 0.9
+y1 <- intercept + slope * x + e1
+y2 <- intercept + slope * x + e2
+library(tidyverse)
+mydat <- tibble(x, y1, y2)
+rm(x, y1, y2)
+```
+
+# Exercise \#1
+1. Read through my simulation code and make sure you understand what each step is going. What is the distribution of the errors? What is the distribution of `x`? In the simulation design, is there a relationship between `x` and `y1`? What about `y2`?
+2. For each of the two simulated outcome variables `y1` and `y2`, plot the outcome against `x` along with the linear regression line.
+3. Based on your plots from part 2 and the simulation code, which errors are heteroskedastic: `e1`, `e2`, both, or neither? How can you tell? 
+
+# Solution to Exercise \#1
+<!-- ANS_START -->
+1. `x` is uniform and the errors are normally distributed. There is indeed a relationship between `x` and `y`: the conditional mean of `y1` given `x` is `0.2 + 0.4 x` and the same is true of `y2`
+2. Here is a simple way to make the plots:
+```{r}
+library(ggplot2)
+ggplot(mydat, aes(x, y1)) +
+  geom_smooth(method = 'lm') + 
+  geom_point()
+ggplot(mydat, aes(x, y2)) +
+  geom_smooth(method = 'lm') +
+  geom_point()
+```
+3. The errors `e1` are heteroskedastic while the errors `e2` are homoskedastic. We can see this both from plotting the data which "fan out" around the regression line for `y1` and from the simulation code: to generate `e1` we multiplied some normal random draws by the value of `x` so the variance clearly depends on `x`
+<!-- ANS_END -->
+
+## Robust Standard Errors using `lm_robust`
+Install the package `estimatr`. 
+Provides a replacement for `lm` called `lm_robust` that allows us to choose robust standard errors
+```{r, message = FALSE}
+library(estimatr)
+reg1_classical <- lm_robust(y1 ~ x, mydat, se_type = 'stata')
+summary(reg1_classical)
+reg1_robust <- lm_robust(y1 ~ x, mydat, se_type = 'classical')
+summary(reg1_robust)
+```
+The nice thing about using `lm_robust` is that it plays nicely with `linearHypothesis` for carrying out F-tests.
+In an example with only one regressor the F-test is completely superfluous (the F-test statistic is simply the square of the t-test statistic for the slope!) but just to see that it works:
+```{r, message = FALSE}
+library(car)
+summary(lm(y1 ~ x, mydat))$fstatistic
+linearHypothesis(reg1_classical, 'x = 0')
+linearHypothesis(reg1_robust, 'x = 0')
+```
+
+# Exercise \#2
+Repeat my inference comparison from above for the regression `y2 ~ x` using classical and robust standard errors.
+Explain your results.
+
+# Solution to Exercise \#2
+<!-- ANS_START -->
+```{r}
+reg2_classical <- lm_robust(y2 ~ x, mydat, se_type = 'stata')
+summary(reg1_classical)
+reg2_robust <- lm_robust(y2 ~ x, mydat, se_type = 'classical')
+summary(reg1_robust)
+```
+<!-- ANS_END -->
+
+
+
+# Angrist and Lavy (1999)
+
+[https://economics.mit.edu/faculty/angrist/data1/data/anglavy99](https://economics.mit.edu/faculty/angrist/data1/data/anglavy99)
+
 
