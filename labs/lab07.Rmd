@@ -11,20 +11,6 @@ knitr::opts_chunk$set(comment=NA, fig.width=4.5, fig.height=3.5, fig.align = 'ce
 
 
 
-# Introduction
-We'll use the package `stargazer` to generate pretty tables of results like the ones you see in journal articles.
-Make sure to install this package before proceeding.
-
-```{r, message = FALSE}
-library(stargazer)
-```
-
-I chose to output my `.Rmd` file to a pdf using LaTeX, so I used the option `type = latex`. 
-If you're using `html` you'll need to change this to `type = 'html'`.
-If you want to see a "preview" of the table within R studio without compiling, choose `type = 'text'`.
-```{r, results = "asis"}
-stargazer(mtcars, type = 'latex', title = 'Descriptive Statistics')
-```
 
 # Robust Standard Errors
 Your reading assignment from Chapter 3 of ISL briefly discussed two ways that the standard regression inference formulas built into R can go wrong: (1) non-constant error variance, and (2) correlation between regression errors. 
@@ -96,6 +82,8 @@ linearHypothesis(reg1_robust, 'x = 0')
 # Exercise \#2
 Repeat my inference comparison from above for the regression `y2 ~ x` using classical and robust standard errors.
 Explain your results.
+Do we need to use robust standard errors in this case?
+Why or why not?
 
 # Solution to Exercise \#2
 <!-- ANS_START -->
@@ -104,9 +92,93 @@ reg2_classical <- lm_robust(y2 ~ x, mydat, se_type = 'stata')
 summary(reg1_classical)
 reg2_robust <- lm_robust(y2 ~ x, mydat, se_type = 'classical')
 summary(reg1_robust)
+summary(lm(y2 ~ x, mydat))$fstatistic
+linearHypothesis(reg2_classical, 'x = 0')
+linearHypothesis(reg2_robust, 'x = 0')
 ```
 <!-- ANS_END -->
 
+
+# Introduction
+We'll use the package `stargazer` to generate pretty tables of results like the ones you see in journal articles.
+Make sure to install this package before proceeding.
+
+```{r, message = FALSE}
+library(stargazer)
+```
+
+### Simple table of summary statistics
+I chose to output my `.Rmd` file to a pdf using LaTeX, so I used the option `type = latex`. 
+If you're using `html` you'll need to change this to `type = 'html'`.
+If you want to see a "preview" of the table within R studio without compiling, choose `type = 'text'`.
+Also notice I'm using the `knitr` option `asis`.
+You'll need this to make sure that the `stargazer` table knits correctly.
+```{r, results = "asis"}
+stargazer(mtcars, type = 'latex')
+```
+How about adding a title:
+```{r, results = "asis"}
+stargazer(mtcars, 
+          type = 'latex', 
+          title = 'Summary Statistics: Motor Trend Cars Dataset')
+```
+Too many decimal places! Use fewer:
+```{r, results = "asis"}
+stargazer(mtcars, 
+          type = 'latex', 
+          title = 'Summary Statistics: Motor Trend Cars Dataset', 
+          digits = 1)
+```
+
+Get rid of that weird header that lists the package author's email address:
+```{r, results = "asis"}
+stargazer(mtcars, 
+          type = 'latex', 
+          title = 'Summary Statistics: Motor Trend Cars Dataset', 
+          digits = 1, 
+          header = FALSE)
+```
+What about more descriptive variable names?
+```{r, results = "asis"}
+mylabels <- c('Miles/gallon', 
+              'No. of cylinders', 
+              'Displacement (cubic inches)', 
+              'Horsepower', 
+              'Rear axle ratio', 
+              'Weight (1000lb)', 
+              '1/4 Mile Time', 
+              'V/S', 
+              'Manual Transmission? (1 = Yes)', 
+              'No. forward gears', 
+              'No. carburetors')
+stargazer(mtcars, 
+          type = 'latex', 
+          title = 'Summary Statistics: Motor Trend Cars Dataset', 
+          digits = 1, 
+          header = FALSE,
+          covariate.labels = mylabels)
+```
+
+### Regression Output
+Run a bunch of regressions using `mtcars`
+```{r}
+reg1 <- lm(mpg ~ disp, mtcars)
+reg2 <- lm(mpg ~ wt, mtcars)
+reg3 <- lm(mpg ~ disp + wt, mtcars)
+```
+
+Now let's make some tables:
+```{r, results = 'asis'}
+stargazer(reg1, type = 'latex')
+```
+We can also use the options from above to control how many decimal places, add a title, etc.
+```{r, results = 'asis'}
+stargazer(reg1, 
+          type = 'latex', 
+          digits = 1,
+          header = FALSE,
+          title = 'Regression Results')
+```
 
 
 # Angrist and Lavy (1999)
