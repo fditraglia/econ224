@@ -1,5 +1,5 @@
 ---
-title: "Lab #7 - Causal Regression I"
+title: "Lab #7 - More on Regression in R"
 author: "Econ 224"
 date: "September 18th, 2018"
 ---
@@ -40,6 +40,8 @@ rm(x, y1, y2)
 ```
 
 # Exercise \#1
+*[approx 10 min]*
+
 1. Read through my simulation code and make sure you understand what each step is going. What is the distribution of the errors? What is the distribution of `x`? In the simulation design, is there a relationship between `x` and `y1`? What about `y2`?
 2. For each of the two simulated outcome variables `y1` and `y2`, plot the outcome against `x` along with the linear regression line.
 3. Based on your plots from part 2 and the simulation code, which errors are heteroskedastic: `e1`, `e2`, both, or neither? How can you tell? 
@@ -80,12 +82,16 @@ linearHypothesis(reg1_robust, 'x = 0')
 ```
 
 # Exercise \#2
+*[approx 5 min]*
+
 Repeat my inference comparison from above for the regression `y2 ~ x` using classical and robust standard errors.
 Explain your results.
 Do we need to use robust standard errors in this case?
 Why or why not?
 
 # Solution to Exercise \#2
+We do not in fact need robust standard errors in this case since the errors are homoskedastic.
+If we wanted to be on the safe side, we could still use them, but notice that the results are slightly different.
 <!-- ANS_START -->
 ```{r}
 reg2_classical <- lm_robust(y2 ~ x, mydat, se_type = 'stata')
@@ -99,7 +105,11 @@ linearHypothesis(reg2_robust, 'x = 0')
 <!-- ANS_END -->
 
 
-# Introduction
+# Exercise
+Go back and do robust standard errors for one of the questions from the previous problem set.
+
+
+# Publication-quality Tables with `stargazer`
 We'll use the package `stargazer` to generate pretty tables of results like the ones you see in journal articles.
 Make sure to install this package before proceeding.
 
@@ -116,29 +126,9 @@ You'll need this to make sure that the `stargazer` table knits correctly.
 ```{r, results = "asis"}
 stargazer(mtcars, type = 'latex')
 ```
-How about adding a title:
-```{r, results = "asis"}
-stargazer(mtcars, 
-          type = 'latex', 
-          title = 'Summary Statistics: Motor Trend Cars Dataset')
-```
-Too many decimal places! Use fewer:
-```{r, results = "asis"}
-stargazer(mtcars, 
-          type = 'latex', 
-          title = 'Summary Statistics: Motor Trend Cars Dataset', 
-          digits = 1)
-```
 
-Get rid of that weird header that lists the package author's email address:
-```{r, results = "asis"}
-stargazer(mtcars, 
-          type = 'latex', 
-          title = 'Summary Statistics: Motor Trend Cars Dataset', 
-          digits = 1, 
-          header = FALSE)
-```
-What about more descriptive variable names?
+The `stargazer` command provides dozens of options for customizing the appearance of the output it generates. 
+Here's a nicer version of the preceding table that uses some of these options:
 ```{r, results = "asis"}
 mylabels <- c('Miles/gallon', 
               'No. of cylinders', 
@@ -158,31 +148,59 @@ stargazer(mtcars,
           header = FALSE,
           covariate.labels = mylabels)
 ```
+We can also customize which summary statistics are reported using the options `summary.stat` and `omit.summary.stat`.
+For example, if we only wanted to show the mean, standard deviation, and quartiles of the data, we could use the following:
+```{r, results = "asis"}
+stargazer(mtcars, 
+          type = 'latex', 
+          title = 'Summary Statistics: Motor Trend Cars Dataset', 
+          digits = 1, 
+          header = FALSE,
+          covariate.labels = mylabels, 
+          summary.stat = c('mean',
+                           'sd',
+                           'p25',
+                           'median',
+                           'p75'))
+```
+
+# Exercise
+Figure out what each of the options `title`, `digits`, `header` and `covariate.labels` does in the preceding code chunk.
+Write a one sentence explanation of each.
+Try experimenting with different values and or consulting the documentation for `stargazer`.
+
+# Exercise
+Make a pretty table of summary statistics from one of the recent problem set questions.
+
 
 ### Regression Output
+If you pass a dataframe (or tibble) to `stargazer`, by default it will create a table of summary statistics.
+If you instead pass a *regression* object, it will make a regression table.
+For example:
 Run a bunch of regressions using `mtcars`
-```{r}
+```{r, results = 'asis'}
 reg1 <- lm(mpg ~ disp, mtcars)
+stargazer(reg1, type = 'latex',
+          header = FALSE,
+          digits = 1,
+          title = 'Predicting Fuel Economy from Displacement')
+```
+Let's run a few more regressions and make a table that summarizes the results of *all* of them:
+```{r, results = 'asis'}
 reg2 <- lm(mpg ~ wt, mtcars)
 reg3 <- lm(mpg ~ disp + wt, mtcars)
-```
-
-Now let's make some tables:
-```{r, results = 'asis'}
-stargazer(reg1, type = 'latex')
-```
-We can also use the options from above to control how many decimal places, add a title, etc.
-```{r, results = 'asis'}
-stargazer(reg1, 
+stargazer(reg1, reg2, reg3, 
           type = 'latex', 
           digits = 1,
           header = FALSE,
-          title = 'Regression Results')
+          title = 'Regression Results for Motor Trend Dataset',
+          covariate.labels = c('Displacement (cubic inches)', 'Weight (1000lb)'),
+          dep.var.caption = 'Miles/gallon',
+          notes = c('Data are courtesy of Motor Trend Magazine. Also, R rules!'))
 ```
+Notice how I added a label for the dependent variable and appended a *note* to the regression table.
 
-
-# Angrist and Lavy (1999)
-
-[https://economics.mit.edu/faculty/angrist/data1/data/anglavy99](https://economics.mit.edu/faculty/angrist/data1/data/anglavy99)
-
+# Exercise
+Make a pretty regression table for one of the problems on the last problem set.
+Use robust standard errors.
 
