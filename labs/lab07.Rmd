@@ -122,12 +122,12 @@ linearHypothesis(robust, myrestriction)
 
 
 
-# Publication-quality Tables with `stargazer`
+# Publication-quality Tables 
 A crucial part of communicating our results in a statistical analysis creating tables that are clear, and easy to read.
-To make publication-quality tables like those that appear in academic journals, we'll use the package `stargazer`.
-Make sure to install this package before proceeding.
+In this section we'll look at two packages that produce publication-quality tables like those that appear in academic journals: `stargazer` and `texreg`.
+Make sure to install these packages before proceeding.
 
-## A Table of Summary Statistics
+## A Table of Summary Statistics with `stargazer`
 We'll start by learning how to make a simple table of summary statistics.
 There are a few quirks to be aware of here, so **please read this paragraph carefully!**
 The first thing you should know is that `stargazer` can only construct summary statistics for a *dataframe*.
@@ -142,6 +142,7 @@ Here is an example of the code that I ran to generate a pdf version of this docu
 ```{r, message = FALSE, results = 'asis'}
 library(stargazer)
 stargazer(mtcars, type = 'latex')
+# set type to 'html' if knitting to html and 'text' if previewing in RStudio
 ```
 
 The `stargazer` command provides dozens of options for customizing the appearance of the output it generates. 
@@ -164,6 +165,7 @@ stargazer(mtcars,
           digits = 1, 
           header = FALSE,
           covariate.labels = mylabels)
+# set type to 'html' if knitting to html and 'text' if previewing in RStudio
 ```
 Notice how I reduced the number of significant figures presented in the table, added a caption and meaningful variable names.
 We can also customize which summary statistics are reported using the options `summary.stat` and `omit.summary.stat`.
@@ -180,6 +182,7 @@ stargazer(mtcars,
                            'p25',
                            'median',
                            'p75'))
+# set type to 'html' if knitting to html and 'text' if previewing in RStudio
 ```
 
 
@@ -197,7 +200,8 @@ gpalabels <- c('Combined SAT Score',
                'Ratio of SAT Verbal/Math',
                'Size HS Grad. Class (100s)',
                'Rank in HS Grad. Class',
-               '%tile in HS Grad. Class',
+               'Percentile in HS Grad. Class',
+               'Female? (1 = Yes)',
                'White? (1 = Yes)',
                'Black? (1 = Yes)')
 stargazer(as.data.frame(gpa), type = 'latex',
@@ -206,11 +210,12 @@ stargazer(as.data.frame(gpa), type = 'latex',
           digits = 1,
           summary.stat = c('mean', 'sd', 'p25', 'median', 'p75'),
           covariate.labels = gpalabels)
+# set type to 'html' if knitting to html and 'text' if previewing in RStudio
 ```
 <!-- ANS_END -->
 
 
-### Regression Output
+## Regression Output with `stargazer`
 As we have seen, when you pass a dataframe to `stargazer`, its default is to construct a table of summary statistics. 
 If you instead pass a *regression* object, it will make a regression table.
 For example:
@@ -221,6 +226,7 @@ stargazer(reg1, type = 'latex',
           header = FALSE,
           digits = 1,
           title = 'Predicting Fuel Economy from Displacement')
+# set type to 'html' if knitting to html and 'text' if previewing in RStudio
 ```
 Let's run a few more regressions and make a table that summarizes the results of *all* of them:
 ```{r, results = 'asis'}
@@ -232,36 +238,86 @@ stargazer(reg1, reg2, reg3,
           header = FALSE,
           title = 'Regression Results for Motor Trend Dataset',
           covariate.labels = c('Displacement (cubic inches)', 'Weight (1000lb)'),
-          dep.var.caption = 'Miles/gallon',
+          dep.var.labels = 'Miles/gallon',
           notes = c('Data are courtesy of Motor Trend Magazine. Also, R rules!'))
+# set type to 'html' if knitting to html and 'text' if previewing in RStudio
 ```
 Notice how I added a label for the dependent variable and appended a *note* to the regression table.
 
 # Exercise \#3
 (a) Use `lm` to create an object called `reg1` that predicts `colgpa` from `hsize` and `hsize^2`.
 (b) Use `lm` to create an object called `reg2` that adds `hsperc`, `sat`, `female` and `athlete` to `reg1`.
-(c) Make summary table that compares the output of `reg1` and `reg2`. Be sure to add a title, use appropriate labels, a reasonable number of digits, etc.
-(d) Repeat (c) but use robust standard errors and the associated p-values with the help of the `commarobust` and `starprep` functions from `estimatr`. Add a note to the resulting table indicating that you have used robust standard errors.
+(c) Use `stargazer` to make a summary table that compares the output of `reg1` and `reg2`. Be sure to add a title, use appropriate labels, a reasonable number of digits, etc.
 
 # Solution to Exercise \#3
 <!-- ANS_START -->
 ```{r,results = 'asis'}
 reglabels <- c('Size HS Grad. Class (100s)', 
-               'Squared Size of HS Grad. Class',
-               'Rank in HS Grad Class')
+               'Size HS Grad. Class Squared',
+               'Percentile in HS Grad. Class',
+               'Combined SAT Score',
+               'Female? (1 = Yes)',
+               'Athlete? (1 = Yes)')
 reg1 <- lm(colgpa ~ hsize + I(hsize^2), gpa)
-reg2 <- lm(mymodel, gpa) 
+reg2 <- lm(colgpa ~ hsize + I(hsize^2) + hsperc + sat + female + athlete, gpa)
 stargazer(reg1, reg2, type = 'latex',
-          dep.var.caption = 'College GPA',
-          covariate.labels = gpalabels)
-reg1_r <- commarobust(reg1, se_type = 'stata')
-reg2_r <- commarobust(reg2, se_type = 'stata')
-stargazer(reg1, reg2, type = 'latex',
-          se = starprep(reg1_r, reg2_r),
-          p = starprep(reg1_r, reg2_r, stat = "p.value"))
+          dep.var.labels = 'College GPA',
+          covariate.labels = reglabels,
+          title = 'Predicting College GPA') 
+# set type to 'html' if knitting to html and 'text' if previewing in RStudio
+```
+<!-- ANS_END -->
+
+## Regression Output with `texreg`
+One downside of `stargazer` is that it does not play nicely with `lm_robust`.
+While there is a way to "trick" `stargazer` into doing the right thing with an object created by `lm_robust` (See [https://declaredesign.org/r/estimatr/articles/regression-tables.html](https://declaredesign.org/r/estimatr/articles/regression-tables.html) for details), this is a bit of a pain.
+Instead we'll use an alternative to `stargazer` called `texreg`.
+As with `stargazer` you need to set the chunk option `results = 'asis'` to get `texreg` to display correctly with `knitr`.
+
+The `texreg` package provides three main functions: `texreg()` is for pdf output with LaTeX, `htmlreg()` is for html output, and `screenreg()` is for text output.
+This is different form `stargazer` which has a *single* function but requires the user to specify `type` to indicate the desired output:
+```{r, message = FALSE, results = 'asis'}
+library(texreg)
+cars1 <- lm_robust(mpg ~ disp, se_type = 'stata', mtcars) 
+cars2 <- lm_robust(mpg ~ wt, se_type = 'stata', mtcars)
+cars3 <- lm_robust(mpg ~ disp + wt, se_type = 'stata', mtcars)
+texreg(list(cars1, cars2, cars3), include.ci = FALSE,
+       caption = 'Predicting Fuel Economy',
+       custom.coef.names = c('Intercept', 
+                             'Displacement (cubic inches)', 
+                             'Weight (1000lb)'),
+       custom.note = 'Robust Standard Errors')
+# use htmlreg() if knitting to html, and screenreg() if previewing in RStudio
+```
+The output is very similar to `stargazer`.
+Note however that we need to pack multiple sets of regression results into a `list` object for use with `texreg`.
+
+# Exercise \#4
+Repeat Exercise \#3 but use `lm_robust` to generate robust standard errors and `texreg` rather than `stargazer` to make the table of results.
+
+# Solution to Exercise \#4
+<!-- ANS_START -->
+```{r,results = 'asis'}
+reglabels <- c('Intercept',
+               'Size HS Grad. Class (100s)', 
+               'Size HS Grad. Class Squared',
+               'Rank in HS Grad Class',
+               'Combined SAT Score',
+               'Female? (1 = Yes)',
+               'Athlete? (1 = Yes)')
+reg1_robust <- lm_robust(colgpa ~ hsize + I(hsize^2), 
+                         se_type = 'stata', gpa)
+reg2_robust <- lm_robust(colgpa ~ hsize + I(hsize^2) + hsperc + sat + female + athlete, 
+                         se_type = 'stata', gpa)
+texreg(list(reg1_robust, reg2_robust), 
+       custom.coef.names = reglabels, 
+       include.ci = FALSE,
+       caption = 'Predicting College GPA',
+       custom.note = 'Note: robust standard errors.')
+# use htmlreg() if knitting to html, and screenreg() if previewing in RStudio
 ```
 <!-- ANS_END -->
 
 # Important Note:
-From now own, we will expect you to present your regression results in problem sets etc. using `stargazer`. 
+From now own, we will expect you to format your results in problem sets and labs using the `stargazer` and/or `texreg` packages.
 
