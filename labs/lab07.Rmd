@@ -62,7 +62,8 @@ In contrast, the values of `y2` do not show such a pattern: the variability in `
 ## `lm_robust`
 We'll use the function `lm_robust` in the package `estimatr` to calculate the appropriate standard errors for a regression with heteroskedasticity.
 Make sure to install this package before proceeding.
-Such standard errors are often called *robust* because they do not depend on the assumption of homoskedasticity.
+For more information on `estimatr`, see the help files and [https://declaredesign.org/r/estimatr/](https://declaredesign.org/r/estimatr/).
+Standard errors that account for heteroskedasticity are often called *robust* because they do not depend on the fairly strong assumption of constant error variance.
 The function `lm_robust` is nearly identical to `lm` but it allows us to specify a new argument `se_type` to indicate what kinds of standard errors we want to use. 
 If we set `se_type = 'classical'` we'll get exactly the same standard errors as if we had used `lm`, namely standard errors that assume homoskedasticity:
 ```{r, message = FALSE}
@@ -96,7 +97,29 @@ That is because the first one uses classical standard errors while the second us
 
 
 # Exercise \#1
-Go back and do robust standard errors for one of the questions from the previous problem set.
+(a) Fit a regression predicting `colgpa` from `hsize`, `hsize^2`, `hsperc`, `sat`, `female` and `athlete` based on the `college_gpa.csv` dataset from Problem Set \#3.
+(You can download the data from [the course website](http://ditraglia.com/econ224/college_gpa.csv).
+(b) Compare the *classical* and *robust* standard errors for each predictor in this model. Are they similar or very different?
+(c) Test the null hypothesis that `hsperc`, `sat`, `female`, and `athlete` provide no additional predictive information after controlling for `hsize` and `hsize^2`.
+Carry out the test two ways: first using *classical* and then using *robust* standard errors. How do the results differ?
+
+# Solution to Exercise \#1
+<!-- ANS_START -->
+In this particular example, robust versus classical standard errors give very similar results:
+```{r,message = FALSE}
+gpa <- read_csv('http://ditraglia.com/econ224/college_gpa.csv')
+mymodel <- colgpa ~ hsize + I(hsize^2) + hsperc + sat + female + athlete
+classical <- lm_robust(mymodel, se_type = 'classical', gpa)
+robust <- lm_robust(mymodel, se_type = 'stata', gpa)
+SE_classical <- summary(classical)$coefficients[,2]
+SE_robust <- summary(robust)$coefficients[,2]
+round(cbind(coef(classical), SE_classical, SE_robust), 4)
+myrestriction <- c('hsperc = 0', 'sat = 0', 'female = 0', 'athlete = 0')
+linearHypothesis(classical, myrestriction)
+linearHypothesis(robust, myrestriction)
+```
+<!-- ANS_END -->
+
 
 
 # Publication-quality Tables with `stargazer`
@@ -161,7 +184,30 @@ stargazer(mtcars,
 
 
 # Exercise \#2
-Make a pretty table of summary statistics from one of the recent problem set questions.
+Use `stargazer` to make a table of summary statistics for the `college_gpa.csv` dataset from Problem Set \#3.
+Add a title, use an appropriate number of digits, and provide meaningful labels for the variables.
+
+# Solution to Exercise \#2
+<!-- ANS_START -->
+```{r, results = 'asis'}
+gpalabels <- c('Combined SAT Score',
+               'Total hours through Fall',
+               'College GPA (out of 4.0)',
+               'Athlete? (1 = Yes)',
+               'Ratio of SAT Verbal/Math',
+               'Size HS Grad. Class (100s)',
+               'Rank in HS Grad. Class',
+               '%tile in HS Grad. Class',
+               'White? (1 = Yes)',
+               'Black? (1 = Yes)')
+stargazer(as.data.frame(gpa), type = 'latex',
+          header = FALSE,
+          title = 'Summary Statistics: College GPA Dataset',
+          digits = 1,
+          summary.stat = c('mean', 'sd', 'p25', 'median', 'p75'),
+          covariate.labels = gpalabels)
+```
+<!-- ANS_END -->
 
 
 ### Regression Output
@@ -191,7 +237,31 @@ stargazer(reg1, reg2, reg3,
 ```
 Notice how I added a label for the dependent variable and appended a *note* to the regression table.
 
-# Exercise
-Make a pretty regression table for one of the problems on the last problem set.
-Use robust standard errors.
+# Exercise \#3
+(a) Use `lm` to create an object called `reg1` that predicts `colgpa` from `hsize` and `hsize^2`.
+(b) Use `lm` to create an object called `reg2` that adds `hsperc`, `sat`, `female` and `athlete` to `reg1`.
+(c) Make summary table that compares the output of `reg1` and `reg2`. Be sure to add a title, use appropriate labels, a reasonable number of digits, etc.
+(d) Repeat (c) but use robust standard errors and the associated p-values with the help of the `commarobust` and `starprep` functions from `estimatr`. Add a note to the resulting table indicating that you have used robust standard errors.
+
+# Solution to Exercise \#3
+<!-- ANS_START -->
+```{r,results = 'asis'}
+reglabels <- c('Size HS Grad. Class (100s)', 
+               'Squared Size of HS Grad. Class',
+               'Rank in HS Grad Class')
+reg1 <- lm(colgpa ~ hsize + I(hsize^2), gpa)
+reg2 <- lm(mymodel, gpa) 
+stargazer(reg1, reg2, type = 'latex',
+          dep.var.caption = 'College GPA',
+          covariate.labels = gpalabels)
+reg1_r <- commarobust(reg1, se_type = 'stata')
+reg2_r <- commarobust(reg2, se_type = 'stata')
+stargazer(reg1, reg2, type = 'latex',
+          se = starprep(reg1_r, reg2_r),
+          p = starprep(reg1_r, reg2_r, stat = "p.value"))
+```
+<!-- ANS_END -->
+
+# Important Note:
+From now own, we will expect you to present your regression results in problem sets etc. using `stargazer`. 
 
