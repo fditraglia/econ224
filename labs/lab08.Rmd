@@ -14,11 +14,8 @@ date: "September 20th, 2018"
 The Angrist data archive [https://economics.mit.edu/faculty/angrist/data1/data/anglavy99](https://economics.mit.edu/faculty/angrist/data1/data/anglavy99) contains data from the article “Using Maimonides Rule to estimate the
 Effect of Class Size on Student Achievement” by Angrist & Lavy, published in the *Quarterly Journal of Economics*, May 1999.
 This article uses the fact that Israeli class sizes are capped at 40 to estimate the effects of class size on test scores.
-We have not yet studied the methods used in the paper, namely instrumental variables and regression discontinuity, so in this lab we'll examine the dataset using linear regression.
-
-The dataset we'll examine is `final.dta` which contains data for 5th grade classes.
-To be clear, each observation in the dataset is a *5th grade class* rather than an individual student.
-The variables we will use in the lab are as follows:
+We have not yet studied the methods used in the paper, so in this lab we'll examine the dataset using linear regression.
+The dataset we'll examine is `final.dta` which contains data for 5th grade classes:
 
 | Name | Description |
 | ---- | ----------- |
@@ -30,7 +27,7 @@ The variables we will use in the lab are as follows:
 | `mathsize` | number of students who took the math test |
 | `verbsize` | number of students who took the reading test |
 
-
+**Note:** you do *not* have to use robust standard errors in this lab, although you are welcome to do so if you wish.
 
 1. Load and clean the dataset: 
       (a) Download the file `final5.dta` from the Angrist Data Archive at the url listed above and save it on your machine. (This file contains data for 5th graders.) 
@@ -48,26 +45,28 @@ The variables we will use in the lab are as follows:
       (a) Download the Angrist & Lavy paper and consult Table I on page 539.
       (b) Use `stargazer` to replicate the top panel of Table I, i.e. the panel with information on 5th grade classes. You do not have to display the 10th and 90th percentiles of the data: the quartiles, mean, and standard deviations are sufficient.
 
-3. First regression:
-      (a) Economists and educators have long debated whether it’s worth paying the extra labor costs (i.e., teachers’ wages) required to reduce class size. 
-      What should the sign of the achievement/class-size relationship be if the investment is worthwhile? Regress average math and verbal scores on class size. What is the sign of this relationship? Is it significantly different from zero? How does it look so far for the class size optimists?
-      (b) Weighted regression!
+3. Regress achievement on class size:
+      (a) Carry out a regression predicting average verbal scores from class size. Create a nicely formatted table of results using the package of your choice: `stargazer` or `texreg`.
+      (b) Repeat part (a) but predict average math test scores.
+      (c) Discuss your results from (a) and (b). If smaller classes improve student achievement, what sign should the coefficient estimates from your regression have? What kind of relationship do you find? Is it large enough to be of practical importance? Statistically significant? 
 
-4. A possible concern with the bivariate regression of test scores on class size is that bigger schools have bigger classes and also better students. Check this by adding enrollment (in the grade, measured at the school level) to your regressions.
+4. Control for school size:
+      (a) A possible explanation for your findings in question 3 is that larger schools have larger classes *and* better students. Repeat question 3 but add `enrollment`, which measures the size of the 5th grade at the school, to your regressions. How do the results change? Combine the results for all four regressions into a single table to make it easier to compare them.
 
-5. Construct the correlation matrix of test scores (math or verbal, your choice), class size, and enrollment. Use this matrix and your regression results to explain why and how the coefficient on class size changes when you add enrollment controls. 
-(Hint: This requires an application of the omitted variables bias formula)
+5. Construct the correlation matrix of math test scores, class size, and enrollment. Use this matrix and your regression results to explain why and how the coefficient on class size changes when you control for enrollment. 
 
-6. Add the percent of students who came from disadvantaged backgrounds (PD) instead of enrollment. How does this affect the class size coefficient? Use the correlation matrix for test scores, class size, and PD, along with the correlation matrix in Part (c) above and your regression results, to explain why the coefficient changes more here than when you added enrollment in response to Part (?).
+6. Control for percent disadvantaged:
+      (a) Repeat question 4 but add the percent of students who came from disadvantaged backgrounds `pdis` in place of enrollment. How does this affect the results?
+      (b) Calculate the correlation matrix for math test scores, class size, and `pdis`. Using this information along with the correlation matrix from question 5 above and your regression results, why does controlling for `pdis` have a larger effect on the estimated coefficient for class size than controlling for `enroll`? 
 
-7. Estimate the effects of class size in a model that includes both PD and enrollment controls. Is the class size coefficient here closer to the one in Part (?) or Part (?)? Why?
-
-8. All told, does the analysis in this question suggest that smaller classes are good, bad, or neutral?
+7. Regression both math and verbal test scores on class size controlling for *both* `pdis` and `enroll`. 
+   Discuss your results in light of questions 4-6 above.
+   All told, do your results for this dataset suggest that smaller classes are good, bad, or neutral?
 
 
 # Solutions
 <!-- ANS_START -->
-# 1 - Load and Clean the Data
+## 1 - Load and Clean the Data
 ```{r, message = FALSE}
 library(tidyverse)
 library(foreign)
@@ -86,8 +85,7 @@ final5$avgmath[change_to_NA] <- NA
 final5
 ```
 
-# 2 - Create Table of Descriptive Statistics
-<!-- ANS_END -->
+## 2 - Create Table of Descriptive Statistics
 ```{r, results = "asis", message = FALSE}
 library(stargazer)
 stargazer(as.data.frame(final5), 
@@ -108,3 +106,46 @@ stargazer(as.data.frame(final5),
                            'median',
                            'p75'))
 ```
+
+## 3 through 7 - Various Regressions
+```{r, results = 'asis', message = FALSE}
+reg1v <- lm(avgverb ~ classize, final5)
+reg2v <- lm(avgverb ~ classize + enroll, final5)
+reg3v <- lm(avgverb ~ classize + pdis, final5)
+reg4v <- lm(avgverb ~ classize + enroll + pdis, final5)
+
+reg1m <- lm(avgmath ~ classize, final5)
+reg2m <- lm(avgmath ~ classize + enroll, final5)
+reg3m <- lm(avgmath ~ classize + pdis, final5)
+reg4m <- lm(avgmath ~ classize + enroll + pdis, final5)
+
+stargazer(reg1v, reg2v, reg3v, reg4v,
+          reg1m, reg2m, reg3m, reg4m, 
+          type = 'latex',
+          header = FALSE,
+          digits = 2,
+          covariate.labels = c('Class Size', 'Enrollment', 'Percent Disadvantaged'),
+          dep.var.labels = c('Verbal', 'Math'),
+          title = 'Test Scores Regression Controlling for Enrollment',
+          omit.stat = c('f', 'ser', 'adj.rsq'))
+```
+
+```{r}
+final5 %>% 
+  summarize(SD_verb = sd(avgverb, na.rm = TRUE), 
+            SD_math = sd(avgmath, na.rm = TRUE),
+            SD_classize = sd(classize, na.rm = TRUE))
+```
+
+```{r}
+final5 %>% 
+  select(avgmath, enroll, classize) %>%
+  cor(use = 'complete.obs') %>%
+  round(2)
+final5 %>% 
+  select(avgmath, pdis, classize) %>%
+  cor(use = 'complete.obs') %>%
+  round(2)
+```
+
+<!-- ANS_END -->
