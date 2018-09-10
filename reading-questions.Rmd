@@ -87,5 +87,26 @@ Note that a complete answer to each of these questions requires at most a short 
    
 
 ## Quiz \#6: Tuesday, September 18th -- MM 2.1-2.2
+1. Let $\bar{Y}_1$ be the average earnings for a large random sample of individuals who graduated from a private college, and let $\bar{Y}_0$ be the average earnings for a large random sample of individuals who graduated from a public college.
+   Does the difference $\bar{Y}_1 - \bar{Y}_0$ estimate the causal effect of attending a private school? 
+   Why or why not?
+2. Briefly explain the logic of the Dale and Krueger matching strategy for estimating the payoff from attending a more selective college.
+3. In the Dale and Krueger example, what is the *outcome variable*, what is the *treatment variable*, and what are the key *control variables*?
+4. The *College and Beyond* survey includes data for over 14,000 students, but Dale and Krueger only use 5,583 students in their selectivity-group analysis. Explain why.
+5. Based on the results of Table 2.2, how does the estimated effect of attending a private school vary depending on whether or not selectivity-group dummies are included in the regression? 
+6. Explain the idea behind the "self-revelation" model. How to the results of this model compare to those from the Barron's matches?
+7. The regression results in Table 2.4 replace $P_i$ with the average SAT score of students at the school attended. Summarize the results of these regressions. 
+8. Based on the Dale and Krueger paper, what should we conclude about the causal effect of attending a more selective college?
 
 ## Quiz \#7: Thursday, September 20th -- MM 2.3 & Appendix
+
+1. Write down the omitted variables bias formula and explain its meaning in words using a simple example.
+2. Define the term *conditional expectation function*.
+3. Consider two cases: (a) $\mathbb{E}[Y|X_1, ..., X_k]$ is linear, and (b) $\mathbb{E}[Y|X_1, ..., X_k]$ is non-linear. In each case, what does a linear regression of $Y$ on $(X_1, ..., X_k)$ yield?
+4. Covariance has three important properties. What are they?
+5. Suppose we want to minimize the function $RSS(a,b) = \mathbb{E}[(Y_i - a - b X_i)^2]$. What values should we choose for $a$ and $b$?
+6. What two properties do the residuals in a linear regression satisfy?
+7. Consider the regression $Y_i = \alpha + \beta X_i + \epsilon$ where $X_i$ is a *dummy variable*. Express $\beta$ in terms of conditional expectations and explain the meaning of your expression in words.
+8. Write down the *regression anatomy* formula, and explain how it allows us to interpret the coefficient $\beta_k$ in a multivariate regression in terms of a simple bivariate regression.
+9. Let $\log$ denote the natural logarithm. What is the interpretation of the slope coefficient $\beta$ in the regression $\log Y_i = \alpha + \beta X_i + \epsilon_i$?
+10. Define the term *heteroskedasticity*.
