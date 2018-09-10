@@ -1,5 +1,5 @@
 ---
-title: "Lab #7 - Causal Regression I"
+title: "Lab #7 - More on Regression in R"
 author: "Econ 224"
 date: "September 18th, 2018"
 ---
@@ -10,21 +10,314 @@ knitr::opts_chunk$set(comment=NA, fig.width=4.5, fig.height=3.5, fig.align = 'ce
 ```
 
 
-
-# Introduction
-We'll use the package `stargazer` to generate pretty tables of results like the ones you see in journal articles.
-Make sure to install this package before proceeding.
-
-```{r, message = FALSE}
-library(stargazer)
-```
-
-I chose to output my `.Rmd` file to a pdf using LaTeX, so I used the option `type = latex`. 
-If you're using `html` you'll need to change this to `type = 'html'`.
-If you want to see a "preview" of the table within R studio without compiling, choose `type = 'text'`.
-```{r, results = "asis"}
-stargazer(mtcars, type = 'latex', title = 'Descriptive Statistics')
-```
-
 # Robust Standard Errors
+Your reading assignment from Chapter 3 of ISL briefly discussed two ways that the standard regression inference formulas built into R can go wrong: (1) non-constant error variance, and (2) correlation between regression errors. 
+Today we'll briefly look at the first of these problems and how to correct for it.
+
+Consider the simple linear regression $y_i = \beta_0 + \beta_1 x_i + \epsilon_i$.
+If the variance of $\epsilon_i$ is unrelated to the value of the predictor $x_i$, we say that the regression errors are *homoskedastic*.
+This is just a fancy Greek work for *constant variance*.
+If instead, the variance of $\epsilon_i$ depends on the value of $x_i$, we say that the regression errors are *heteroskedastic*.
+This is just a fancy Greek word for *non-constant variance*.
+Heteroskedasticity does not invalidate our least squares estimates of $\beta_0$ and $\beta_1$, but it does invalidate the formulas used by `lm` to calculate standard errors and p-values.
+
+Let's look at a simple simulation example:
+```{r,message = FALSE}
+set.seed(4321)
+n <- 100
+x <- runif(n)
+e1 <- rnorm(n, mean = 0, sd = sqrt(2 * x))
+e2 <- rnorm(n, mean = 0, sd = 1)
+intercept <- 0.2
+slope <- 0.9
+y1 <- intercept + slope * x + e1
+y2 <- intercept + slope * x + e2
+library(tidyverse)
+mydat <- tibble(x, y1, y2)
+rm(x, y1, y2)
+```
+From the simulation code, we see that the errors `e1` are heteroskedastic since their standard deviation is a function of `x`.
+In contrast, the errors `e2` are homoskedastic since their standard deviation is *not* a function of `x`.
+This means that a regression of `y1` on `x` will exhibit heteroskedasticity but a regression of `y2` on `x` will not.
+We can see this from a plot of the data:
+```{r, fig.width = 7, message = FALSE}
+library(ggplot2)
+library(gridExtra)
+
+heterosked_plot <- ggplot(mydat, aes(x, y1)) + 
+  geom_smooth(method = 'lm') + 
+  geom_point() +
+  ggtitle('Heteroskedastic')
+
+homosked_plot <- ggplot(mydat, aes(x, y2)) + 
+  geom_smooth(method = 'lm') + 
+  geom_point() +
+  ggtitle('Homoskedastic')
+
+grid.arrange(heterosked_plot, homosked_plot, ncol = 2) 
+```
+The values of `y1` "fan out" around the regression line since `e1` becomes *more variable* as `x` increases.
+In contrast, the values of `y2` do not show such a pattern: the variability in `e2` is unrelated to `x`.
+
+## `lm_robust`
+We'll use the function `lm_robust` in the package `estimatr` to calculate the appropriate standard errors for a regression with heteroskedasticity.
+Make sure to install this package before proceeding.
+For more information on `estimatr`, see the help files and [https://declaredesign.org/r/estimatr/](https://declaredesign.org/r/estimatr/).
+Standard errors that account for heteroskedasticity are often called *robust* because they do not depend on the fairly strong assumption of constant error variance.
+The function `lm_robust` is nearly identical to `lm` but it allows us to specify a new argument `se_type` to indicate what kinds of standard errors we want to use. 
+If we set `se_type = 'classical'` we'll get exactly the same standard errors as if we had used `lm`, namely standard errors that assume homoskedasticity:
+```{r, message = FALSE}
+library(estimatr)
+reg_classical <- lm_robust(y1 ~ x, mydat, se_type = 'classical')
+summary(reg_classical)
+```
+If we set `se_type = 'stata'` we'll get heteroskedasticity-robust standard errors identical to those calculated by the command `reg, robust` in Stata.
+Since many economists still use Stata, this is handy for being able to replicate their results.
+Notice that the robust standard errors are *larger* than the classical ones.
+This is fairly typical in applications:
+```{r, message = FALSE}
+reg_robust <- lm_robust(y1 ~ x, mydat, se_type = 'stata')
+summary(reg_robust)
+```
+You should go back through the two preceding sets of regression results carefully and verify that the estimates are *identical* in each case.
+Because the standard errors are different, however, so are the test statistics and p-values.
+For example, `x` is significant at the 5\% level when we use classical standard errors, but not when we use heteroskedasticity-robust standard errors.
+In general, failing to account for heteroskedasticity leads us to *understate* the true sampling uncertainty in our regression estimates. 
+
+## F-tests with `lm_robust`
+Heteroskedasticity doesn't just invalidate inference based on the t-tests from the `lm` summary output; it also invalidates any F-tests that we construct by passing these results to `linearHypothesis`.
+Fortunately, `lm_robust` makes it easy to fix this problem: as long as we fit our regression using `lm_robust` in place of `lm` and choose robust standard errors, when we pass the regression object to `linearHypothesis`, it will automatically make the appropriate adjustments.
+For example, notice that these *do not* give the same results:
+```{r, message = FALSE}
+library(car)
+linearHypothesis(reg_classical, 'x = 0')
+linearHypothesis(reg_robust, 'x = 0')
+```
+That is because the first one uses classical standard errors while the second uses heteroskedasticity-robust standard errors.
+
+
+# Exercise \#1
+(a) Fit a regression predicting `colgpa` from `hsize`, `hsize^2`, `hsperc`, `sat`, `female` and `athlete` based on the `college_gpa.csv` dataset from Problem Set \#3.
+(You can download the data from [the course website](http://ditraglia.com/econ224/college_gpa.csv).
+(b) Compare the *classical* and *robust* standard errors for each predictor in this model. Are they similar or very different?
+(c) Test the null hypothesis that `hsperc`, `sat`, `female`, and `athlete` provide no additional predictive information after controlling for `hsize` and `hsize^2`.
+Carry out the test two ways: first using *classical* and then using *robust* standard errors. How do the results differ?
+
+# Solution to Exercise \#1
+<!-- ANS_START -->
+In this particular example, robust versus classical standard errors give very similar results:
+```{r,message = FALSE}
+gpa <- read_csv('http://ditraglia.com/econ224/college_gpa.csv')
+mymodel <- colgpa ~ hsize + I(hsize^2) + hsperc + sat + female + athlete
+classical <- lm_robust(mymodel, se_type = 'classical', gpa)
+robust <- lm_robust(mymodel, se_type = 'stata', gpa)
+SE_classical <- summary(classical)$coefficients[,2]
+SE_robust <- summary(robust)$coefficients[,2]
+round(cbind(coef(classical), SE_classical, SE_robust), 4)
+myrestriction <- c('hsperc = 0', 'sat = 0', 'female = 0', 'athlete = 0')
+linearHypothesis(classical, myrestriction)
+linearHypothesis(robust, myrestriction)
+```
+<!-- ANS_END -->
+
+
+
+# Publication-quality Tables 
+A crucial part of communicating our results in a statistical analysis creating tables that are clear, and easy to read.
+In this section we'll look at two packages that produce publication-quality tables like those that appear in academic journals: `stargazer` and `texreg`.
+Make sure to install these packages before proceeding.
+
+## A Table of Summary Statistics with `stargazer`
+We'll start by learning how to make a simple table of summary statistics.
+There are a few quirks to be aware of here, so **please read this paragraph carefully!**
+The first thing you should know is that `stargazer` can only construct summary statistics for a *dataframe*.
+For almost all intents and purposes a tibble *is* a dataframe, but `stargazer` is an exception to this rule.
+If you have a tibble called, say `tbl`, then you will need to pass it into `stargazer` wrapped inside `as.data.frame()`.
+The second thing you should know is that using `stargazer` with `knitr` will not work unless you set the chunk option `results = 'asis'`.
+The third thing you need to know is that `stargazer` requires you to explicitly specify the kind of output that you want it to produce.
+If you will be knitting a `pdf` you'll need to set `type = 'latex'`.
+If you will be knitting an `html` document, you'll need to set `type = 'html'`.
+Finally, if you just want to display your table *without knitting it*, e.g. as a preview in RStudio, you'll need to set `type = 'text'`.
+Here is an example of the code that I ran to generate a pdf version of this document:
+```{r, message = FALSE, results = 'asis'}
+library(stargazer)
+stargazer(mtcars, type = 'latex')
+# set type to 'html' if knitting to html and 'text' if previewing in RStudio
+```
+
+The `stargazer` command provides dozens of options for customizing the appearance of the output it generates. 
+Here's a nicer version of the preceding table that uses some of these options:
+```{r, results = "asis"}
+mylabels <- c('Miles/gallon', 
+              'No. of cylinders', 
+              'Displacement (cubic inches)', 
+              'Horsepower', 
+              'Rear axle ratio', 
+              'Weight (1000lb)', 
+              '1/4 Mile Time', 
+              'V/S', 
+              'Manual Transmission? (1 = Yes)', 
+              'No. forward gears', 
+              'No. carburetors')
+stargazer(mtcars, 
+          type = 'latex', 
+          title = 'Summary Statistics: Motor Trend Cars Dataset', 
+          digits = 1, 
+          header = FALSE,
+          covariate.labels = mylabels)
+# set type to 'html' if knitting to html and 'text' if previewing in RStudio
+```
+Notice how I reduced the number of significant figures presented in the table, added a caption and meaningful variable names.
+We can also customize which summary statistics are reported using the options `summary.stat` and `omit.summary.stat`.
+For example, if we only wanted to show the mean, standard deviation, and quartiles of the data, we could use the following:
+```{r, results = "asis"}
+stargazer(mtcars, 
+          type = 'latex', 
+          title = 'Summary Statistics: Motor Trend Cars Dataset', 
+          digits = 1, 
+          header = FALSE,
+          covariate.labels = mylabels, 
+          summary.stat = c('mean',
+                           'sd',
+                           'p25',
+                           'median',
+                           'p75'))
+# set type to 'html' if knitting to html and 'text' if previewing in RStudio
+```
+
+
+# Exercise \#2
+Use `stargazer` to make a table of summary statistics for the `college_gpa.csv` dataset from Problem Set \#3.
+Add a title, use an appropriate number of digits, and provide meaningful labels for the variables.
+
+# Solution to Exercise \#2
+<!-- ANS_START -->
+```{r, results = 'asis'}
+gpalabels <- c('Combined SAT Score',
+               'Total hours through Fall',
+               'College GPA (out of 4.0)',
+               'Athlete? (1 = Yes)',
+               'Ratio of SAT Verbal/Math',
+               'Size HS Grad. Class (100s)',
+               'Rank in HS Grad. Class',
+               'Percentile in HS Grad. Class',
+               'Female? (1 = Yes)',
+               'White? (1 = Yes)',
+               'Black? (1 = Yes)')
+stargazer(as.data.frame(gpa), type = 'latex',
+          header = FALSE,
+          title = 'Summary Statistics: College GPA Dataset',
+          digits = 1,
+          summary.stat = c('mean', 'sd', 'p25', 'median', 'p75'),
+          covariate.labels = gpalabels)
+# set type to 'html' if knitting to html and 'text' if previewing in RStudio
+```
+<!-- ANS_END -->
+
+
+## Regression Output with `stargazer`
+As we have seen, when you pass a dataframe to `stargazer`, its default is to construct a table of summary statistics. 
+If you instead pass a *regression* object, it will make a regression table.
+For example:
+Run a bunch of regressions using `mtcars`
+```{r, results = 'asis'}
+reg1 <- lm(mpg ~ disp, mtcars)
+stargazer(reg1, type = 'latex',
+          header = FALSE,
+          digits = 1,
+          title = 'Predicting Fuel Economy from Displacement')
+# set type to 'html' if knitting to html and 'text' if previewing in RStudio
+```
+Let's run a few more regressions and make a table that summarizes the results of *all* of them:
+```{r, results = 'asis'}
+reg2 <- lm(mpg ~ wt, mtcars)
+reg3 <- lm(mpg ~ disp + wt, mtcars)
+stargazer(reg1, reg2, reg3, 
+          type = 'latex', 
+          digits = 1,
+          header = FALSE,
+          title = 'Regression Results for Motor Trend Dataset',
+          covariate.labels = c('Displacement (cubic inches)', 'Weight (1000lb)'),
+          dep.var.labels = 'Miles/gallon',
+          notes = c('Data are courtesy of Motor Trend Magazine. Also, R rules!'))
+# set type to 'html' if knitting to html and 'text' if previewing in RStudio
+```
+Notice how I added a label for the dependent variable and appended a *note* to the regression table.
+
+# Exercise \#3
+(a) Use `lm` to create an object called `reg1` that predicts `colgpa` from `hsize` and `hsize^2`.
+(b) Use `lm` to create an object called `reg2` that adds `hsperc`, `sat`, `female` and `athlete` to `reg1`.
+(c) Use `stargazer` to make a summary table that compares the output of `reg1` and `reg2`. Be sure to add a title, use appropriate labels, a reasonable number of digits, etc.
+
+# Solution to Exercise \#3
+<!-- ANS_START -->
+```{r,results = 'asis'}
+reglabels <- c('Size HS Grad. Class (100s)', 
+               'Size HS Grad. Class Squared',
+               'Percentile in HS Grad. Class',
+               'Combined SAT Score',
+               'Female? (1 = Yes)',
+               'Athlete? (1 = Yes)')
+reg1 <- lm(colgpa ~ hsize + I(hsize^2), gpa)
+reg2 <- lm(colgpa ~ hsize + I(hsize^2) + hsperc + sat + female + athlete, gpa)
+stargazer(reg1, reg2, type = 'latex',
+          dep.var.labels = 'College GPA',
+          covariate.labels = reglabels,
+          title = 'Predicting College GPA') 
+# set type to 'html' if knitting to html and 'text' if previewing in RStudio
+```
+<!-- ANS_END -->
+
+## Regression Output with `texreg`
+One downside of `stargazer` is that it does not play nicely with `lm_robust`.
+While there is a way to "trick" `stargazer` into doing the right thing with an object created by `lm_robust` (See [https://declaredesign.org/r/estimatr/articles/regression-tables.html](https://declaredesign.org/r/estimatr/articles/regression-tables.html) for details), this is a bit of a pain.
+Instead we'll use an alternative to `stargazer` called `texreg`.
+As with `stargazer` you need to set the chunk option `results = 'asis'` to get `texreg` to display correctly with `knitr`.
+
+The `texreg` package provides three main functions: `texreg()` is for pdf output with LaTeX, `htmlreg()` is for html output, and `screenreg()` is for text output.
+This is different form `stargazer` which has a *single* function but requires the user to specify `type` to indicate the desired output:
+```{r, message = FALSE, results = 'asis'}
+library(texreg)
+cars1 <- lm_robust(mpg ~ disp, se_type = 'stata', mtcars) 
+cars2 <- lm_robust(mpg ~ wt, se_type = 'stata', mtcars)
+cars3 <- lm_robust(mpg ~ disp + wt, se_type = 'stata', mtcars)
+texreg(list(cars1, cars2, cars3), include.ci = FALSE,
+       caption = 'Predicting Fuel Economy',
+       custom.coef.names = c('Intercept', 
+                             'Displacement (cubic inches)', 
+                             'Weight (1000lb)'),
+       custom.note = 'Robust Standard Errors')
+# use htmlreg() if knitting to html, and screenreg() if previewing in RStudio
+```
+The output is very similar to `stargazer`.
+Note however that we need to pack multiple sets of regression results into a `list` object for use with `texreg`.
+
+# Exercise \#4
+Repeat Exercise \#3 but use `lm_robust` to generate robust standard errors and `texreg` rather than `stargazer` to make the table of results.
+
+# Solution to Exercise \#4
+<!-- ANS_START -->
+```{r,results = 'asis'}
+reglabels <- c('Intercept',
+               'Size HS Grad. Class (100s)', 
+               'Size HS Grad. Class Squared',
+               'Rank in HS Grad Class',
+               'Combined SAT Score',
+               'Female? (1 = Yes)',
+               'Athlete? (1 = Yes)')
+reg1_robust <- lm_robust(colgpa ~ hsize + I(hsize^2), 
+                         se_type = 'stata', gpa)
+reg2_robust <- lm_robust(colgpa ~ hsize + I(hsize^2) + hsperc + sat + female + athlete, 
+                         se_type = 'stata', gpa)
+texreg(list(reg1_robust, reg2_robust), 
+       custom.coef.names = reglabels, 
+       include.ci = FALSE,
+       caption = 'Predicting College GPA',
+       custom.note = 'Note: robust standard errors.')
+# use htmlreg() if knitting to html, and screenreg() if previewing in RStudio
+```
+<!-- ANS_END -->
+
+# Important Note:
+From now own, we will expect you to format your results in problem sets and labs using the `stargazer` and/or `texreg` packages.
 

@@ -26,7 +26,7 @@ Hint: you'll need to use the `dplyr` function called `n()` to calculate the samp
 Look this up in *R for Data Science*, online, or in the R Help files to find out how it works.
 2. Write R code to calculate the p-value for the test of the null hypothesis that there is no difference in callback rates across black and white-sounding names against the two-sided alternative, using the summary statistics you calculated in part 1. Do this "the hard way" i.e. *not* by using a built-in function like `t.test`. Your code should demonstrate that you understand the steps involved in the calculation.
 3. It's a pain doing tests by hand. Figure out how to carry out the test from part 2 *without* manually computing all the of the summary statistics first. Hint: read the help file for the base R function `t.test` and the `dplyr` function `pull`. 
-4. Compare and interpret your results from parts 3 and 4.
+4. Compare and interpret your results from parts 2 and 3.
 
 
 # Solution to Exercise \#1
