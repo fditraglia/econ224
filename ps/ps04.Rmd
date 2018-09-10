@@ -1,0 +1,16 @@
+---
+title: 'Problem Set #4'
+author: "Econ224"
+date: "Due Date: Sunday, September 23rd by 11:59pm "
+---
+
+# Instructions
+To give you and me a break, this week there is *no problem set*.
+Instead, please submit Lab \#8 in lieu of a problem set.
+This is a farily long lab, so you will almost certainly have to work on it outside of class.
+As usual, submit your code and solutions as an RMarkdown document to canvas, including both `.Rmd` and `.html` files.
+The collaboration policy is slightly different for this problem set, since you will work on at least part of it in class.
+For the part you do in class, feel free to collaborate in any way that you please.
+For the part that you do at home, please adhere to the *empty hands policy*.(See previous problem sets for details.)
+Indicate on your write-up which portion you completed in class with your team and which portion you completed on your own outside of class.
+
