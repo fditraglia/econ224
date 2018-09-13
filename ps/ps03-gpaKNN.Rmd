@@ -45,7 +45,7 @@ This datset contains information on 4137 students from a mid-sized research univ
 3. Approximately what is the standard deviation of `sat` in this dataset? Alice and Bob graduated in the same percentile from their respective high schools. If Alice's SAT is one standard deviation higher than Bob's, what difference in SAT scores would we predict for the pair? 
 4. How large a difference in SAT scores would Alice and Bob need to have for us to predict a 1 point difference in their GPAs?
 5. Fit a quadratic regression using `hsize` to predict `colgpa`. Summarize your results, plot the data and the regression curve. Is there evidence that adding a quadratic term improves the quality of our predictions?
-6. Based on your results from question 5, for which value of `hsize` would we predict the *highest* SAT score?
+6. Based on your results from question 5, for which value of `hsize` would we predict the *highest* GPA?
 7. Augment your regression from question 5 by adding `hsperc`, `sat`, `female`, and `athlete` and display the results. Do you find strong evidence that adding these variables improves our predictions? Carry out appropriate statistical inference to answer this question.
 8. From your regression results in question 7, what is the predicted difference in GPA between two otherwise identical individuals, only one of whom is an athlete? Is this difference statistically significant? Is its magnitude practically relevant?
 9. Repeat question 8 after dropping `sat` from the model. Why do you think your results differ?
