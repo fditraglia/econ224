@@ -42,7 +42,7 @@ This datset contains information on 4137 students from a mid-sized research univ
 
 1. Fit a linear regression predicting `colgpa` using `hsperc` and `sat`. Interpret the cofficients in terms of sign, statistical significance, and practical importance. How well does the model predict GPA? 
 2. What is the predicted GPA for a student who graduated in the top 10\% of her high school class and had a combined SAT score of 1200?
-3. Approximately what is the standard deviation of `sat` in this dataset? Alice and Bob graduated in the same percentile from their respective high schools. If Alice's SAT is one standard deviation higher than Bob's, what difference in SAT scores would we predict for the pair? 
+3. Approximately what is the standard deviation of `sat` in this dataset? Alice and Bob graduated in the same percentile from their respective high schools. If Alice's SAT is one standard deviation higher than Bob's, what difference in GPA would we predict for the pair? 
 4. How large a difference in SAT scores would Alice and Bob need to have for us to predict a 1 point difference in their GPAs?
 5. Fit a quadratic regression using `hsize` to predict `colgpa`. Summarize your results, plot the data and the regression curve. Is there evidence that adding a quadratic term improves the quality of our predictions?
 6. Based on your results from question 5, for which value of `hsize` would we predict the *highest* GPA?
