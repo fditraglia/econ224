@@ -56,8 +56,8 @@ Fair and Oster (2007) describe these as follows:
 
 The predictors `MAT, SAG, BIL, COL, MAS` and `DUN` are constructed as the *difference* of rankings for team A minus team B in the week when the corresponding game is scheduled to occur.
 Suppose, for example, that in a week when Stanford is schedule to play UCLA, Richard Billingsley has Stanford \#10 and UCLA \#22.
-The *difference* of ranks is 11.
-So if Stanford is team A, `BIL` will equal `11` and if Stanford is team B, `BIL` will equal `-11`.
+The *difference* of ranks is 12.
+So if Stanford is team A, `BIL` will equal `12` and if Stanford is team B, `BIL` will equal `-12`.
 To be clear, each of these predictors will be *positive* when the team designated A is *more highly ranked*.
 
 ### Win-Loss Record: `REC`
