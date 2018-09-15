@@ -60,7 +60,7 @@ Those of you who are expected to attempt this problem should know who you are!*
 1. Write an R function to implement K-nearest neighbors regression with a *single* predictor variable.
 Your function should take four arguments: vectors of data `x` and `y` used to estimate the model, the number of neighbors `K`, and a vector `newdata` of *new* `x`-values at which we want to predict `y`.
 Your function should return the K-nearest neighbor predictions for `y` that correspond to the `x`-values contained in `newdata`. 
-2. Use your function to plot the K-nearest neighbors regression curve predicting `mpg` from `dist` in the `mtcars` dataset along with the raw data for each variable.
+2. Use your function to plot the K-nearest neighbors regression curve predicting `mpg` from `disp` in the `mtcars` dataset along with the raw data for each variable.
 Experiment with different values of `K` and comment on your results.
 
 ### Hints
