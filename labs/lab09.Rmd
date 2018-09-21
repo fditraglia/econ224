@@ -124,6 +124,13 @@ Substituting into our expression from (a), we find that the derivative of $\Lamb
 (e) When $X'\beta \approx 0$ it follows that $\exp(X'\beta)/[1 + \exp(X'\beta)]^2 \approx 1/4$ so the "divide by four" rule gives a good approximation to the actual derivative.
 <!-- ANS_END -->
 
+# Latent Variable Interpretation of Logistic Regression
+
+Have them simulate some data from a logistic regression and use it to show all the R commands for running the regression, plotting, etc.
+Then Thursday's lab can be about the well-switching example!
+
+# Running a Logistic Regression in R
+
 # Contaminated Wells in Bangladesh
 In the remainder of this lab, as well as Thursday's lab, we'll work with a dataset containing household-level information from Bangladesh: `wells.csv`.
 You can download the dataset from the course website at [http://ditraglia.com/econ224/wells.csv](http://ditraglia.com/econ224/wells.csv).
@@ -142,5 +149,4 @@ Our goal is to predict which households will switch wells using the following in
 | `assoc` | Dummy variable: equals 1 if any member of the household is active in community organizations |
 | `educ` | Education level of head of household (years) |
 
-# Running a Logistic Regression in R
 
