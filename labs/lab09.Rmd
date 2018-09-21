@@ -1,9 +1,106 @@
 ---
-title: "Lab #9 - Logistic Regression"
+title: "Lab #9 - Logistic Regression Part I"
 author: "Econ 224"
 date: "September 25th, 2018"
 ---
 
 
-# Introduction 
+# Notation
+In this lab we'll be looking at logistic regression, a commonly-used binary classification method.
+To make things simpler, we'll use some slightly different notation and terminology than ISL.
+First we'll define the *column vectors* $X$ and $\beta$ as follows:
+\[
+X = \left[
+\begin{array}{c}
+1 \\ X_1 \\ X_2 \\ \vdots \\ X_p
+\end{array}
+\right], \quad
+\beta = 
+\left[
+\begin{array}{c}
+\beta_0 \\ \beta_1 \\ \beta_2 \\ \vdots \\ \beta_p
+\end{array}
+\right]
+\]
+Notice that the first element of $X$ is *not* $X_1$: it is simply the number $1$. 
+There's an important reason for this that you'll see in a moment.
+From the reading, we know that logistic regression is a *linear model* for the *log odds*, namely
+\[
+\log\left[\frac{P(X)}{1 - P(X)} \right] = \beta_0 + \beta_1 X_1 + \cdots + \beta_p X_p
+\]
+where $P(X)$ is shorthand for $\mathbb{P}(Y=1|X)$.
+Note that when I write $\log$ I **always** mean the natural logarithm.
+Also note that when I write $\exp(z)$ I mean $e^z$.
+This comes in handy if $z$ is a complicated expression.
+
+Using the vector notation introduced above, we can express this more compactly as
+\[
+\log \left[\frac{P(X)}{1 - P(X)} \right] = X'\beta
+\]
+since 
+\[
+X'\beta = 
+\left[\begin{array}{ccccc}
+1 & X_1 & X_2 & \cdots & X_p
+\end{array}\right]
+\left[
+\begin{array}{c}
+\beta_0 \\ \beta_1 \\ \beta_2 \\ \vdots \\ \beta_p
+\end{array}
+\right] = \beta_0 + \beta_1 X_2 + \beta_2 X_2 + \cdots + \beta_p X_p
+\]
+I will call $X'\beta$ the *linear predictor* since it is the linear function of $X$ that we use to predict $Y$.
+By exponentiating both sides of the log-odds expression from above and re-arranging, obtain the following:
+\begin{align*}
+\frac{P(X)}{1 - P(X)} &= \exp(X'\beta) \\
+P(X) &= [1 - P(X)] \exp(X'\beta)\\
+P(X) + P(X) \exp(X'\beta) &= \exp(X'\beta)\\
+P(X)[1 + \exp(X'\beta)] &= \exp(X'\beta)\\
+P(X) &= \frac{\exp(X'\beta)}{1 + \exp(X'\beta)} \\
+P(X) &= \Lambda(X'\beta)
+\end{align*}
+where the function $\Lambda$ is defined as follows
+$$\Lambda(z) = \frac{e^z}{1 + e^z}$$
+
+## Exercise \#1
+(a) Verify that $\Lambda(z) = \displaystyle \frac{1}{1 + e^{-z}}$.
+(b) Using (b), write an alternative expression for $P(X)$.
+
+## Solution to Exercise \#1
+<!-- ANS_START -->
+The function $\Lambda$ takes values between 0 and 1. 
+When $z = 0$, $\Lambda(z) = e^0 / (1 + e^0) = 1/2$.
+As $z \rightarrow \infty$, $\Lambda(z) \rightarrow 1$ and as $z \rightarrow -\infty$, $\Lambda(z) \rightarrow 0$.
+<!-- ANS_END -->
+
+# Interpreting $\beta$ in a Logistic Regression
+From the expression above, we see that $\beta_j$ is the partial derivative of the log-odds with respect to $X_j$.
+But it's difficult to think in terms of log-odds.
+By doing some calculus (see the exercises below), we can work out an interpretation of $\beta_j$ as the partial derivative of $p(X)$ with respect to $X_j$.
+**However, $P(X)$ is *not* a linear function of $X$ so the derivative varies with $X$!**
+There are two solutions to this problem.
+One is to evaluate the derivative at a "typical" value of $X$ such as the sample mean.
+Another is to use the "divide by 4 rule." 
+This rule says that if we increase $X_j$ by one unit, $P(X)$ will change by *no more than* $\beta_j/4$.
+In the following exercise, you'll derive this rule.
+
+## Exercise \#2
+(a) Analyze the function $\Lambda(z)$: calculate its derivative, and its limits as $z \rightarrow -\infty$ and $+\infty$. What values can this function take? Is it increasing? Decreasing? Explain.
+(b) What is the maximum value of the *derivative* of $\Lambda(z)$? At what value of $z$ does it occur?
+(c) Use the chain rule and your answer to (a) to find the partial derivative of $\Lambda(X'\beta)$ with respect to $\beta_j$.
+(d) Use your answers to (b) and (c) to explain the "divide by 4 rule."
+
+## Solution to Exercise \#2
+<!-- ANS_START -->
+The function $\Lambda$ takes values between 0 and 1. 
+When $z = 0$, $\Lambda(z) = e^0 / (1 + e^0) = 1/2$.
+As $z \rightarrow \infty$, $\Lambda(z) \rightarrow 1$ and as $z \rightarrow -\infty$, $\Lambda(z) \rightarrow 0$.
+We calculate its derivative using the quotient rule as follows
+\[
+\Lambda'(z) = \frac{e^z (1 + e^z) - e^z e^z}{(1 + e^z)^2} = \frac{e^z}{(1 + e^z)^2}
+\]
+Since $e^z$ is always greater than zero, the derivative is always positive so $\Lambda(z)$ is strictly increasing.
+To find the value of $z$ that maximizes the first derivative, we take the *second* derivative of $\Lambda$ as follows
+<!-- ANS_END -->
+
 
