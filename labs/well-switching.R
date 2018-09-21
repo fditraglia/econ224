@@ -77,6 +77,9 @@ linear_predictor <- b0 + b1 * avgdist
 
 b1 / ((1 + exp(-1 * linear_predictor))^2)
 
+-0.62 * exp(0.31) / (1 + exp(0.31))^2
+b1 * exp(linear_predictor) / (1 + exp(linear_predictor))^2
+
 # Divide by 4 rule
 avgdist / 4
 
