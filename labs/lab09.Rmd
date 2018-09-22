@@ -4,9 +4,13 @@ author: "Econ 224"
 date: "September 25th, 2018"
 ---
 
+# Introduction
+In this lab we'll study logistic regression. 
+The first part of the lab will involve carrying out some calculations to better understand how logistic regression works and what it means.
+The second part of the lab will show you the basics of how to carry out logistic regresion in R.
 
-# Notation
-In this lab we'll be looking at logistic regression, a commonly-used binary classification method.
+# Part I - Theoretical
+In this part of the lab, we'll carry out some theoretical derivations to better understand logistic regression.
 To make things simpler, we'll use some slightly different notation and terminology than ISL.
 First we'll define the *column vectors* $X$ and $\beta$ as follows:
 \[
@@ -75,7 +79,7 @@ $$\Lambda(z) = \frac{e^z}{1 + e^z}$$
 (b) $P(X) = \displaystyle \frac{1}{1 + \exp(-X'\beta)}$ 
 <!-- ANS_END -->
 
-# Interpreting $\beta$ in a Logistic Regression
+## Interpreting $\beta$ in a Logistic Regression
 From the expression above, we see that $\beta_j$ is the partial derivative of the log-odds with respect to $X_j$.
 But it's difficult to think in terms of log-odds.
 By doing some calculus (see the exercises below), we can work out the partial derivative of $p(X)$ with respect to $X_j$, but this will *not* turn out to equal $\beta_j$.
@@ -124,7 +128,10 @@ Substituting into our expression from (a), we find that the derivative of $\Lamb
 (e) When $X'\beta \approx 0$ it follows that $\exp(X'\beta)/[1 + \exp(X'\beta)]^2 \approx 1/4$ so the "divide by four" rule gives a good approximation to the actual derivative.
 <!-- ANS_END -->
 
-# Latent Variable Interpretation of Logistic Regression
+# Part II - Running Logistic Regression in R
+
+## Generating Data from a Logistic Regression Model
+
 
 Have them simulate some data from a logistic regression and use it to show all the R commands for running the regression, plotting, etc.
 Then Thursday's lab can be about the well-switching example!
