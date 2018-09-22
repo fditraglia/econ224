@@ -62,8 +62,8 @@ I will call $X'\beta$ the *linear predictor* since it is the linear function of 
 By exponentiating both sides of the log-odds expression from above and re-arranging, obtain the following:
 \begin{align*}
 \frac{P(X)}{1 - P(X)} &= \exp(X'\beta) \\
-P(X) &= [1 - P(X)] \exp(X'\beta)\\
-P(X) + P(X) \exp(X'\beta) &= \exp(X'\beta)\\
+%P(X) &= [1 - P(X)] \exp(X'\beta)\\
+%P(X) + P(X) \exp(X'\beta) &= \exp(X'\beta)\\
 P(X)[1 + \exp(X'\beta)] &= \exp(X'\beta)\\
 P(X) &= \frac{\exp(X'\beta)}{1 + \exp(X'\beta)} \\
 P(X) &= \Lambda(X'\beta)
@@ -135,6 +135,7 @@ Substituting into our expression from (a), we find that the derivative of $\Lamb
 <!-- ANS_END -->
 
 # The Latent Data Formulation of Logistic Regression
+Another way to think about logistic regression is via the following *generative model*:
 \[
  y_i^* = X_i'\beta + \epsilon_i, \quad
  y_i = \left\{ \begin{array}{cc}
@@ -144,106 +145,185 @@ Substituting into our expression from (a), we find that the derivative of $\Lamb
  \epsilon_i \sim \mbox{ iid Logistic}(0,1) 
 \]
 where the Logistic$(0,1)$ distribution has CDF $\Lambda(z) = e^z/(1 + e^z)$ and pdf $\lambda(z) = e^z/(1 + e^z)^2$.
-These expressions should look familiar since we worked with them above!
-Notice that we have
-\[
-\mathbb{P}(y_i = 1) = \mathbb{P}(y_i^* > 0) = \mathbb{P}(X_i'\beta + \epsilon_i > 0) = \mathbb{P}(-\epsilon_i < X_i'\beta) = \mathbb{P}(-\epsilon_i \leq X_i'\beta) = \Lambda(X_i'\beta)
-\]
-where the second-to-last equality follows from the fact that $\epsilon_i$ is a continuous random variable, and the final equality follows from the fact that the distribution of $\epsilon_i$ is *symmetric*.
-(You can check this by substituting $z$ and $-z$ into the function $\lambda$.)
+The expressions $\Lambda$ and $\lambda$ should look familiar, since we worked with them above.
+We call this a generative model because it tells us how to *generate* the observations $y_i$ using the regressors $X_i$.
+If we want to *simulate* data from a logistic regression model, the latent data formulation gives us a convenient way to do so.
 
-
-The idea here is that $y_i^*$ is an "unobserved" aka *latent* variable that determines whether the observed indicator $y$ is positive or negative.
-In specific examples, we can usually give $y_i^*$ a meaningful interpretation.
+The idea behind the latent data formulation is that a continuous *unobserved* random variable $y_i^*$ determines whether the *observed* binary random variable $y_i$ is zero or one.
+The term *latent* is just a synonym for unobserved.
+While this may seem odd, in specific examples we can often give $y_i^*$ a meaningful interpretation.
 For example, suppose that $y_i=1$ if person $i$ voted for Hilary Clinton in the 2016 presidential election and $X_i$ contains demographic information, e.g.\ income, education, race, sex, and age.
 The latent variable $y_i^*$ can be viewed as a measure of person $i$'s *strength of preference* for Hilary Clinton relative to Donald Trump.
 If $y^*_i$ is large and positive, person $i$ strongly prefers Clinton; if $y_i^*$ is large and negative, person $i$ strongly prefers Trump; if $y_i^* = 0$, person $i$ is indifferent.
 
-# Part II - Running Logistic Regression in R
+# Exercise \#3
+(a) Show that $\lambda(z)$ is symmetric about zero, i.e. $\lambda(z) = \lambda(-z)$.
+(b) Show that the latent data formulation implies $\mathbb{P}(y_i = 1) = \Lambda(X_i'\beta)$. Hint: if $Z$ is a continuous RV with a pdf that is symmetric about zero, then $\mathbb{P}(-Z<c) = \mathbb{P}(Z\leq c)$.
+
+# Solution to Exercise \#3
+<!-- ANS_START -->
+(a) Expand the denominator, and then multiply by $\exp(-2z)/\exp(-2z)$, yielding
+\[
+\lambda(x) = \frac{\exp(z)}{[1 + \exp(z)]^2} = \frac{\exp(z)}{1 + 2\exp(z) + \exp(2z)} = \frac{\exp(-z)}{\exp(-2z) + 2\exp(-z) + 1} = \frac{\exp(-z)}{[1 + \exp(-z)]^2} = \lambda(-z)
+\]
+(b) $\mathbb{P}(y_i = 1) = \mathbb{P}(y_i^* > 0) = \mathbb{P}(X_i'\beta + \epsilon_i > 0) = \mathbb{P}(-\epsilon_i < X_i'\beta) = \mathbb{P}(-\epsilon_i \leq X_i'\beta) = \Lambda(X_i'\beta)$
+<!-- ANS_END -->
+
+
+# Part II - Logistic Regression in R
 Now we'll take a quick look at how to carry out logistic regression in R using a simulated dataset.
 In Thursday's lab you'll use what you learn in this part to study a real-world example.
 
-## Generating Data from a Logistic Regression Model
-
-
-
+## Simulating Data from a Logistic Regression
+The R function `rlogis` creates iid draws from the logistic distribution.
+If we only specify one argument, `rlogis` assumes that this is the number of random draws that we wish to make, and sets the values of its *location* and *scale* parameters to 0 and 1, respectively.
+This is what we want, since these parameters correspond to the Logistic$(0,1)$ distribution that appears in the latent data formulation from above.
+Using `rlogis`, we can simulate data from a logistic regression model as follows: 
 ```{r}
-#-------------------------- Simulate data from a logistic regression
-library(MASS)
 set.seed(1234)
 n <- 500
-x <- rnorm(n, mean = 1.5, sd = 2)
-b0 <- -0.5
+b0 <- 0.5
 b1 <- 1
+x <- rnorm(n, mean = 1.5, sd = 2)
 ystar <- b0 + b1 * x + rlogis(n)
 y <- 1 * (ystar > 0)
 mydat <- data.frame(x, y)
 ```
 
+## Running a Logistic Regression in R
+We can now run a logistic regression use the simulated dataset `mydat` to carry out logistic regression.
+Note that in a certain sense this is silly: we generated the data so we *know* the true values of $\beta_0$ and $\beta_1$. 
+Why bother carrying out logistic regression to *estimate* them?
+There are two answers to this question.
+First, this is only an example: don't be so picky!
+Second, it can be extremely valuable to work with simulated data to check whether our statistical methods are working correctly.
+If we *know* for sure that the data came from a logistic regression model, then our logistic regression estimates should be close to the truth. 
+If they're not, then something is wrong with our computer code.
 
+The R function `glm` can be used to carry out logistic regression.
+The name of this function is an acronym for *generalized linear model*.
+Generalized linear models (GLMs) are exactly what their name says, a *generalization* of linear regression.
+GLMs include logistic regression as a special case.
+To tell `glm` that we want to carry out a logistic regression, we need to specify `family = binomial(link = 'logit')`.
+Otherwise the syntax is practically identical to that of `lm`.
+We specify a *formula*, `y ~ x`, and indicate a dataframe in which R should look to find `y` and `x`:
 ```{r}
-#-------------------------- Plot true logistic regression function for the sim
+lreg <- glm(y ~ x, mydat, family = binomial(link = 'logit'))
+summary(lreg)
+```
+Notice that the output of `summary` when applied to a `glm` object is a little different from what we've seen for `lm` objects.
+But let's focus on what's the same.
+We still obtain the estimates of each of the coefficients in our model, along with standard errors, test statistics, and p-values.
+We can use this information to carry out statistical inference exactly as we do with linear regression: R has already done all the hard work for us by calculating the standard errors.
+
+# Exercise \#4
+Construct approximate 95\% confidence intervals for the parameters $\beta_0$ and $\beta_1$ based on the logistic regression output from above.
+Do your confidence intervals include the true parameter values that we used to simulate the data?
+
+# Solution to Exercise \#4
+<!-- ANS_START -->
+The confidence interval for the regression intercept is `r round(coef(lreg)[1], 2)` $\pm$ `r round(2 * sqrt(summary(lreg)$cov.scaled[1,1]), 2)` which includes the true value: $\beta_0=$ `r b0`. 
+Similarly, the confidence interval for the regression slope is `r round(coef(lreg)[2], 2)` $\pm$  `r round(2 * sqrt(summary(lreg)$cov.scaled[2,2]), 2)` which includes the true value: $\beta_1 =$ `r b1`.
+<!-- ANS_END -->
+
+## Predicted Probabilities for Logistic Regression 
+Many of the functions we used with `lm` also work with `glm`.
+For example, to extract the coefficients from a generalized linear model, we can use the command `coef`:
+```{r}
+coef(lreg)
+```
+We can also use the function `predict` to calculated the predicted probability that $y = 1$ given particular values of the predictors $X_i$. 
+There's just one slight wrinkle here: we need to make sure to specify `type = 'response'` to indicate to R that we want the predicted *probabilities*.
+For example, we can calculate the predicted probability that $y_i = 1$ given that $X_i = 0$ as follows:
+```{r}
+predict(lreg, newdata = data.frame(x = 0), type = 'response')
+```
+Similarly, we can calculate the predicted probability that $y_i = 1$ given that $X_i$ equals the *sample mean* of $X$ as follows:
+```{r}
+predict(lreg, newdata = data.frame(x = mean(x)), type = 'response')
+```
+If we don't specify anything for `newdata`, then predict will give us the predicted probabilities for the *observed* values of $X$:
+```{r}
+phat <- predict(lreg, type = 'response')
+head(phat)
+```
+
+# Exercise \#5
+(a) Write an R function called `Lambda` that calculates the value of $e^z/(1 + e^z)$.
+(b) Using your function from part (a) and the results of `lreg`, calculate the predicted probability that $y_i = 1$ when: (i) $X_i = 0$ and (ii) $X_i = \bar{X}$ *without using* `predict`. Check that your results match those calculated using `predict` above.
+
+# Solution to Exercise \#5
+
+<!-- ANS_START -->
+```{r}
 Lambda <- function(x) {
   1 / (1 + exp(-x))
 }
-curve(Lambda(b0 + b1 * x), -8, 8, ylab = 'P(x)')
-```
-
-
-```{r}
-#-------------------------- Estimate the coefficients
-lreg <- glm(y ~ x, mydat, family = binomial(link = 'logit'))
-summary(lreg)
-coef(lreg)
-```
-
-```{r}
-#--------------------------- Confidence interval for b0 and b1
--0.78119 + 2 * c(-1, 1) * 0.15389
-1.07532 + 2 * c(-1, 1) * 0.09972
-```
-
-
-```{r}
-#-------------------------- Predicted probability that y = 1 when x = 0
-# By hand:
 bhat_0 <- coef(lreg)[1]
-Lambda(bhat_0)
-
-# Using predict:
-predict(lreg, newdata = data.frame(x = 0), type = 'response')
-# What happens if you don't specify type = 'response'?
-```
-
-
-```{r}
-#-------------------------- Predicted probability that y = 1 at the average x
-# By hand:
 bhat_1 <- coef(lreg)[2]
+Lambda(bhat_0)
 Lambda(bhat_0 + bhat_1 * mean(x))
-
-# Using predict:
-predict(lreg, newdata = data.frame(x = mean(x)), type = 'response')
 ```
+<!-- ANS_END -->
 
+## Calculating Marginal Effects
+As we discussed above, $\beta_j$ is *not* the partial derivative of $P(X)$ with respect to $X_j$.
+But since we have a formula for this partial derivative, we can calculate it for any value of $X$.
+In the following exercise, you will compare the exact calculation to the approximation given by the "divide by 4" rule.
+
+# Exercise \#6
+(a) Use the "divide by 4" rule to calculate the *maximum* possible effect of $X$ on the predicted probability that $y_i = 1$ using the results of `lreg`.
+(b) Calculate the effect of $X$ on the predicted probability that $y_i= 1$ at $X_i = \bar{X}$.
+(c) Compare your answers to (a) and (b)
+
+# Solution to Exercise \#6
+<!-- ANS_START -->
 ```{r}
-#--------------------------- Marginal effect at average x
-linear_predictor <- bhat_0 + bhat_1 * mean(x)
-bhat_1 * exp(linear_predictor) / (1 + exp(linear_predictor))^2
-
 # Divide by 4 rule
 bhat_1 / 4
-```
 
+# Marginal effect at average x
+linear_predictor <- bhat_0 + bhat_1 * mean(x)
+bhat_1 * exp(linear_predictor) / (1 + exp(linear_predictor))^2
+```
+<!-- ANS_END -->
+
+## Plotting a Logistic Regression
+We can plot a logistic regression function using a method very similar to the one we used to plot a linear regression:
 ```{r}
-#--------------------------- Plot of "Jittered" data and the logistic function
 library(ggplot2)
 ggplot(mydat, aes(x, y)) +
-  geom_jitter(height = 0.1) +
   stat_smooth(method='glm', 
               method.args = list(family = "binomial"),
               formula = y ~ x) 
 ```
-
-
+To add the datapoints, we just add `geom_point()`
+```{r}
+library(ggplot2)
+ggplot(mydat, aes(x, y)) +
+  stat_smooth(method='glm', method.args = list(family = "binomial"),
+              formula = y ~ x) + 
+  geom_point()
+```
+This doesn't look very nice!
+That's because there are only *two* possible $y$-values meaning that the observations will overlap substantially.
+A helpful way to distinguish them visually is to add a bit of random noise to the points so they no longer overlap.
+This is called *jittering* and `ggplot2` will do it for us if we replace `geom_point()` with `geom_jitter()`
+```{r}
+library(ggplot2)
+ggplot(mydat, aes(x, y)) +
+  stat_smooth(method='glm', method.args = list(family = "binomial"),
+              formula = y ~ x) + 
+  geom_jitter()
+```
+That's a bit *too much* random noise in the $y$-dimension.
+We can control the amount of jittering by specifying `width` and `height` arguments to `geom_jitter` as follows
+```{r}
+library(ggplot2)
+ggplot(mydat, aes(x, y)) +
+  stat_smooth(method='glm', method.args = list(family = "binomial"),
+              formula = y ~ x) + 
+  geom_jitter(width = 0.5, height = 0.1)
+```
+From this plot it is easy to tell that there are many more observations with $y = 1$ than $y = 0$, something that was not at all clear from the plot using `geom_point()`.
 
