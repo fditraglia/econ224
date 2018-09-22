@@ -30,18 +30,19 @@ Our goal is to predict which households will switch wells using the following in
 To be clear, our dataset contains *only* information for households with an arsenic level of 0.5 or above, as these are the households that were encouraged to switch wells.
 
 # Exercises
-1. Load the data and store it in a tibble called `wells`.
-2. Use `ggplot2` to make a histogram of `arsenic`.
-   Be sure to label your plot appropriately.
-   Comment on your findings. 
-3. Create a variable called `dist100` that contains the same information as `dist` but measured in *hundreds of meters* rather than in meters.
-4. Use `ggplot2` to make a histogram of `dist100`. Be sure to label your plot appropriately. 
-   Comment on your findings.
-5. Run a logistic regression using `dist100` to predict `switch` and store the result in an object called `fit1`.
-6. Use `ggplot2` to plot the logistic regression function from `fit1` along with the data, jittered appropriately.
-7. Discuss your results from 5 and 6. In particular: based on `fit1`, is `dist100` a statistically significant predictor of `switch`? Does the sign of its coefficient make sense? Explain.
-8. Based on `fit1`, calculate the predicted probability of switching wells for a household for which the nearest safe well is zero meters away.
-9. Based on `fit1`, calculate the predicted probability of switching wells for a household for which the nearest safe well is $\bar{\texttt{dist100}}$ hundred meters away, where $a$ is the sample mean of `dist100`.
+1. Preliminaries:
+      (a) Load the data and store it in a tibble called `wells`.
+      (b) Use `ggplot2` to make a histogram of `arsenic`. Be sure to label your plot appropriately. Comment on your findings. 
+      (c) Create a variable called `dist100` that contains the same information as `dist` but measured in *hundreds of meters* rather than in meters. 
+      (d) Use `ggplot2` to make a histogram of `dist100`. Be sure to label your plot appropriately. Comment on your findings.
+2. First Regression: `fit1` 
+      (a) Run a logistic regression using `dist100` to predict `switch` and store the result in an object called `fit1`. 
+      (b) Use `ggplot2` to plot the logistic regression function from `fit1` along with the data, jittered appropriately. 
+      (c) Discuss your results from parts (a) and (b). In particular: based on `fit1`, is `dist100` a statistically significant predictor of `switch`? Does the sign of its coefficient make sense? Explain. 
+      (d) Based on `fit1`, calculate the predicted probability of switching wells for a household for which the nearest safe well is zero meters away. 
+      (e) Based on `fit1`, calculate the predicted probability of switching wells for a household for which the nearest safe well is $\bar{\texttt{dist100}}$ hundred meters away, where $a$ is the sample mean of `dist100`.
+3. Second Regression: `fit2`
+4. Error Rates:
 
 
 
@@ -89,5 +90,18 @@ ggplot(wells, aes(x = dist100, y = switch)) +
   xlab('Distance to Nearest Safe Well (100s of meters)') +
   ylab("P(Switch)")
 ```
+
+## 8-9: Probabilities of switching wells based on `fit1`
+```{r}
+#---------- Prob(switch) if dist100 = 0
+predict(fit1, newdata = data.frame(dist100 = 0), type = 'response')
+
+#--------- Prob(switch) at the avg of dist100
+avgdist <- wells %>% 
+  summarize(avgdist = mean(dist100)) %>% 
+  pull(avgdist)
+predict(fit1, newdata = data.frame(dist100 = avgdist), type = 'response')
+```
+
 
 <!-- ANS_END -->
