@@ -115,7 +115,7 @@ Note that a complete answer to each of these questions requires at most a short 
 1. Why do we use methods other than linear regression in classification problems?
 2. Suppose we use logistic regression with a single predictor $X$ to predict the probability $p(X)$ that $Y = 1$. Write down the *logistic function* that expresses $p(X)$ in terms of $X$ and the coefficients $\beta_0$ and $\beta_1$.
 3. Define the term *odds*. What range of values can the odds take?
-4. Explain the meaning of $\beta_0$ and $\beta_1$ in a logistic regression that uses a single regressor $X$ to predict the probability $p(X)$ that $Y=1$. If $X$ increases by one unit, how does $p(X)$ change?
+4. Explain the meaning of $\beta_0$ and $\beta_1$ in a logistic regression that uses a single regressor $X$ to predict the probability $p(X)$ that $Y=1$. If $X$ increases by one unit, how do the log-odds change?
 5. In a logistic regression that uses a single predictor $X$ to predict the probability $p(X)$ that $Y=1$, how do we estimate the coefficients $\beta_0$ and $\beta_1$?
 6. In a logistic regression that uses a single predictor $X$ to predict the probability $p(X)$ that $Y=1$, what is the meaning of the null hypothesis $H_0\colon \beta_1 = 0$?
 7. Write down the expression for the *log odds* in a logistic regression that uses $X_1, ..., X_p$ to predict the probability that $Y=1$.
