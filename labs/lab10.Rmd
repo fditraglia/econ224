@@ -93,7 +93,7 @@ grid.arrange(arsenic_hist, larsenic_hist, ncol = 2)
 #-------- Create dist100 and zeduc
 wells <- wells %>%
   mutate(dist100 = dist / 100,
-         zeduc = scale(educ))
+         zeduc = (educ - mean(educ)) / sd(educ))
 ```
 
 
@@ -107,7 +107,7 @@ summary(fit1)
 ```{r}
 #---------- Plot fit1 with jittering
 ggplot(wells, aes(x = dist100, y = switch)) +
-  geom_jitter(height = 0.1) +
+  geom_jitter(height = 0.15) +
   stat_smooth(method='glm', 
               method.args = list(family = "binomial"),
               formula = y ~ x) + 
@@ -115,13 +115,17 @@ ggplot(wells, aes(x = dist100, y = switch)) +
   ylab("P(Switch)")
 
 #--------- Prob(switch) at the avg of dist100
-avgdist <- wells %>% 
-  summarize(avgdist = mean(dist100)) %>% 
-  pull(avgdist)
-predict(fit1, newdata = data.frame(dist100 = avgdist), type = 'response')
+avg_dist <- wells %>% 
+  summarize(avg_dist = mean(dist100)) %>% 
+  pull(avg_dist)
+mean_pred1 <- predict(fit1, newdata = data.frame(dist100 = avg_dist), type = 'response')
+mean_pred1
 
 #--------- Marginal effect of dist100 for the average household
-
+lambda <- function(z) {
+  exp(z) / ((1 + exp(z))^2)
+}
+coef(fit1)[-1] * lambda(mean_pred1)
 ```
 
 ## 3 - Predictive Performance of `fit1`
@@ -159,5 +163,36 @@ stargazer(fit1, fit2, fit3, fit4,
           type = 'latex', digits = 2, 
           title = 'Logistic Regression Results', 
           header = FALSE)
+```
+
+## 5 - Interpreting `fit2`, `fit3`, and `fit4`
+
+```{r, fig.width = 7}
+#--------- Plot fit2 and fit3
+fit2_plot <- ggplot(wells, aes(x = larsenic, y = switch)) +
+  geom_jitter(height = 0.15) +
+  stat_smooth(method='glm', 
+              method.args = list(family = "binomial"),
+              formula = y ~ x) + 
+  xlab('log(Arsenic Concentration)') +
+  ylab("P(Switch)")
+fit3_plot <- ggplot(wells, aes(x = zeduc, y = switch)) +
+  geom_jitter(height = 0.15) +
+  stat_smooth(method='glm', 
+              method.args = list(family = "binomial"),
+              formula = y ~ x) + 
+  xlab('Years of Education (z-score)') +
+  ylab("P(Switch)")
+grid.arrange(fit2_plot, fit3_plot, ncol = 2)
+
+#---------- Marginal effects for fit4
+avg_larsenic <- wells %>% 
+  summarize(avg_larsenic = mean(larsenic)) %>%
+  pull(avg_larsenic)
+mean_household <- data.frame(dist100 = avg_dist, 
+                             larsenic = avg_larsenic, 
+                             zeduc = 0)
+mean_pred4 <- predict(fit4, newdata = mean_household, type = 'response')
+coef(fit4)[-1] * lambda(mean_pred4)
 ```
 <!-- ANS_END -->
