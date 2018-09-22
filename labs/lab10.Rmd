@@ -1,9 +1,13 @@
 ---
 title: "Lab #10 - Logistic Regression Part II"
 author: "Econ 224"
-date: "September 25th, 2018"
+date: "September 27th, 2018"
 ---
 
+<!-- knitr global options -->
+```{r, include = FALSE}
+knitr::opts_chunk$set(comment=NA, fig.width=4.5, fig.height=3.5, fig.align = 'center')
+```
 
 # Contaminated Wells in Bangladesh
 Today we'll work with a dataset containing household-level information from Bangladesh: `wells.csv`.
@@ -11,7 +15,7 @@ You can download the dataset from the course website at [http://ditraglia.com/ec
 
 Here is some background on the dataset from Gelman and Hill (2007):
 
-> Many of the wells used for drinking water in Bangladesh and other South Asian countries are contaminated with natural arsenic ... a research team from the United States and Bangladesh measured all the wells [in a small region] and labeled them with their arsenic level as well as a characterization of "safe" (below 0.5 in units of hundreds of micrograms per liter, the Bangladesh standard for arsenic in drinking water) or "unsafe" (above 0.5). People with unsafe wells were encourage to switch to nearby private or community wells or to new wells of their own construction. A few years later, the researchers returned to find out who had switched wells.
+> Many of the wells used for drinking water in Bangladesh and other South Asian countries are contaminated with natural arsenic ... a research team from the United States and Bangladesh measured all the wells [in a small region] and labeled them with their arsenic level as well as a characterization of "safe" (below 0.5 in units of hundreds of micrograms per liter, the Bangladesh standard for arsenic in drinking water) or "unsafe" (above 0.5). People with unsafe wells were encouraged to switch to nearby private or community wells or to new wells of their own construction. A few years later, the researchers returned to find out who had switched wells.
 
 Our goal is to predict which households will switch wells using the following information:
 
@@ -23,4 +27,67 @@ Our goal is to predict which households will switch wells using the following in
 | `assoc` | Dummy variable: equals 1 if any member of the household is active in community organizations |
 | `educ` | Education level of head of household (years) |
 
+To be clear, our dataset contains *only* information for households with an arsenic level of 0.5 or above, as these are the households that were encouraged to switch wells.
 
+# Exercises
+1. Load the data and store it in a tibble called `wells`.
+2. Use `ggplot2` to make a histogram of `arsenic`.
+   Be sure to label your plot appropriately.
+   Comment on your findings. 
+3. Create a variable called `dist100` that contains the same information as `dist` but measured in *hundreds of meters* rather than in meters.
+4. Use `ggplot2` to make a histogram of `dist100`. Be sure to label your plot appropriately. 
+   Comment on your findings.
+5. Run a logistic regression using `dist100` to predict `switch` and store the result in an object called `fit1`.
+6. Use `ggplot2` to plot the logistic regression function from `fit1` along with the data, jittered appropriately.
+7. Discuss your results from 5 and 6. In particular: based on `fit1`, is `dist100` a statistically significant predictor of `switch`? Does the sign of its coefficient make sense? Explain.
+8. Based on `fit1`, calculate the predicted probability of switching wells for a household for which the nearest safe well is zero meters away.
+9. Based on `fit1`, calculate the predicted probability of switching wells for a household for which the nearest safe well is $\bar{\texttt{dist100}}$ hundred meters away, where $a$ is the sample mean of `dist100`.
+
+
+
+# Solutions
+<!-- ANS_START -->
+## 1-2: Load Data, Histogram of `arsenic`
+```{r, message = FALSE}
+#------- Load data
+library(tidyverse)
+library(ggplot2)
+wells <- read_csv('~/econ224/labs/wells.csv')
+
+#------- Histogram of arsenic
+ggplot(wells) + 
+  geom_histogram(aes(x = arsenic), binwidth = 0.2) + 
+  xlab('Arsenic Concentration (100s of micrograms/liter)') + 
+  ggtitle('Arsenic Concentrations in Unsafe Wells')
+```
+
+
+## 3-4: Histogram of `dist100`
+```{r}
+#-------- Create dist100
+wells <- wells %>%
+  mutate(dist100 = dist / 100)
+
+#-------- Plot histogram of dist100
+ggplot(wells) + 
+  geom_histogram(aes(x = dist100), binwidth = 0.1) + 
+  xlab('Distance to Nearest Safe Well (100s of Meters)')
+```
+
+## 5-7: Generate, plot and interpret `fit1`
+```{r}
+#---------- Generate and summarize fit1
+fit1 <- glm(switch ~ dist100, family = binomial(link = 'logit'), wells)
+summary(fit1)
+
+#---------- Plot fit1 with jittering
+ggplot(wells, aes(x = dist100, y = switch)) +
+  geom_jitter(height = 0.1) +
+  stat_smooth(method='glm', 
+              method.args = list(family = "binomial"),
+              formula = y ~ x) + 
+  xlab('Distance to Nearest Safe Well (100s of meters)') +
+  ylab("P(Switch)")
+```
+
+<!-- ANS_END -->
