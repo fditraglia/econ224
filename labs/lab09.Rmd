@@ -4,6 +4,11 @@ author: "Econ 224"
 date: "September 25th, 2018"
 ---
 
+<!-- knitr global options -->
+```{r, include = FALSE}
+knitr::opts_chunk$set(comment=NA, fig.width=4.5, fig.height=3.5, fig.align = 'center')
+```
+
 # Introduction
 In this lab we'll study logistic regression. 
 The first part of the lab will involve carrying out some calculations to better understand how logistic regression works and what it means.
@@ -133,9 +138,83 @@ Substituting into our expression from (a), we find that the derivative of $\Lamb
 ## Generating Data from a Logistic Regression Model
 
 
-Have them simulate some data from a logistic regression and use it to show all the R commands for running the regression, plotting, etc.
-Then Thursday's lab can be about the well-switching example!
+```{r}
+#-------------------------- Simulate data from a logistic regression
+library(MASS)
+set.seed(1234)
+n <- 500
+x <- rnorm(n, mean = 1.5, sd = 2)
+b0 <- -0.5
+b1 <- 1
+ystar <- b0 + b1 * x + rlogis(n)
+y <- 1 * (ystar > 0)
+mydat <- data.frame(x, y)
+```
 
-# Running a Logistic Regression in R
+
+```{r}
+#-------------------------- Plot true logistic regression function for the sim
+Lambda <- function(x) {
+  1 / (1 + exp(-x))
+}
+curve(Lambda(b0 + b1 * x), -8, 8, ylab = 'P(x)')
+```
+
+
+```{r}
+#-------------------------- Estimate the coefficients
+lreg <- glm(y ~ x, mydat, family = binomial(link = 'logit'))
+summary(lreg)
+coef(lreg)
+```
+
+```{r}
+#--------------------------- Confidence interval for b0 and b1
+-0.78119 + 2 * c(-1, 1) * 0.15389
+1.07532 + 2 * c(-1, 1) * 0.09972
+```
+
+
+```{r}
+#-------------------------- Predicted probability that y = 1 when x = 0
+# By hand:
+bhat_0 <- coef(lreg)[1]
+Lambda(bhat_0)
+
+# Using predict:
+predict(lreg, newdata = data.frame(x = 0), type = 'response')
+# What happens if you don't specify type = 'response'?
+```
+
+
+```{r}
+#-------------------------- Predicted probability that y = 1 at the average x
+# By hand:
+bhat_1 <- coef(lreg)[2]
+Lambda(bhat_0 + bhat_1 * mean(x))
+
+# Using predict:
+predict(lreg, newdata = data.frame(x = mean(x)), type = 'response')
+```
+
+```{r}
+#--------------------------- Marginal effect at average x
+linear_predictor <- bhat_0 + bhat_1 * mean(x)
+bhat_1 * exp(linear_predictor) / (1 + exp(linear_predictor))^2
+
+# Divide by 4 rule
+bhat_1 / 4
+```
+
+```{r}
+#--------------------------- Plot of "Jittered" data and the logistic function
+library(ggplot2)
+ggplot(mydat, aes(x, y)) +
+  geom_jitter(height = 0.1) +
+  stat_smooth(method='glm', 
+              method.args = list(family = "binomial"),
+              formula = y ~ x) 
+```
+
 
 
