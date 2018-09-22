@@ -29,6 +29,8 @@ The dataset we'll examine is `final.dta` which contains data for 5th grade class
 
 **Note:** you do *not* have to use robust standard errors in this lab, although you are welcome to do so if you wish.
 
+<!-- Note: there is an easier way to replace the incorrect values using the replace function from dplyr combined with mutate. Also, after we subset the classes that have at least 5 and no more than 45 students, at least one of the problematic observations is no longer in the dataset. Before using this lab again, change the order of the data cleaning steps so this doesn't cause confusion. -->
+
 1. Load and clean the dataset: 
       (a) Download the file `final5.dta` from the Angrist Data Archive at the url listed above and save it on your machine. (This file contains data for 5th graders.) 
       (b) Read `final5.dta` into an R dataframe called `final5.dta` using the function `read.dta` from the package `foreign`. (This file was created with an old version of STATA and for mysterious reasons does not load correctly using `read_csv` from `readr`.) 
