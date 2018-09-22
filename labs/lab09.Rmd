@@ -76,6 +76,7 @@ $$\Lambda(z) = \frac{e^z}{1 + e^z}$$
 (b) Using (b), write an alternative expression for $P(X)$.
 
 ## Solution to Exercise \#1
+
 <!-- ANS_START -->
 (a) Dividing the numerator and denominator by $e^z$, which cannot result in division by zero since $e^z$ is always positive, we have
 \[
@@ -133,9 +134,37 @@ Substituting into our expression from (a), we find that the derivative of $\Lamb
 (e) When $X'\beta \approx 0$ it follows that $\exp(X'\beta)/[1 + \exp(X'\beta)]^2 \approx 1/4$ so the "divide by four" rule gives a good approximation to the actual derivative.
 <!-- ANS_END -->
 
+# The Latent Data Formulation of Logistic Regression
+\[
+ y_i^* = X_i'\beta + \epsilon_i, \quad
+ y_i = \left\{ \begin{array}{cc}
+ 1 & \mbox{if } y^*_i > 0\\
+ 0 & \mbox{if } y^*_i \leq 0\\
+ \end{array}\right., \quad
+ \epsilon_i \sim \mbox{ iid Logistic}(0,1) 
+\]
+where the Logistic$(0,1)$ distribution has CDF $\Lambda(z) = e^z/(1 + e^z)$ and pdf $\lambda(z) = e^z/(1 + e^z)^2$.
+These expressions should look familiar since we worked with them above!
+Notice that we have
+\[
+\mathbb{P}(y_i = 1) = \mathbb{P}(y_i^* > 0) = \mathbb{P}(X_i'\beta + \epsilon_i > 0) = \mathbb{P}(-\epsilon_i < X_i'\beta) = \mathbb{P}(-\epsilon_i \leq X_i'\beta) = \Lambda(X_i'\beta)
+\]
+where the second-to-last equality follows from the fact that $\epsilon_i$ is a continuous random variable, and the final equality follows from the fact that the distribution of $\epsilon_i$ is *symmetric*.
+(You can check this by substituting $z$ and $-z$ into the function $\lambda$.)
+
+
+The idea here is that $y_i^*$ is an "unobserved" aka *latent* variable that determines whether the observed indicator $y$ is positive or negative.
+In specific examples, we can usually give $y_i^*$ a meaningful interpretation.
+For example, suppose that $y_i=1$ if person $i$ voted for Hilary Clinton in the 2016 presidential election and $X_i$ contains demographic information, e.g.\ income, education, race, sex, and age.
+The latent variable $y_i^*$ can be viewed as a measure of person $i$'s *strength of preference* for Hilary Clinton relative to Donald Trump.
+If $y^*_i$ is large and positive, person $i$ strongly prefers Clinton; if $y_i^*$ is large and negative, person $i$ strongly prefers Trump; if $y_i^* = 0$, person $i$ is indifferent.
+
 # Part II - Running Logistic Regression in R
+Now we'll take a quick look at how to carry out logistic regression in R using a simulated dataset.
+In Thursday's lab you'll use what you learn in this part to study a real-world example.
 
 ## Generating Data from a Logistic Regression Model
+
 
 
 ```{r}
