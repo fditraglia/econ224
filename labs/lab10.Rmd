@@ -37,10 +37,14 @@ To be clear, our dataset contains *only* information for households with an arse
       (d) Use `ggplot2` to make a histogram of `dist100`. Be sure to label your plot appropriately. Comment on your findings.
 2. First Regression: `fit1` 
       (a) Run a logistic regression using `dist100` to predict `switch` and store the result in an object called `fit1`. 
-      (b) Use `ggplot2` to plot the logistic regression function from `fit1` along with the data, jittered appropriately. 
-      (c) Discuss your results from parts (a) and (b). In particular: based on `fit1`, is `dist100` a statistically significant predictor of `switch`? Does the sign of its coefficient make sense? Explain. 
-      (d) Based on `fit1`, calculate the predicted probability of switching wells for a household for which the nearest safe well is zero meters away. 
-      (e) Based on `fit1`, calculate the predicted probability of switching wells for a household for which the nearest safe well is $\bar{\texttt{dist100}}$ hundred meters away, where $a$ is the sample mean of `dist100`.
+      (b) Use `stargazer` to make a summary table of your logistic regression results form part (a).
+      (c) Use `ggplot2` to plot the logistic regression function from part (a) along with the data, jittered appropriately. 
+      (d) Discuss your results from parts (a)-(c). In particular: based on `fit1`, are the $x$-variables in this regression statistically significant predictor of `switch`? Do the signs of the coefficients make sense? Explain. 
+      (e) Calculate the predicted probability of switching wells for the *average* household in the dataset. 
+      (f) Calculate the marginal effect of `dist100` for the *average* household in the dataset. Interpret your results.
+3. Predictive performance of `fit1`
+      (a) Add a column called `pred1` to `wells` containing the predicted probabilities that `switch` equals one based on `fit1`.
+      (b) Use `pred1` to calculate the *Bayes error rate* of `fit1` based on the full training dataset, i.e.\ `wells`. Hint: you can do this using the `dplyr` 
 3. Second Regression: `fit2`
 4. Error Rates:
 
@@ -48,7 +52,7 @@ To be clear, our dataset contains *only* information for households with an arse
 
 # Solutions
 <!-- ANS_START -->
-## 1-2: Load Data, Histogram of `arsenic`
+## 1 - Preliminaries 
 ```{r, message = FALSE}
 #------- Load data
 library(tidyverse)
@@ -60,11 +64,7 @@ ggplot(wells) +
   geom_histogram(aes(x = arsenic), binwidth = 0.2) + 
   xlab('Arsenic Concentration (100s of micrograms/liter)') + 
   ggtitle('Arsenic Concentrations in Unsafe Wells')
-```
 
-
-## 3-4: Histogram of `dist100`
-```{r}
 #-------- Create dist100
 wells <- wells %>%
   mutate(dist100 = dist / 100)
@@ -75,12 +75,14 @@ ggplot(wells) +
   xlab('Distance to Nearest Safe Well (100s of Meters)')
 ```
 
-## 5-7: Generate, plot and interpret `fit1`
+## 2 - First Regression: `fit1`
 ```{r}
 #---------- Generate and summarize fit1
 fit1 <- glm(switch ~ dist100, family = binomial(link = 'logit'), wells)
 summary(fit1)
+```
 
+```{r}
 #---------- Plot fit1 with jittering
 ggplot(wells, aes(x = dist100, y = switch)) +
   geom_jitter(height = 0.1) +
@@ -89,12 +91,6 @@ ggplot(wells, aes(x = dist100, y = switch)) +
               formula = y ~ x) + 
   xlab('Distance to Nearest Safe Well (100s of meters)') +
   ylab("P(Switch)")
-```
-
-## 8-9: Probabilities of switching wells based on `fit1`
-```{r}
-#---------- Prob(switch) if dist100 = 0
-predict(fit1, newdata = data.frame(dist100 = 0), type = 'response')
 
 #--------- Prob(switch) at the avg of dist100
 avgdist <- wells %>% 
@@ -103,5 +99,25 @@ avgdist <- wells %>%
 predict(fit1, newdata = data.frame(dist100 = avgdist), type = 'response')
 ```
 
+```{r}
+#---------- In-sample predictions from fit1
+wells <- wells %>% 
+  mutate(pred1 = predict(fit1, type = 'response'))
 
+#---------- Bayes Error Rate from fit1
+wells %>%
+  summarize(error_rate = mean((pred1 > 0.5 & switch == 0) | (pred1 <= 0.5 & switch == 1)))
+```
+
+Make a nice table with lots more regressions with stargazer!
+```{r, results = 'asis', message = FALSE}
+library(stargazer)
+fit2 <- glm(switch ~ I(log(arsenic)), wells, family = binomial(link = 'logit'))
+fit3 <- glm(switch ~ dist100 + I(log(arsenic)), wells, family = binomial(link = 'logit'))
+fit4 <- glm(switch ~ dist100 + I(log(arsenic)) + dist100:I(log(arsenic)), wells, family = binomial(link = 'logit'))
+fit5 <- glm(switch ~ dist100 + I(log(arsenic)) + dist100:I(log(arsenic)) + educ, wells, family = binomial(link = 'logit'))
+stargazer(fit1, fit2, fit3, fit4, fit5, type = 'latex', digits = 2, 
+          title = 'Logistic Regression Results', 
+          header = FALSE)
+```
 <!-- ANS_END -->
