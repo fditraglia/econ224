@@ -122,7 +122,7 @@ Note that a complete answer to each of these questions requires at most a short 
 
 
 
-## Quiz \#9: Tuesday, September 25th -- ISL 4.4-4.5
+## Quiz \#9: Thursday, September 27th -- ISL 4.4-4.5
 1. Explain how to use Bayes' Theorem to classify an observation into one of $K\geq 2$ classes.
 2. Write down the formula for the probability density of a normal random variable with mean $\mu$ and variance $\sigma^2$.
 3. Write down the *discriminant function* for LDA in the simple case where $p = 1$. Explain the meaning of each symbol in this expression, and explain intuitively how LDA works.
