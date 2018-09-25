@@ -1,0 +1,66 @@
+---
+title: "Lab #10 - Logistic Regression Part II"
+author: "Econ 224"
+date: "September 27th, 2018"
+---
+
+<!-- knitr global options -->
+```{r, include = FALSE}
+knitr::opts_chunk$set(comment=NA, fig.width=4.5, fig.height=3.5, fig.align = 'center')
+```
+
+# Contaminated Wells in Bangladesh
+Today we'll work with a dataset containing household-level information from Bangladesh: `wells.csv`.
+You can download the dataset from the course website at [http://ditraglia.com/econ224/wells.csv](http://ditraglia.com/econ224/wells.csv).
+Here is some background on the dataset from Gelman and Hill (2007):
+
+> Many of the wells used for drinking water in Bangladesh and other South Asian countries are contaminated with natural arsenic ... a research team from the United States and Bangladesh measured all the wells [in a small region] and labeled them with their arsenic level as well as a characterization of "safe" (below 0.5 in units of hundreds of micrograms per liter, the Bangladesh standard for arsenic in drinking water) or "unsafe" (above 0.5). People with unsafe wells were encouraged to switch to nearby private or community wells or to new wells of their own construction. A few years later, the researchers returned to find out who had switched wells.
+
+Our goal is to predict which households will switch wells using the following information:
+
+| Name | Description |
+|-----|-----------------------------------------------|
+| dist | Distance to closest known safe well (meters) | 
+| arsenic | Arsenic level of respondent's well (100s of micrograms per liter) |
+| switch | Dummy variable equal to 1 if switched to a new well |
+| assoc | Dummy variable equal to 1 if any member of the household is active in community organizations |
+| educ | Education level of head of household (years) |
+
+To be clear, our dataset contains *only* information for households with an arsenic level of 0.5 or above, as these are the households that were encouraged to switch wells.
+
+# Exercises
+1. Preliminaries:
+      (a) Load the data and store it in a tibble called `wells`.
+      (b) Use `dplyr` to create a variable called `larsenic` that equals the natural logarithm of `arsenic`.
+      (b) Use `ggplot2` to make a histogram of `arsenic` and `larsenic`. Be sure to label your plots appropriately. Comment on your findings. 
+      (c) Use `dplyr` to create a variable called `dist100` that contains the same information as `dist` but measured in *hundreds of meters* rather than in meters. 
+      (d) Use `dplyr` to create a variable called `zeduc` that equals the *z-score* of `educ`.
+2. First Regression: `fit1` 
+      (a) Run a logistic regression using `dist100` to predict `switch` and store the result in an object called `fit1`. 
+      (b) Use `ggplot2` to plot the logistic regression function from part (a) along with the data, jittered appropriately. 
+      (c) Discuss your results from parts (a)-(b). In particular: based on `fit1`, is `dist100` a statistically significant predictor of `switch`? Does the sign of its coefficient make sense? Explain.
+      (d) Use `fit1` to calculate the predicted probability of switching wells for the *average* household in the dataset. 
+      (e) Use `fit1` to calculate the marginal effect of `dist100` for the *average* household in the dataset. Interpret your result. How does is compare to the "divide by 4" rule?
+3. Predictive performance of `fit1`
+      (a) Add a column called `p1` to `wells` containing the predicted probabilities that `switch` equals one based on `fit1`.
+      (b) Add a column called `pred1` to `wells` that gives the predicted *values* of $y$ that correspond to `p1`.
+      (c) Use `pred1` to calculate the *Bayes error rate* of `fit1` based on the full training dataset, i.e.\ `wells`. Hint: you can do this using the `summarize` function from `dplyr`.
+      (d) Use `pred1` to construct the *confusion matrix* for `fit1`. Hint: use the function `table`. 
+      (e) Based on your results from (d), calculate the *sensitivity* and *specificity* of the predictions from `fit1`.
+      (f) Comment on your results from (c) and (e). In particular, compare them to the error rate that you would obtain by simply predicting the *most common* value of `switch` for every observation in the dataset. (This is called the "null model" since it doesn't use any predictors.)
+3. Additional regressions: `fit2`, `fit3`, and `fit4`
+      (a) Run a logistic regression using `larsenic` to predict `switch` and store the results in an object called `fit2`.
+      (b) Run a logistic regression using `zeduc` to predict `switch` and store the results in an object called `fit3`.
+      (c) Run a logistic regression using `dist100`, `larsenic`, and `zeduc` to predict `switch` and store the results in an object called `fit4`.
+      (d) Use `stargazer` to make a nicely formatted summary table of the results from `fit1`, `fit2`, `fit3`, and `fit4`. Make sure to add appropriate labels and captions, use a reasonable number of decimal places, etc.
+4. Interpreting `fit2`, `fit3` and `fit4`
+      (a) Repeat parts (b) and (c) of question \#2 above with `fit2` in place of `fit1`.
+      (b) Repeat parts (b) and (c) of question \#2 above with `fit3` in place of `fit1`.
+      (c) Calculate the marginal effect of *each predictor* in `fit4` for the *average* household in the dataset. Interpret your results. How do they compare to the "divide by 4" rule? 
+5. Predictive Performance of `fit4`
+      (a) Repeat question \#3 from above with `fit4`, `p4`, and `pred4` in place of `fit1`, `p1` and `pred1`. 
+      (b) Using your results from (a) and question \#3 above, compare the in-sample predictive performance of `fit1` and `fit4`.
+
+
+
+# Solutions

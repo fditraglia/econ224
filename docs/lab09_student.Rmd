@@ -1,0 +1,267 @@
+---
+title: "Lab #9 - Logistic Regression Part I"
+author: "Econ 224"
+date: "September 25th, 2018"
+---
+
+<!-- knitr global options -->
+```{r, include = FALSE}
+knitr::opts_chunk$set(comment=NA, fig.width=4.5, fig.height=3.5, fig.align = 'center')
+```
+
+# Introduction
+In this lab we'll study logistic regression. 
+The first part of the lab will involve carrying out some calculations to better understand how logistic regression works and what it means.
+The second part of the lab will show you the basics of how to carry out logistic regresion in R.
+
+# Part I - Theoretical
+In this part of the lab, we'll carry out some theoretical derivations to better understand logistic regression.
+To make things simpler, we'll use some slightly different notation and terminology than ISL.
+First we'll define the *column vectors* $X$ and $\beta$ as follows:
+\[
+X = \left[
+\begin{array}{c}
+1 \\ X_1 \\ X_2 \\ \vdots \\ X_p
+\end{array}
+\right], \quad
+\beta = 
+\left[
+\begin{array}{c}
+\beta_0 \\ \beta_1 \\ \beta_2 \\ \vdots \\ \beta_p
+\end{array}
+\right]
+\]
+Notice that the first element of $X$ is *not* $X_1$: it is simply the number $1$. 
+There's an important reason for this that you'll see in a moment.
+From the reading, we know that logistic regression is a *linear model* for the *log odds*, namely
+\[
+\log\left[\frac{P(X)}{1 - P(X)} \right] = \beta_0 + \beta_1 X_1 + \cdots + \beta_p X_p
+\]
+where $P(X)$ is shorthand for $\mathbb{P}(Y=1|X)$.
+Note that when I write $\log$ I **always** mean the natural logarithm.
+Also note that when I write $\exp(z)$ I mean $e^z$.
+This comes in handy if $z$ is a complicated expression.
+
+Using the vector notation introduced above, we can express this more compactly as
+\[
+\log \left[\frac{P(X)}{1 - P(X)} \right] = X'\beta
+\]
+since 
+\[
+X'\beta = 
+\left[\begin{array}{ccccc}
+1 & X_1 & X_2 & \cdots & X_p
+\end{array}\right]
+\left[
+\begin{array}{c}
+\beta_0 \\ \beta_1 \\ \beta_2 \\ \vdots \\ \beta_p
+\end{array}
+\right] = \beta_0 + \beta_1 X_2 + \beta_2 X_2 + \cdots + \beta_p X_p
+\]
+I will call $X'\beta$ the *linear predictor* since it is the linear function of $X$ that we use to predict $Y$.
+By exponentiating both sides of the log-odds expression from above and re-arranging, obtain the following:
+\begin{align*}
+\frac{P(X)}{1 - P(X)} &= \exp(X'\beta) \\
+%P(X) &= [1 - P(X)] \exp(X'\beta)\\
+%P(X) + P(X) \exp(X'\beta) &= \exp(X'\beta)\\
+P(X)[1 + \exp(X'\beta)] &= \exp(X'\beta)\\
+P(X) &= \frac{\exp(X'\beta)}{1 + \exp(X'\beta)} \\
+P(X) &= \Lambda(X'\beta)
+\end{align*}
+where the function $\Lambda$ is defined as follows
+$$\Lambda(z) = \frac{e^z}{1 + e^z}$$
+
+## Exercise \#1
+(a) Verify that $\Lambda(z) = \displaystyle \frac{1}{1 + e^{-z}}$.
+(b) Using (b), write an alternative expression for $P(X)$.
+
+## Solution to Exercise \#1
+
+*Write your code and solutions here.*
+
+## Interpreting $\beta$ in a Logistic Regression
+From the expression above, we see that $\beta_j$ is the partial derivative of the log-odds with respect to $X_j$.
+But it's difficult to think in terms of log-odds.
+By doing some calculus (see the exercises below), we can work out the partial derivative of $p(X)$ with respect to $X_j$, but this will *not* turn out to equal $\beta_j$.
+Because $P(X)$ is not a linear function of $X$, the derivative varies with $X$, which makes things fairly complicated.
+There are two main approaches for dealing with this problem. 
+One is to evaluate the derivative at a "typical" value of $X$ such as the sample mean.
+Another is to use the "divide by 4 rule." 
+This rule says that if we increase $X_j$ by one unit, $P(X)$ will change by *no more than* $\beta_j/4$.
+In the following exercise, you'll derive this rule.
+
+## Exercise \#2
+(a) Analyze the function $\Lambda(z)$: calculate its derivative, and its limits as $z \rightarrow -\infty$ and $+\infty$. What values can this function take? Is it increasing? Decreasing? Explain.
+(b) Use the chain rule and your answer to (a) to find the partial derivative of $\Lambda(X'\beta)$ with respect to $X_j$.
+(c) What is the maximum value of the *derivative* of $\Lambda(z)$? At what value of $z$ does it occur?
+(d) Use your answers to parts (a), (b) and (c) to justify the "divide by 4 rule." 
+(e) The "divide by 4 rule" provides an upper bound on the effect of $X_j$ on $P(X)$. When is this upper bound close to the derivative you calculated in part (c)?
+
+## Solution to Exercise \#2
+*Write your code and solutions here.*
+
+# The Latent Data Formulation of Logistic Regression
+Another way to think about logistic regression is via the following *generative model*:
+\[
+ y_i^* = X_i'\beta + \epsilon_i, \quad
+ y_i = \left\{ \begin{array}{cc}
+ 1 & \mbox{if } y^*_i > 0\\
+ 0 & \mbox{if } y^*_i \leq 0\\
+ \end{array}\right., \quad
+ \epsilon_i \sim \mbox{ iid Logistic}(0,1) 
+\]
+where the Logistic$(0,1)$ distribution has CDF $\Lambda(z) = e^z/(1 + e^z)$ and pdf $\lambda(z) = e^z/(1 + e^z)^2$.
+The expressions $\Lambda$ and $\lambda$ should look familiar, since we worked with them above.
+We call this a generative model because it tells us how to *generate* the observations $y_i$ using the regressors $X_i$.
+If we want to *simulate* data from a logistic regression model, the latent data formulation gives us a convenient way to do so.
+
+The idea behind the latent data formulation is that a continuous *unobserved* random variable $y_i^*$ determines whether the *observed* binary random variable $y_i$ is zero or one.
+The term *latent* is just a synonym for unobserved.
+While this may seem odd, in specific examples we can often give $y_i^*$ a meaningful interpretation.
+For example, suppose that $y_i=1$ if person $i$ voted for Hilary Clinton in the 2016 presidential election and $X_i$ contains demographic information, e.g.\ income, education, race, sex, and age.
+The latent variable $y_i^*$ can be viewed as a measure of person $i$'s *strength of preference* for Hilary Clinton relative to Donald Trump.
+If $y^*_i$ is large and positive, person $i$ strongly prefers Clinton; if $y_i^*$ is large and negative, person $i$ strongly prefers Trump; if $y_i^* = 0$, person $i$ is indifferent.
+
+# Exercise \#3
+(a) Show that $\lambda(z)$ is symmetric about zero, i.e. $\lambda(z) = \lambda(-z)$.
+(b) Show that the latent data formulation implies $\mathbb{P}(y_i = 1) = \Lambda(X_i'\beta)$. Hint: if $Z$ is a continuous RV with a pdf that is symmetric about zero, then $\mathbb{P}(-Z<c) = \mathbb{P}(Z\leq c)$.
+
+# Solution to Exercise \#3
+*Write your code and solutions here.*
+
+
+# Part II - Logistic Regression in R
+Now we'll take a quick look at how to carry out logistic regression in R using a simulated dataset.
+In Thursday's lab you'll use what you learn in this part to study a real-world example.
+
+## Simulating Data from a Logistic Regression
+The R function `rlogis` creates iid draws from the logistic distribution.
+If we only specify one argument, `rlogis` assumes that this is the number of random draws that we wish to make, and sets the values of its *location* and *scale* parameters to 0 and 1, respectively.
+This is what we want, since these parameters correspond to the Logistic$(0,1)$ distribution that appears in the latent data formulation from above.
+Using `rlogis`, we can simulate data from a logistic regression model as follows: 
+```{r}
+set.seed(1234)
+n <- 500
+b0 <- 0.5
+b1 <- 1
+x <- rnorm(n, mean = 1.5, sd = 2)
+ystar <- b0 + b1 * x + rlogis(n)
+y <- 1 * (ystar > 0)
+mydat <- data.frame(x, y)
+```
+
+## Running a Logistic Regression in R
+We can now run a logistic regression use the simulated dataset `mydat` to carry out logistic regression.
+Note that in a certain sense this is silly: we generated the data so we *know* the true values of $\beta_0$ and $\beta_1$. 
+Why bother carrying out logistic regression to *estimate* them?
+There are two answers to this question.
+First, this is only an example: don't be so picky!
+Second, it can be extremely valuable to work with simulated data to check whether our statistical methods are working correctly.
+If we *know* for sure that the data came from a logistic regression model, then our logistic regression estimates should be close to the truth. 
+If they're not, then something is wrong with our computer code.
+
+The R function `glm` can be used to carry out logistic regression.
+The name of this function is an acronym for *generalized linear model*.
+Generalized linear models (GLMs) are exactly what their name says, a *generalization* of linear regression.
+GLMs include logistic regression as a special case.
+To tell `glm` that we want to carry out a logistic regression, we need to specify `family = binomial(link = 'logit')`.
+Otherwise the syntax is practically identical to that of `lm`.
+We specify a *formula*, `y ~ x`, and indicate a dataframe in which R should look to find `y` and `x`:
+```{r}
+lreg <- glm(y ~ x, mydat, family = binomial(link = 'logit'))
+summary(lreg)
+```
+Notice that the output of `summary` when applied to a `glm` object is a little different from what we've seen for `lm` objects.
+But let's focus on what's the same.
+We still obtain the estimates of each of the coefficients in our model, along with standard errors, test statistics, and p-values.
+We can use this information to carry out statistical inference exactly as we do with linear regression: R has already done all the hard work for us by calculating the standard errors.
+
+# Exercise \#4
+Construct approximate 95\% confidence intervals for the parameters $\beta_0$ and $\beta_1$ based on the logistic regression output from above.
+Do your confidence intervals include the true parameter values that we used to simulate the data?
+
+# Solution to Exercise \#4
+*Write your code and solutions here.*
+
+## Predicted Probabilities for Logistic Regression 
+Many of the functions we used with `lm` also work with `glm`.
+For example, to extract the coefficients from a generalized linear model, we can use the command `coef`:
+```{r}
+coef(lreg)
+```
+We can also use the function `predict` to calculated the predicted probability that $y = 1$ given particular values of the predictors $X_i$. 
+There's just one slight wrinkle here: we need to make sure to specify `type = 'response'` to indicate to R that we want the predicted *probabilities*.
+For example, we can calculate the predicted probability that $y_i = 1$ given that $X_i = 0$ as follows:
+```{r}
+predict(lreg, newdata = data.frame(x = 0), type = 'response')
+```
+Similarly, we can calculate the predicted probability that $y_i = 1$ given that $X_i$ equals the *sample mean* of $X$ as follows:
+```{r}
+predict(lreg, newdata = data.frame(x = mean(x)), type = 'response')
+```
+If we don't specify anything for `newdata`, then predict will give us the predicted probabilities for the *observed* values of $X$:
+```{r}
+phat <- predict(lreg, type = 'response')
+head(phat)
+```
+
+# Exercise \#5
+(a) Write an R function called `Lambda` that calculates the value of $e^z/(1 + e^z)$.
+(b) Using your function from part (a) and the results of `lreg`, calculate the predicted probability that $y_i = 1$ when: (i) $X_i = 0$ and (ii) $X_i = \bar{X}$ *without using* `predict`. Check that your results match those calculated using `predict` above.
+
+# Solution to Exercise \#5
+
+*Write your code and solutions here.*
+
+## Calculating Marginal Effects
+As we discussed above, $\beta_j$ is *not* the partial derivative of $P(X)$ with respect to $X_j$.
+But since we have a formula for this partial derivative, we can calculate it for any value of $X$.
+In the following exercise, you will compare the exact calculation to the approximation given by the "divide by 4" rule.
+
+# Exercise \#6
+(a) Use the "divide by 4" rule to calculate the *maximum* possible effect of $X$ on the predicted probability that $y_i = 1$ using the results of `lreg`.
+(b) Calculate the effect of $X$ on the predicted probability that $y_i= 1$ at $X_i = \bar{X}$.
+(c) Compare your answers to (a) and (b)
+
+# Solution to Exercise \#6
+*Write your code and solutions here.*
+
+## Plotting a Logistic Regression
+We can plot a logistic regression function using a method very similar to the one we used to plot a linear regression:
+```{r}
+library(ggplot2)
+ggplot(mydat, aes(x, y)) +
+  stat_smooth(method='glm', 
+              method.args = list(family = "binomial"),
+              formula = y ~ x) 
+```
+To add the datapoints, we just add `geom_point()`
+```{r}
+library(ggplot2)
+ggplot(mydat, aes(x, y)) +
+  stat_smooth(method='glm', method.args = list(family = "binomial"),
+              formula = y ~ x) + 
+  geom_point()
+```
+This doesn't look very nice!
+That's because there are only *two* possible $y$-values meaning that the observations will overlap substantially.
+A helpful way to distinguish them visually is to add a bit of random noise to the points so they no longer overlap.
+This is called *jittering* and `ggplot2` will do it for us if we replace `geom_point()` with `geom_jitter()`
+```{r}
+library(ggplot2)
+ggplot(mydat, aes(x, y)) +
+  stat_smooth(method='glm', method.args = list(family = "binomial"),
+              formula = y ~ x) + 
+  geom_jitter()
+```
+That's a bit *too much* random noise in the $y$-dimension.
+We can control the amount of jittering by specifying `width` and `height` arguments to `geom_jitter` as follows
+```{r}
+library(ggplot2)
+ggplot(mydat, aes(x, y)) +
+  stat_smooth(method='glm', method.args = list(family = "binomial"),
+              formula = y ~ x) + 
+  geom_jitter(width = 0.5, height = 0.1)
+```
+From this plot it is easy to tell that there are many more observations with $y = 1$ than $y = 0$, something that was not at all clear from the plot using `geom_point()`.
+
