@@ -27,6 +27,10 @@ Our goal is to predict which households will switch wells using the following in
 | educ | Education level of head of household (years) |
 
 To be clear, our dataset contains *only* information for households with an arsenic level of 0.5 or above, as these are the households that were encouraged to switch wells.
+Moreover, the variable `switch` is measured *after* the variables `dist100` and `arsenic`. 
+In other words, `arsenic` is the arsenic level in the original contaminated well that the household was using *before* we learned whether they switched wells. 
+Similarly, `dist100` was the distance to the nearest well safe well before we know whether the household switched wells.
+
 
 # Exercises
 1. Preliminaries:
@@ -44,20 +48,20 @@ To be clear, our dataset contains *only* information for households with an arse
 3. Predictive performance of `fit1`
       (a) Add a column called `p1` to `wells` containing the predicted probabilities that `switch` equals one based on `fit1`.
       (b) Add a column called `pred1` to `wells` that gives the predicted *values* of $y$ that correspond to `p1`.
-      (c) Use `pred1` to calculate the *Bayes error rate* of `fit1` based on the full training dataset, i.e.\ `wells`. Hint: you can do this using the `summarize` function from `dplyr`.
+      (c) Use `pred1` to calculate the *error rate* of the Bayes classifier constructed from `fit1` based on the full training dataset, i.e.\ `wells`. Recall that this classifier uses the predicted probabilities from `fit1` in the following way: $p>0.5 \implies$ predict 1, $p\leq 0.5\implies$ predict 0. Hint: you can do this using the `summarize` function from `dplyr`.
       (d) Use `pred1` to construct the *confusion matrix* for `fit1`. Hint: use the function `table`. 
       (e) Based on your results from (d), calculate the *sensitivity* and *specificity* of the predictions from `fit1`.
       (f) Comment on your results from (c) and (e). In particular, compare them to the error rate that you would obtain by simply predicting the *most common* value of `switch` for every observation in the dataset. (This is called the "null model" since it doesn't use any predictors.)
-3. Additional regressions: `fit2`, `fit3`, and `fit4`
+4. Additional regressions: `fit2`, `fit3`, and `fit4`
       (a) Run a logistic regression using `larsenic` to predict `switch` and store the results in an object called `fit2`.
       (b) Run a logistic regression using `zeduc` to predict `switch` and store the results in an object called `fit3`.
       (c) Run a logistic regression using `dist100`, `larsenic`, and `zeduc` to predict `switch` and store the results in an object called `fit4`.
       (d) Use `stargazer` to make a nicely formatted summary table of the results from `fit1`, `fit2`, `fit3`, and `fit4`. Make sure to add appropriate labels and captions, use a reasonable number of decimal places, etc.
-4. Interpreting `fit2`, `fit3` and `fit4`
+5. Interpreting `fit2`, `fit3` and `fit4`
       (a) Repeat parts (b) and (c) of question \#2 above with `fit2` in place of `fit1`.
       (b) Repeat parts (b) and (c) of question \#2 above with `fit3` in place of `fit1`.
       (c) Calculate the marginal effect of *each predictor* in `fit4` for the *average* household in the dataset. Interpret your results. How do they compare to the "divide by 4" rule? 
-5. Predictive Performance of `fit4`
+6. Predictive Performance of `fit4`
       (a) Repeat question \#3 from above with `fit4`, `p4`, and `pred4` in place of `fit1`, `p1` and `pred1`. 
       (b) Using your results from (a) and question \#3 above, compare the in-sample predictive performance of `fit1` and `fit4`.
 
@@ -118,14 +122,17 @@ ggplot(wells, aes(x = dist100, y = switch)) +
 avg_dist <- wells %>% 
   summarize(avg_dist = mean(dist100)) %>% 
   pull(avg_dist)
-mean_pred1 <- predict(fit1, newdata = data.frame(dist100 = avg_dist), type = 'response')
-mean_pred1
+predict(fit1, newdata = data.frame(dist100 = avg_dist), type = 'response')
 
 #--------- Marginal effect of dist100 for the average household
 lambda <- function(z) {
   exp(z) / ((1 + exp(z))^2)
 }
-coef(fit1)[-1] * lambda(mean_pred1)
+linear_predictor1 <- predict(fit1, newdata = data.frame(dist100 = avg_dist))
+coef(fit1)[-1] * lambda(linear_predictor1)
+
+#-------- Compared to divide-by-four rule
+coef(fit1)[-1] / 4
 ```
 
 ## 3 - Predictive Performance of `fit1`
@@ -192,7 +199,7 @@ avg_larsenic <- wells %>%
 mean_household <- data.frame(dist100 = avg_dist, 
                              larsenic = avg_larsenic, 
                              zeduc = 0)
-mean_pred4 <- predict(fit4, newdata = mean_household, type = 'response')
-coef(fit4)[-1] * lambda(mean_pred4)
+linear_predictor4 <- predict(fit4, newdata = mean_household)
+coef(fit4)[-1] * lambda(linear_predictor4)
 ```
 <!-- ANS_END -->
