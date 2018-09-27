@@ -87,7 +87,7 @@ Because $P(X)$ is not a linear function of $X$, the derivative varies with $X$, 
 There are two main approaches for dealing with this problem. 
 One is to evaluate the derivative at a "typical" value of $X$ such as the sample mean.
 Another is to use the "divide by 4 rule." 
-This rule says that if we increase $X_j$ by one unit, $P(X)$ will change by *no more than* $\beta_j/4$.
+This rule says that if we increase $X_j$ by one unit, $P(X)$ will change by *no more than* $\mbox{sign}(\beta_j) \times|\beta_j/4|$.
 In the following exercise, you'll derive this rule.
 
 ## Exercise \#2
