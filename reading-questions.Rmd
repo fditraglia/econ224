@@ -133,3 +133,17 @@ Note that a complete answer to each of these questions requires at most a short 
 8. Define the term *AUC*. Which indicates a better classifier: high AUC or low AUC? Briefly explain.
 9. Briefly explain the difference between LDA and QDA. What trade-off is involved in choosing between them? 
 10. Briefly compare and contrast LDA, logistic regression, and KNN.
+
+
+## Quiz \#10: Tuesday, October 9th -- MM 3.1
+1. Suppose that we find that non-white students at KIPP schools have higher test scores than non-white students at other nearby schools. Why might this fact *fail* to convince us that attending a KIPP school improves test scores? 
+2. Explain in words the flowchart from Figure 3.1 detailing the application and enrollment data from the KIPP lotteries. (You do not need to memorize the exact numbers in the flowchart for the quiz: I just want you be able to explain the basic qualitative pattern.)
+3. If we were to compare the characteristics of students who were offered a place at KIPP to those who were not offered a place, would we expect to find substantial differences? Why or why not?
+4. In the KIPP example, the instrumental variable is a dummy variable that equals one if a given applicant was offered a place at KIPP. What three properties do we need to assume that this instrument satisfies?
+5. Explain in words how the IV estimator of the causal effect of attending a KIPP is constructed (Figure 3.2).
+6. Use mathematical notation to define each of the following: *first stage*, *reduced form*, and *Local Average Treatment Effect (LATE)*. 
+7. List and define each of the four "types" of individuals that are relevant for interpreting LATE. (Table 3.2) 
+8. Define the term *monotonicity* in the context of LATE.
+9. What does the LATE theorem tell us?
+10. Define TOT using potential outcomes notation. How and why can it differ from LATE?
+
