@@ -147,3 +147,20 @@ Note that a complete answer to each of these questions requires at most a short 
 9. What does the LATE theorem tell us?
 10. Define TOT using potential outcomes notation. How and why can it differ from LATE?
 
+## No Quiz on Thursday, October 12th!
+
+## No Quiz on Tuesday, October 16th!
+
+## Quiz #11: Thursday, October 18th -- MM 3.2, 3.3, and Appendix
+1. What was the purpose of the Minneapolis Domestic Violence Experiment (MDVE) and how was the experiment carried out?
+2. Given that the MDVE was a randomized experiment, why do we use IV estimation here? 
+3. Define the term Intent to Treat (ITT).
+4. When is TOT equal to LATE?
+5. Describe the results from the regression of adult firstborns' highest grade completed on family size from the ALS study. Why might these results *not* imply a causal relationship?
+6. Explain the IV results from the ALS study using twin births as an instrumental variable. Why and how do they differ from the regression results in question 6? 
+7. Explain the idea behind the sibling sex composition instrument in the ALS study. What advantages does this instrument have over the twin births instrument?
+8. How does 2SLS generalize IV? 
+9. Explain in words and equations how 2SLS works: in particular describe both the first and second stage regressions. 
+10. Why doesn't "manual 2SLS" give the right standard errors?
+
+
