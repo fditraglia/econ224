@@ -69,6 +69,28 @@ In the following exercise, you will explore what this means.
 3. Substitute the *first-stage* equation (the equation for $x_i$) into the *structural equation* (the equation for $y_i$) to produce a linear equation relating $z_i$ to $y_i$. This is called the *reduced form*. What is the slope coefficient of the reduced form? 
 4. Suppose that $\epsilon_i$ and $v_i$ are correlated with one another. If we run a linear regression of $y$ on $x$, what slope coefficient will we obtain?
 
+<!-- ANS_START -->
+\[
+  \pi_1 = \mbox{Cov}(x,z) / \mbox{Var}(z)
+\]
+\begin{align*}
+   \mbox{Cov}(v, z) &= \mbox{Cov}(x - \pi_0 - \pi_1 z, z)\\
+   &= \mbox{Cov}(x,z) - \pi_1 \mbox{Cov}(z,z)\\
+   &= \mbox{Cov}(x,z) - \frac{\mbox{Cov}(x,z)}{\mbox{Var}(z)} \mbox{Var}(z)\\
+   &= 0
+\end{align*}
+\begin{align*}
+  y &= \beta_0 + \beta_1 x + \epsilon \\
+  &= \beta_0 + \beta_1 (\pi_0 + \pi_1 z + v) + \epsilon_i \\
+  &= (\beta_0 + \beta_1 \pi_0) + \beta_1\pi_1 z + (\beta_1 v + \epsilon)
+\end{align*}
+\begin{align*}
+ \beta_{OLS} &= \frac{\mbox{Cov}(y,x)}{\mbox{Var}(x)} = \frac{\mbox{Cov}(\beta_0 + \beta_1 x + \epsilon, x)}{\mbox{Var}(x)}\\
+ &= \frac{\beta_1 \mbox{Cov}(x,x) + \mbox{Cov}(\epsilon,x)}{\mbox{Var}(x)} = \beta_1 + \frac{\mbox{Cov}(\epsilon, \pi_0 + \pi_1 z + v)}{\mbox{Var}(\pi_0 + \pi_1 z + v)}\\
+ &= \beta_1 + \frac{\mbox{Cov}(\epsilon,v)}{\pi_1^2 \mbox{Var}(z) + \mbox{Var}(v)}
+\end{align*}
+<!-- ANS_END -->
+
 ## Simulating Data for IV Regression 
 We will now generate some data to use for IV estimation, using what you learned in the proceeding two exercises.
 The precise steps you will need are listed in the exercise below.
@@ -144,7 +166,7 @@ Before proceeding, load `AER` and read the help file for `ivreg`.
 3. Calculate an approximate 95\% confidence interval for the causal effect of `x` on `y` using `iv_results`.
 
 <!-- ANS_START -->
-```{r}
+```{r, message = FALSE}
 library(AER)
 iv_results <- ivreg(y ~ x | z)
 summary(iv_results)
