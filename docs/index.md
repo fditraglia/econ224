@@ -6,8 +6,8 @@ title: Course Homepage
 ## Course Documents
 - [Syllabus](./syllabus.pdf)
 - [Reading Assignments](./reading-questions.pdf)
-- Labs: [lab1](./lab01_student.Rmd), [lab2](./lab02_student.Rmd), [lab3](./lab03_student.Rmd), [lab4](./lab04_student.Rmd), [lab5](./lab05_student.Rmd), [lab6](./lab06_student.Rmd), [lab7](./lab07_student.Rmd), [lab8](./lab08_student.Rmd), [lab9](./lab09_student.Rmd), [lab10](./lab10_student.Rmd)
-- Solutions to Labs: [lab1_solutions](./lab01.pdf), [lab2_solutions](./lab02.pdf), [lab3_solutions](./lab03.pdf), [lab4_solutions](./lab04.pdf), [lab5_solutions](./lab05.pdf), [lab6_solutions](./lab06.pdf), [lab7_solutions](./lab07.pdf), [lab8_solutions](./lab08.pdf), [lab9_solutions](./lab09.pdf)
+- Labs: [lab1](./lab01_student.Rmd), [lab2](./lab02_student.Rmd), [lab3](./lab03_student.Rmd), [lab4](./lab04_student.Rmd), [lab5](./lab05_student.Rmd), [lab6](./lab06_student.Rmd), [lab7](./lab07_student.Rmd), [lab8](./lab08_student.Rmd), [lab9](./lab09_student.Rmd), [lab10](./lab10_student.Rmd), [lab10](./lab10_student.Rmd)
+- Solutions to Labs: [lab1](./lab01.pdf), [lab2](./lab02.pdf), [lab3](./lab03.pdf), [lab4](./lab04.pdf), [lab5_solutions](./lab05.pdf), [lab6](./lab06.pdf), [lab7_solutions](./lab07.pdf), [lab8](./lab08.pdf), [lab9](./lab09.pdf), [lab10](./lab10.pdf)
 - Problem Sets: [ps1](./ps01-college.pdf), [ps2](./ps02-STAR.pdf), [ps3](./ps03-gpaKNN.pdf), [ps4](./ps04.pdf), Complete Lab 10 in lieu of ps5
 - Final Project Requirements
 
