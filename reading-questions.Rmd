@@ -151,7 +151,7 @@ Note that a complete answer to each of these questions requires at most a short 
 
 ## No Quiz on Tuesday, October 16th!
 
-## Quiz #11: Thursday, October 18th -- MM 3.2, 3.3, and Appendix
+## Quiz \#11: Thursday, October 18th -- MM 3.2, 3.3, and Appendix
 1. What was the purpose of the Minneapolis Domestic Violence Experiment (MDVE) and how was the experiment carried out?
 2. Given that the MDVE was a randomized experiment, why do we use IV estimation here? 
 3. Define the term Intent to Treat (ITT).
@@ -163,4 +163,19 @@ Note that a complete answer to each of these questions requires at most a short 
 9. Explain in words and equations how 2SLS works: in particular describe both the first and second stage regressions. 
 10. Why doesn't "manual 2SLS" give the right standard errors?
 
+## Quiz \#12: Tuesday, October 23rd -- ISL 5.1, 5.2
+1. Define *model assessment*.
+2. Define *model selection*.
+3. Define the terms *training set* and *validation set* (aka *hold-out set*).
+4. Briefly explain the *validation set approach*. How does it work, and what problem is it intended to solve?
+5. Briefly explain the leave-one-out cross-validation (LOO-CV) procedure.What is an advantage of LOO-CV relative to the validation set approach?
+6. Briefly explain *k-fold cross-validation* procedure. What is the computational advantage of *k-fold* CV relative to LOO-CV? Is there any setting in which there is no advantage?
+7. What trade-off is involved in choosing $k$ for k-fold CV? 
+8. Briefly explain the bootstrap procedure for estimating the standard error of $\widehat{\alpha}$ in the portfolio example from Section 5.2
 
+
+## Quiz \#13: Thursday, October 25th -- ISL 6.1
+
+## Quiz \#14: Tuesday, October 30th -- ISL 6.2, 6.4
+
+## Quiz \#15: Thursday, November 1st -- ISL 8.1.1, 8.1.3, 8.2.1, 8.2.2 
