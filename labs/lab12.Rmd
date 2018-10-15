@@ -1,0 +1,47 @@
+---
+title: "Lab #12 - The Colonial Origins of Comparative Development"
+author: "Econ 224"
+date: "October 18th, 2018"
+---
+
+<!-- knitr global options -->
+```{r, include = FALSE}
+knitr::opts_chunk$set(comment=NA, fig.width=4.5, fig.height=3.5, fig.align = 'center')
+```
+
+# The Colonial Origins of Comparative Development 
+Today we'll work with a dataset from the 2001 paper "The Colonial Origins of Comparative Development" by Acemoglu, Johnson, and Robinson.
+To avoid repeatedly typing out all three names, I'll refer to the authors as AJR in the rest of this lab.
+You can download this paper from the website of the *American Economic Review* or from Piazza, where I have posted a copy.
+The dataset is called `ajr.dta` and is available from the course website: [http://ditraglia.com/econ224/ajr.dta](http://ditraglia.com/econ224/ajr.dta).
+Note that this is file is in STATA format, so you'll need to convert to a format the R can understand before proceeding.
+Here is a description of the variables we'll use in this lab:
+
+| Name | Description |
+|-----|--------------------------------------------------------------|
+| longname | Full name of country, e.g. Canada | 
+| shortnam | Abbreviated country name, e.g. CAN | 
+| logmort0 | Natural log of early European settler mortality | 
+| risk | Avg. protection against expropriation risk 1985-1995 (0 to 10) | 
+| loggdp | Natural log of 1995 GDP/capita at purchasing power parity | 
+| latitude | Absolute value of latitude (scaled between 0 and 1) | 
+| meantemp | 1987 mean annual temperature in degrees Celsius | 
+| malaria | % of Popn. living where falciporum malaria is endemic in 1994  |
+
+The key variables in this analysis are `loggdp`, which is the *outcome* variable ($y$), `risk` which is the regressor of interest ($x$), and `logmort0`, which AJR propose as an *instrumental variable* ($z$) for `risk`.
+
+# Exercises
+1. Preliminaries:
+1. Preliminaries:
+      (a) Regress `loggdp` on `risk`. Summarize your statistical findings. Discuss why they may or may not indicate a causal relationship between property rights (expropriation risk) and GDP per capita.
+      (b) 
+      (b) 
+      (c) 
+      (d) 
+
+
+
+# Solutions
+
+<!-- ANS_START -->
+<!-- ANS_END -->
