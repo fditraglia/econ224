@@ -175,6 +175,16 @@ Note that a complete answer to each of these questions requires at most a short 
 
 
 ## Quiz \#13: Thursday, October 25th -- ISL 6.1
+1. Explain the *best subset selection* algorithm. 
+2. Suppose we have $p$ predictor variables. How many models do we need to fit to carry out *best subset selection*. 
+3. Explain the *forward stepwise selection* algorithm. 
+4. Explain the *backward stepwise selection* algorithm. 
+5. What are the advantages and dis-advantages of forward and backward stepwise selection vis-a-vis best subset selection?
+6. What are the two general appropaches for estimating the test error used in model selection?
+7. Give the formulas for AIC and BIC in a least squares problem. Compare and contrast them.
+8. Explain how cross-validation can be used for model selection.
+   
+
 
 ## Quiz \#14: Tuesday, October 30th -- ISL 6.2, 6.4
 
