@@ -25,6 +25,8 @@ You will need the `ISLR` package for the lab, so please install it if you have n
 Note that this lab uses two different datasets: `Auto` and `Portfolio`.
 Both of these are included with `ISLR`.
 Make sure to read the documentation for each dataset in the R help files before proceeding.
+There are also a few new R functions that you will encounter in this tutorial `poly`, `cv.glm`, and `boot`.
+Make sure to read the help files for these functions to make sure that you understand how they work.
 
 ## The Validation Set Approach 
 Work through section 5.3.1 of ISL and add your code and results below.
@@ -65,13 +67,13 @@ Work through section 5.3.2 of ISL and add your code and results below.
 <!-- ANS_START -->
 ```{r, message = FALSE}
 library(boot)
-#--------------------------- Function to automate LOO-CV for polynomrial fits
-cv_poly <- function(degree) {
+#--------------------------- Function to automate LOO-CV for polynomial fits
+loo_cv_poly <- function(degree) {
   glm_fit <- glm(mpg ~ poly(horsepower, degree), data = Auto)
   cv_error <- cv.glm(Auto, glm_fit)
   cv_error$delta
 }
-sapply(1:5, cv_poly)
+sapply(1:5, loo_cv_poly)
 ```
 <!-- ANS_END -->
 
@@ -79,10 +81,62 @@ sapply(1:5, cv_poly)
 Work through section 5.3.3 of ISL and add your code and results below.
 
 <!-- ANS_START -->
+```{r}
+#--------------------------- Function to automate LOO-CV for polynomial fits
+tenfold_cv_poly <- function(degree) {
+  glm_fit <- glm(mpg ~ poly(horsepower, degree), data = Auto)
+  cv_error <- cv.glm(Auto, glm_fit, K = 10)
+  cv_error$delta[1]
+}
+set.seed(17)
+sapply(1:10, tenfold_cv_poly)
+```
 <!-- ANS_END -->
 
 # The Bootstrap
 Work through section 5.3.4 of ISL and add your code and results below.
 
+## Estimating the Accuracy of a Statistic of Interest
 <!-- ANS_START -->
+```{r}
+#--------------------------- Function for use with boot() in portfolio example
+get_alpha <- function(dat, indices) {
+  X <- dat$X[indices]
+  Y <- dat$Y[indices]
+  (var(Y) - cov(X,Y)) / (var(X) + var(Y) - 2 * cov(X,Y))
+}
+set.seed(1)
+
+#--------------------------- Bootstrap sample "by hand"
+get_alpha(Portfolio, sample(100, 100, replace = TRUE))
+#--------------------------- Bootstrap using boot()
+boot(Portfolio, get_alpha, R = 1000)
+```
+<!-- ANS_END -->
+
+## Estimating the Accuracy of a Linear Regression Model
+<!-- ANS_START -->
+```{r}
+#--------------------------- Function to calculate regression coefs for use with boot()
+get_coefs <- function(dat, indices) {
+  reg <- lm(mpg ~ horsepower, dat, subset = indices)
+  coef(reg)
+}
+#--------------------------- Bootstrap samples "by hand"
+set.seed(1)
+get_coefs(Auto, sample(392, 392, replace = TRUE))
+get_coefs(Auto, sample(392, 392, replace = TRUE))
+#--------------------------- Bootstrap using boot()
+boot(Auto, get_coefs, R = 1000)
+#--------------------------- Compare to output from lm
+summary(lm(mpg ~ horsepower, Auto))
+#--------------------------- Repeat the above for a quadratic regression
+get_coefs2 <- function(dat, indices) {
+  reg <- lm(mpg ~ poly(horsepower, 2), dat, subset = indices)
+  coef(reg)
+}
+set.seed(1)
+boot(Auto, get_coefs2, R = 1000)
+summary(lm(mpg ~ poly(horsepower, 2), Auto))
+```
 <!-- ANS_END -->
