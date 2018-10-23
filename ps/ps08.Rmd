@@ -1,0 +1,21 @@
+---
+title: 'Problem Set #8'
+author: "Econ224"
+date: "Due Date: Sunday, November 4th by 11:59pm "
+---
+
+# Instructions
+Submit your code and solutions to the following questions as an RMarkdown document.
+In particular, upload both the `.Rmd` file you used to generate your report and the resulting `.html` output to *canvas* by the due date listed above.
+You *must* upload both the `.html` file and the `.Rmd` file to be awarded credit for this assignment.
+Note that this means ensuring that your `.Rmd` file knits successfully.
+Please do not upload files in other formats such as pdf, Microsoft Word, etc.
+You may discuss this problem set with your classmates, provided that you adhere to the *empty hands* policy: after any such discussion, all parties must leave the room *empty-handed* i.e. without code files or written notes or any kind.
+In other words, the final code and write-up that you produce must be entirely your own work.
+If you discuss the problem set with any other students be sure to list their names at the top of your problem set.
+You are likewise welcome to consult printed or internet resources provided that you cite them.
+Violations of this policy constitute cheating and will be reported to the Office of Student Conduct. 
+
+# Questions
+1. Complete Problem \#11 from Chapter 6 of ISL. Note that the `Boston` dataset is included in the package `MASS`.
+2. Complete Problem \#8 from Chapter 8 of ISL. 
