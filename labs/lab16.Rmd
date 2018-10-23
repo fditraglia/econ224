@@ -1,0 +1,142 @@
+---
+title: "Lab #16 - Regression and Classification Trees"
+author: "Econ 224"
+date: "November 1st, 2018"
+---
+
+<!-- knitr global options -->
+```{r, include = FALSE}
+knitr::opts_chunk$set(comment=NA, fig.width=8, fig.height=6, fig.align = 'center')
+```
+
+## Introduction
+In this lab you will work through Sections 8.3.1, 8.3.2, and 8.3.3 of ISL and record your code and results in an RMarkdown document.
+I have added section headings below to help you organize your results.
+You do not have to submit this lab, so you don't have to type up a detailed description of what you've done.
+However, I'd suggest that you write down some notes for your own future reference.
+These will be helpful on the problem set.
+You do not need to follow the code in ISL exactly: feel free to use your preferred coding style. 
+
+You will need the `ISLR`, `tree` and `randomForest` packages for this lab, so please install them if you have not done so already. 
+This lab uses two datasets: `Carseats` which is contained in `ISLR`, and `Boston` which is contained in `MASS`. 
+
+## Fitting Classification Trees
+Work through section 8.3.1 of ISL and add your code and results below.
+
+<!-- ANS_START -->
+```{r, message = FALSE}
+library(tree)
+library(ISLR)
+library(dplyr)
+
+#------------------ Create binary outcome for high or low sales
+# (tree requires that High is a factor)
+Carseats <- Carseats %>% 
+  mutate(High = as.factor(if_else(Sales <= 8, 'No', 'Yes'))) %>%
+  select(-Sales) 
+
+#------------------ Fit, summarize, and plot classification tree
+tree_carseats <- tree(High ~ ., Carseats)
+summary(tree_carseats)
+plot(tree_carseats)
+text(tree_carseats, pretty = 0, cex = 0.6)
+
+#----------------- Evaluate classification performance using test dataset
+set.seed(2)
+train <- sample(1:nrow(Carseats), nrow(Carseats) / 2)
+carseats_test <- Carseats[-train,]
+high_test <- Carseats$High[-train]
+
+tree_carseats_train <- tree(High ~ ., Carseats, subset = train)
+tree_carseats_pred <- predict(tree_carseats_train, newdata = carseats_test, 
+                              type = 'class') # Return class predictions, not probs
+table(tree_carseats_pred, high_test)
+(86 + 57) / (86 + 57 + 30 + 27) # Correct prediction rate
+
+#----------------- Cost complexity pruning via cross-validation
+# (prune using mis-classification rate rather than deviance)
+set.seed(3)
+cv_carseats <- cv.tree(tree_carseats_train, FUN = prune.misclass)
+par(mfrow = c(1,2))
+plot(cv_carseats$size, cv_carseats$dev, type = 'b', xlab = '# Terminal Nodes',
+     ylab = 'CV Error Rate')
+plot(cv_carseats$k, cv_carseats$dev, type = 'b', xlab = 'Cost Complexity', 
+     ylab = 'CV Error Rate')
+par(mfrow = c(1, 1))
+
+#----------------- Prune to the best tree from the CV exercise
+# (from the plots, this as 9 terminal nodes)
+prune_carseats <- prune.misclass(tree_carseats_train, best = 9)
+plot(prune_carseats)
+text(prune_carseats, pretty = 0, cex = 0.6)
+prune_predict <- predict(prune_carseats, carseats_test, type = 'class')
+table(prune_predict, high_test)
+(94 + 60) / (94 + 60 + 22 + 24)
+
+#----------------- Clean up
+rm(list = ls())
+```
+<!-- ANS_END -->
+
+
+
+## Fitting Regression Trees
+Work through section 8.3.2 of ISL and add your code and results below.
+
+<!-- ANS_START -->
+```{r, message = FALSE}
+#----------------- Fit regression tree to training subset of Boston data
+library(MASS)
+set.seed(1)
+boston_train <- sample(1:nrow(Boston), nrow(Boston) / 2)
+tree_boston_train <- tree(medv ~., Boston, subset = boston_train)
+summary(tree_boston_train)
+plot(tree_boston_train)
+text(tree_boston_train, pretty = 0, cex = 0.6)
+
+#----------------- Use cross-validation to prune the tree
+# (But the unpruned tree comes out as the best!)
+cv_boston <- cv.tree(tree_boston_train)
+plot(cv_boston$size, cv_boston$dev, type = 'b', xlab = '# Terminal Nodes',
+     ylab = 'CV Error Rate')
+
+#----------------- Test Error for Boston dataset
+boston_pred <- predict(tree_boston_train, newdata = Boston[-boston_train,])
+boston_test <- Boston[-boston_train, 'medv']
+plot(boston_pred, boston_test)
+abline(0, 1)
+mean((boston_pred - boston_test)^2)
+```
+<!-- ANS_END -->
+
+## Bagging and Random Forests 
+Work through section 8.3.3 of ISL and add your code and results below.
+
+<!-- ANS_START -->
+```{r, message = FALSE}
+library(randomForest)
+#------------------ Bagging for Boston dataset
+# (bagging is a special case of random forests with m = p)
+set.seed(1)
+bag_boston <- randomForest(medv ~ ., data = Boston, subset = boston_train,
+                           # can also set ntree to get a different number of trees
+                           # the default is 500
+                           mtry = 13, #mtry sets m (number of predictors per split)
+                           importance = TRUE) # assess importance of predictors
+bag_boston #slightly different results from the book
+boston_pred_bag <- predict(bag_boston, newdata = Boston[-boston_train,])
+plot(boston_pred_bag, boston_test)
+abline(0,1)
+mean((boston_pred_bag - boston_test)^2) # slightly different result from book
+
+#------------------ Random Forests for Boston Dataset
+# (use 6 predictors for each tree)
+set.seed(1)
+rf_boston <- randomForest(medv ~., data = Boston, subset = boston_train,
+                          mtry = 6, importance = TRUE)
+boston_pred_rf <- predict(rf_boston, newdata = Boston[-boston_train, ])
+mean((boston_pred_rf - boston_test)^2)
+importance(rf_boston)
+varImpPlot(rf_boston)
+```
+<!-- ANS_END -->
