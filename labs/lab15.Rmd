@@ -1,0 +1,139 @@
+---
+title: "Lab #15 - Ridge and LASSO"
+author: "Econ 224"
+date: "October 30th, 2018"
+---
+
+<!-- knitr global options -->
+```{r, include = FALSE}
+knitr::opts_chunk$set(comment=NA, fig.width=4, fig.height=4, fig.align = 'center')
+```
+
+## Introduction
+In this lab you will work through Section 6.6 of ISL and record your code and results in an RMarkdown document.
+I have added section headings below to help you organize your results.
+You do not have to submit this lab, so you don't have to type up a detailed description of what you've done.
+However, I'd suggest that you write down some notes for your own future reference.
+These will be helpful on the problem set.
+You do not need to follow the code in ISL exactly: feel free to use your preferred coding style. 
+
+You will need the `ISLR` package for the lab, so please install it if you have not done so already.
+This lab uses the `Hitters` dataset: in particular, we will try to predict a baseball player's `Salary` in a given year using performance statistics from the preceding year. 
+Make sure to read the documentation file for `Hitters` before proceeding.
+You will also need to use the package `glmnet` so make sure to install it before proceeding.
+
+## Ridge Regression 
+Work through section 6.6.1 of ISL and add your code and results below.
+
+<!-- ANS_START -->
+```{r, message = FALSE}
+library(glmnet)
+library(ISLR)
+
+#-------------- Remove missing values
+Hitters <- na.omit(Hitters)
+
+#-------------- Design matrix x without intercept
+x <- model.matrix(Salary ~ ., Hitters)[,-1]
+y <- Hitters$Salary
+
+#-------------- Grid of values for lambda from 1e11 to 1e-1
+lam_grid <- 10^seq(10, -2, length = 100)
+
+#-------------- alpha = 0 in glmnet gives ridge regression
+# (glmnet standardizes x by default)
+ridge_fits <- glmnet(x, y, alpha = 0, lambda = lam_grid)
+
+#-------------- use coef to display fitted coefficients
+ridge_fits$lambda[50] # lambda = 11497.57
+coef(ridge_fits)[,50]
+
+ridge_fits$lambda[60] # lambda = 11497.57
+coef(ridge_fits)[,60]
+
+#-------------- Compare l2 norms with different values of lambda
+ridge_coefs <- coef(ridge_fits)[-1,]
+get_l2_norm <- function(x) sqrt(sum(x^2))
+l2_norms <- apply(ridge_coefs, 2, get_l2_norm)
+l2_norms[c(50, 60)]
+
+#-------------- predict.glmnet() to get ridge coefs for lambda = 50 
+# (this is a new value of lambda)
+predict(ridge_fits, s = 50, type = 'coefficients')
+
+
+#-------------- Create training and test sets
+set.seed(1)
+train_indices <- sample(1:nrow(x), floor(nrow(x)/2))
+test_indices <- -(train_indices)
+x_train <- x[train_indices,]
+y_train <- y[train_indices]
+x_test <- x[test_indices,]
+y_test <- y[test_indices]
+
+#-------------- Fit ridge on training set
+ridge_train <- glmnet(x_train, y_train, alpha = 0, lambda = lam_grid,
+                      thresh = 1e-12)
+
+#-------------- Calculate MSE on test set with lambda = 4
+ridge_pred1 <- predict(ridge_train, s = 4, newx = x_test)
+mean((ridge_pred1 - y_test)^2)
+
+#-------------- Compare to MSE of "null model" with only intercept, or huge lambda
+mean((y_test - mean(y_train))^2)
+ridge_pred2 <- predict(ridge_train, s = 1e10, newx = x_test)
+mean((ridge_pred2 - y_test)^2)
+
+#-------------- Compare to "exact" OLS predictions
+# (the code in the book doesn't work: need to specify x and y)
+ridge_pred3 <- predict(ridge_train, x = x_train, y = y_train, s = 0, 
+                       newx = x_test, exact = TRUE)
+mean((ridge_pred3 - y_test)^2)
+
+#-------------- Cross-validation for ridge
+# (defaults to 10-fold)
+set.seed(1)
+cv_ridge <- cv.glmnet(x_train, y_train, alpha = 0)
+plot(cv_ridge)
+
+#-------------- Best lambda and associated MSE (according to CV)
+best_lam_ridge <- cv_ridge$lambda.min
+best_lam_ridge
+ridge_pred4 <- predict(ridge_train, s = best_lam_ridge, newx = x_test)
+mean((ridge_pred4 - y_test)^2)
+
+#-------------- Re-fit model with full dataset 
+ridge_full <- glmnet(x, y, alpha = 0)
+predict(ridge_full, type = 'coefficients', s = best_lam_ridge)
+```
+<!-- ANS_END -->
+
+
+
+
+## The Lasso 
+Work through section 6.6.2 of ISL and add your code and results below.
+
+<!-- ANS_START -->
+```{r}
+#--------------- Fit LASSO to training data
+# (set alpha = 1 for LASSO)
+lasso_train <- glmnet(x_train, y_train, alpha = 1, lambda = lam_grid)
+plot(lasso_train)
+
+#--------------- Cross-validation to choose lambda for LASSO
+set.seed(1) # re-set the seed to get the same folds as for ridge
+cv_lasso <- cv.glmnet(x_train, y_train, alpha = 1)
+plot(cv_lasso)
+best_lam_lasso <- cv_lasso$lambda.min
+lasso_pred <- predict(lasso_train, s = best_lam_lasso, newx = x_test)
+mean((lasso_pred - y_test)^2)
+
+#--------------- Re-fit LASSO with full dataset
+lasso_full <- glmnet(x, y, alpha = 1, lambda = lam_grid)
+predict(lasso_full, type = 'coefficients', s = best_lam_lasso)
+```
+<!-- ANS_END -->
+
+
+
