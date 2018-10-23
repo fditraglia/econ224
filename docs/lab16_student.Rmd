@@ -1,0 +1,37 @@
+---
+title: "Lab #16 - Regression and Classification Trees"
+author: "Econ 224"
+date: "November 1st, 2018"
+---
+
+<!-- knitr global options -->
+```{r, include = FALSE}
+knitr::opts_chunk$set(comment=NA, fig.width=8, fig.height=6, fig.align = 'center')
+```
+
+## Introduction
+In this lab you will work through Sections 8.3.1, 8.3.2, and 8.3.3 of ISL and record your code and results in an RMarkdown document.
+I have added section headings below to help you organize your results.
+You do not have to submit this lab, so you don't have to type up a detailed description of what you've done.
+However, I'd suggest that you write down some notes for your own future reference.
+These will be helpful on the problem set.
+You do not need to follow the code in ISL exactly: feel free to use your preferred coding style. 
+
+You will need the `ISLR`, `tree` and `randomForest` packages for this lab, so please install them if you have not done so already. 
+This lab uses two datasets: `Carseats` which is contained in `ISLR`, and `Boston` which is contained in `MASS`. 
+
+## Fitting Classification Trees
+Work through section 8.3.1 of ISL and add your code and results below.
+
+*Write your code and solutions here.*
+
+
+
+## Fitting Regression Trees
+Work through section 8.3.2 of ISL and add your code and results below.
+
+*Write your code and solutions here.*
+
+## Bagging and Random Forests 
+Work through section 8.3.3 of ISL and add your code and results below.
+
