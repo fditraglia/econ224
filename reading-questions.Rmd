@@ -185,7 +185,31 @@ Note that a complete answer to each of these questions requires at most a short 
 8. Explain how cross-validation can be used for model selection.
    
 
-
 ## Quiz \#14: Tuesday, October 30th -- ISL 6.2, 6.4
 
-## Quiz \#15: Thursday, November 1st -- ISL 8.1.1, 8.1.3, 8.2.1, 8.2.2 
+1. The *ridge regression* coefficient estimates are chosen to minimize a function with two terms. Write down the function and explain the meaning of each of these two terms.
+2. In ridge regression we *do not* apply the shrinkage penalty to the intercept $\beta_0$. Why not?
+3. If $\mathbf{v}$ is a vector with elements $v_1, ..., v_m$ what is the formula formula for the $\ell_2$ norm  $||\mathbf{v}||_2$ of $\mathbf{v}$? What is the meaning of $||\mathbf{v}||_2$?
+4. Briefly explain how the ridge tuning parameter $\lambda$ affects the ridge regression coefficient estimates. In particular, as we increase $\lambda$, what happens to the $\ell_2$ norm of the ridge regression coefficient vector $\widehat{\beta}_\lambda^R$?
+5. Suppose that I run an ordinary least squares linear regression to predict height in centimeters $y$ using weight in kilograms $x$. The estimated slope coefficient is 0.5. If I changed the units of $x$ to grams, how would the estimated slope coefficient change? What is the name of the property of least squares regression that you used to answer this question?
+6. It is recommended to apply ridge regression only *after* standardizing the predictors $X_j$. Why? What does it mean to standardize a predictor?
+7. When and why would we expect ridge regression to improve over least squares?
+8. What advantages does ridge regression have over best subset selection?
+9. Explain the difference between the optimization problem that the lasso coefficient estimates $\widehat{\beta}_\lambda^L$ solve compared to the optimization problem that the ridge coefficient estimates $\widehat{\beta}_\lambda^R$ solve.
+10. There is an important qualitative difference between the way that lasso and ridge shrink coefficients towards zero. What is it?
+11. There is an alternative formulation of ridge regression and lasso that makes it easy to compare them to best-subsets regression. Write down this formulation, and explain the relationship.
+12. When would we describe a dataset as *high-dimensional*? What are some of the challenges of working with high-dimensional datasets?
+
+
+
+## Quiz \#15: Thursday, November 1st -- ISL 8.1, 8.2.1, 8.2.2 
+1. Explain how to construct a regression tree via *recursive binary splitting*. How do we use the resulting tree to make predictions?
+2. Explain *cost complexity pruning* aka *weakest link pruning*.
+3. Sketch the algorithm for building a regression tree that combines recursive binary splitting, cost complexity pruning, and cross-validation.
+4. How does a classification tree differ from a regression tree?
+5. What are the two preferred criteria for making binary splits in a classification tree? Give the formula for each.
+6. When would we expect regression trees to out-perform linear regression and vice-versa?
+7. Explain how *bootstrap aggregation* aka *bagging* is applied to regression trees.
+8. What is an *out-of-bag* (OOB) observation? How can OOB observations be used to estimate the test error of a bagged model without the need for cross-validation?
+9. What is one advantage and one disadvantage of bagging when applied to regression trees?
+10. Briefly explain the *random forest* algorithm. How does it differ from bagging? What is the rationale behind this difference?
