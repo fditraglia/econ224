@@ -213,3 +213,23 @@ Note that a complete answer to each of these questions requires at most a short 
 8. What is an *out-of-bag* (OOB) observation? How can OOB observations be used to estimate the test error of a bagged model without the need for cross-validation?
 9. What is one advantage and one disadvantage of bagging when applied to regression trees?
 10. Briefly explain the *random forest* algorithm. How does it differ from bagging? What is the rationale behind this difference?
+
+
+## Quiz \#16: Tuesday, November 6th -- MM 4.1
+
+1. What is the "seemingly paradoxical idea" upon which regression discontinuity (RD) is based? How does this idea apply in the case of the minimum legal drinking age?
+2. Define the term "running variable" in RD analysis. 
+3. What are the "two signal features" of RD designs?
+4. What is the difference between "sharp" and "fuzzy" RD?
+5. The validity of causal effects estimates from RD relies upon our willingness to do what? 
+6. Why might a simple linear RD specification fail to produce reliable causal estimates? How can we address this problem?
+7. In the MLDA example, why might we expect a change in slope at the cutoff?
+8. Explain the statement "estimates away from the cutoff constitute a bold extrapolation" in the context of the MLDA example. Where would we expect RD estimates in this example to be most reliable? Why?
+9. Summarize the results of the MLDA example.
+
+
+## Quiz \#17: Thursday, November 8th -- MM 4.2
+
+## Quiz \#18: Tuesday, November 13th -- MM 5.1
+
+## Quiz \#19: Thursday, November 15th -- MM 5.2
