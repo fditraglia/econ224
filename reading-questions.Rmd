@@ -229,7 +229,26 @@ Note that a complete answer to each of these questions requires at most a short 
 
 
 ## Quiz \#17: Thursday, November 8th -- MM 4.2
+1. Briefly explain how and why the entrance exam cutoff for the Boston Latin School creates a "dramatic experiment in peer quality."
+2. Suppose that we estimate the linear regression model $Y_i = \theta_0 + \theta_1 \bar{X}_{(i)} + \theta_2 X_i + u_i$ where $Y_i$ is student $i$'s seventh-grade math test score, $X_i$ is her fourth-grade math test score, and $\bar{X}_{(i)}$ is the average fourth-grade math test score of student $i$'s classmates. What is $\theta_1$ supposed to measure in this regression? Can we interpret it causally? Why or why not?
+3. Explain how to use 2SLS to estimate the effect of peer quality on test scores, using the Boston Latin school exam cutoff.
+4. Some other causal channels might be at play in the peer quality example, potentially casting doubt on the reliability of the 2SLS estimator. What are they?
+5. On the whole, what does the evidence from Section 4.2 suggest about the causal effect of peer quality?
 
 ## Quiz \#18: Tuesday, November 13th -- MM 5.1
+1. Explain the idea behind the Richardson and Troost (2009) policy experiment.
+2. What does differences-in-differences adjust for when comparing the Eighth and Sixth Districts of the Federal Reserve System? Why does this make sense?
+3. Explain the meaning of Figure 5.1. In particular, what is the meaning of the dashed line?
+4. Define the *common trends* assumption in the context of the Mississippi experiment. Explain how Figure 5.2 provides evidence for or against this assumption.
+5. Explain how to estimate regression DD in the Mississippi example. Which coefficient gives the causal effect of interest? Explain.
+6. Briefly summarize the evidence from Richardson and Troost (2009) regarding the effects of monetary policy in a financial crisis.
 
-## Quiz \#19: Thursday, November 15th -- MM 5.2
+## Quiz \#19: Thursday, November 15th -- MM 5.2 and Appendix
+1. Briefly outline how the DD approach can be used to study the causal effect of the minimum legal drinking age.
+2. How and why does the multi-state regression DD model from Equation 5.5 differ from the model comparing Alabama and Arkansas from Equation 5.4?
+3. What is a *state-year panel*? In the MLDA example, what do the state effects control for? What do the time effects control for?
+4. What is the advantage of including state-specific time trends? Why do estimates from a model with state-specific trends tend to be imprecise?
+5. What are the two consequences of population weighting?
+6. What are some of the challenges involved in calculating appropriate standard errors for DD estimates?
+
+## No more quizzes after November 15th!
