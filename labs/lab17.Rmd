@@ -6,7 +6,7 @@ date: "November 6th, 2018"
 
 <!-- knitr global options -->
 ```{r, include = FALSE}
-knitr::opts_chunk$set(comment=NA, fig.width=4, fig.height=4, fig.align = 'center')
+knitr::opts_chunk$set(comment=NA, fig.width=5, fig.height=5, fig.align = 'center')
 ```
 
 # Introduction
@@ -104,11 +104,9 @@ But since $E[Y_i|x_i]$ equals $E[Y_{0i}|x_i]$ for $x$ above the threshold and $E
 $$\lim_{\Delta \rightarrow 0} E[Y_i|x_i = c + \Delta] - E[Y_i|x_i = c - \Delta] = E[Y_{1i} - Y_{0i}|x_i = c] = \mbox{ATE}(c)$$
 So by using predictive regression to estimate $E[Y_i|x_i]$ for $x_i$ *just below* $c$ and comparing it to an estimate of $E[Y_i|x_i]$ for $x_i$ *just above* $c$, RD allows us to learn the average treatment effect for individuals with $x = c$.
 
-# RD Analysis in R 
-
-## Exercise A
-In this exercise you will derive Equation 4.3 from MM -- albeit with slightly different notation -- by drawing a connection with Exercise A above.
-Suppose that we want to predict $Y$ using $X$ while allowing a difference slope and intercept for $X >c$ compared to $X \leq c$, in particular:
+# A Simple Regression Discontinuity Example Using R
+The following exercises guide you through the process of estimating and interpreting a simple regression discontinuity example in R, based around Equation 4.3 in MM.
+In particular, we work with the following model, in which $Y_i$ depends linearly on $X_i$ but with a different slope and intercept on each side of a cutoff $c$:
 \[
 Y_i = \left\{ \begin{array}{ll}
 \alpha_0 + \alpha_1 X_i  + \epsilon, & \mbox{for } X_i \leq c\\
@@ -117,17 +115,26 @@ Y_i = \left\{ \begin{array}{ll}
 \right.
 \]
 
+## Exercises
 1. In terms of $\alpha_0, \alpha_1, \beta_0, \beta_1$, and $c$, what is the the value of the RD causal effect? 
-2. Show how to write the two "separate" linear regressions from above as a single "joint" linear regression of the form 
+2. Show how to write the two "separate" linear regressions from above as a single "joint" regression: 
 \[
-   Y_i = \gamma_0 + \gamma_1 X_i + \gamma_2 D_i + \gamma_3 D_i X_i + \epsilon
+   Y_i = \gamma_0 + \gamma_1 D_i + \gamma_2 X_i + \gamma_3 D_i X_i + \epsilon
 \]
-where $D_i$ is a dummy variable that equals one if $X_i > c$. What is the relationship between the coefficients $(\gamma_0, \gamma_1, \gamma_2, \gamma_3)$ of the "joint" regression, and the coefficients $(\alpha_0, \alpha_1)$ and $(\beta_0, \beta_1)$ of the "separate" regressions?
-3. By combining your answers to parts 1 and 2, show how to write the RD causal effect in terms of the parameters of the "joint" regression. 
-4. Simulate 500 observations from the regression model from part 1. Generate $X$ from a Uniform$(0,1)$ distribution and and the errors $\epsilon$ from a $N(0,\sigma^2)$ distribution. Set the value of the cutoff $c$ equal to 0.5. Choose values of the parameters in your simulation that imply visibly different slopes and intercepts to the left and right of the cutoff $c$ and an error variance that is small enough that these differences are visible in the data.
-5. Use the simulated data from part 3 to fit the regression model from part 1. Plot the raw data along with the estimated regression lines to the left and right of the cutoff. 
-6. If we interpret the model in this exercise as an RD design, which coefficient gives us the estimated causal effect? What is the associated standard error? 
+where $D_i$ is a dummy variable that equals one if $X_i > c$. What is the relationship between the coefficients $(\gamma_0, \gamma_1, \gamma_2, \gamma_3)$ of the joint regression, and the coefficients $(\alpha_0, \alpha_1)$ and $(\beta_0, \beta_1)$ of the "separate" regressions?
+3. Combine your answers to parts 1 and 2, to write the RD causal effect in terms of $(\gamma_0, \gamma_1, \gamma_2, \gamma_3)$. 
+4. To make the regression from part 3 easier to interpret, define  $\widetilde{X}_i \equiv X_i - c$ and substitute $(X - c + c)$ in place of $X$. Using this substituting, show that we can re-write the joint regression as 
+\[
+Y_i = \widetilde{\gamma}_0 + \widetilde{\gamma}_1 D_i + \widetilde{\gamma}_2 \widetilde{X}_i + \widetilde{\gamma}_3 D_i \widetilde{X}_i + \epsilon_i
+\]
+where $\widetilde{\gamma}_1$ equals the RD causal effect.
+How do the the other parameters of this "modified" regression relate to the original coefficients $(\gamma_0, \gamma_1, \gamma_2,\gamma_3)$?
 
+5. Simulate 500 observations from a model in which $Y_i = \alpha_0 + \alpha_1 X_i + \epsilon_i$ to the left of $c$ and $Y_i = \beta_0 + \beta_1 X_i + \epsilon_i$ to the right of $c$. Generate $X$ from a Uniform$(0,1)$ distribution and and the errors $\epsilon$ from a $N(0,\sigma^2)$ distribution. Set the value of the cutoff $c$ equal to 0.5. Choose values of the parameters in your simulation that imply visibly different slopes and intercepts to the left and right of the cutoff $c$ and an error variance that is small enough that these differences are visible in the data.
+6. Use your simulated data from part 5 to fit the regression model from part 4. Plot the raw data along with the estimated regression lines to the left and right of the cutoff. 
+7. What is the estimated RD causal effect from your simulated data? What is the standard error? Does the true causal effect from your simulation design lie within the the 95\% confidence interval?
+
+## Solutions
 <!-- ANS_START -->
 1. If we let $f(x) = \alpha_0 + \alpha_1 x$ and $h(x) = \beta_0 + \beta_1 x$, the RD causal effect is $h(c) - f(c) = (\beta_0 - \alpha_0) + (\beta_1 - \alpha_1) c$.
 2. Define $D_i = \mathbf{1}\{X_i > c\}$, which implies that $(1 - D_i) = \mathbf{1}\{X_i \leq c\}$.
@@ -135,10 +142,16 @@ Using this notation, we can write
 \begin{align*}
 Y_i &= (1 - D_i) \times (\alpha_0 + \alpha_1 X_i) + D_i \times (\beta_0 + \beta_1 X_i) + \epsilon_i\\
 &= (\alpha_0 + \alpha_1 X_i) + D_i \times \left[(\beta_0 + \beta_1 X_i) - (\alpha_0 + \alpha_1 X_i) \right] + \epsilon_i\\
-&= \alpha_0 + \alpha_1 X_i + (\beta_0 - \alpha_0) D_i + (\beta_1 - \beta_0) D_i X_i + \epsilon_i
+&= \alpha_0 + (\beta_0 - \alpha_0) D_i + \alpha_1 X_i + (\beta_1 - \alpha_1) D_i X_i + \epsilon_i
 \end{align*}
-Thus, we see that $\gamma_0 = \alpha_0, \gamma_1 = \alpha_1, \gamma_2 = (\beta_0 - \alpha_0)$, and $\gamma_3 = (\beta_1 - \alpha_1)$.
-3. The RD causal effect is $(\beta_0 - \alpha_0) + (\beta_1 - \alpha_1)c = \gamma_2 + \gamma_3 c$.
+Thus, we see that $\gamma_0 = \alpha_0, \gamma_1 = (\beta_0 - \alpha_0), \gamma_2 = \alpha_1$, and $\gamma_3 = (\beta_1 - \alpha_1)$.
+3. The RD causal effect is $(\beta_0 - \alpha_0) + (\beta_1 - \alpha_1)c = \gamma_1 + \gamma_3 c$.
+4. Replacing $X$ with $(X - c + c)$, we obtain
+\begin{align*}
+Y_i &= \gamma_0 + \gamma_1 D_i + \gamma_2 (X_i - c + c) + \gamma_3 D_i (X_i - c + c) + \epsilon_i \\
+&= \gamma_0 + \gamma_1 D_i + (\gamma_2 \widetilde{X}_i + \gamma_2 c) + (\gamma_3 D_i \widetilde{X}_i + \gamma_3 c D_i) + \epsilon_i \\
+&= (\gamma_0 + c\gamma_2) + (\gamma_1 + c\gamma_3) D_i + \gamma_2 \widetilde{X}_i + \gamma_3 D_i \widetilde{X}_i + \epsilon_i \\
+\end{align*}
 
 ```{r}
 # Parameters of the "separate" regressions
@@ -149,8 +162,8 @@ b1 <- -0.3
 
 # Implied parameters of the "joint" regression
 g0 <- a0
-g1 <- a1
-g2 <- b0 - a0
+g1 <- b0 - a0
+g2 <- a1
 g3 <- b1 - a1
 
 # Simulation draws
@@ -160,31 +173,34 @@ x <- runif(n)
 cutoff <- 0.5
 D <- 1 * (x > cutoff)
 epsilon <- rnorm(n, sd = 0.1)
-y <- g0 + g1 * x + g2 * D + g3 * D * x + epsilon
+y <- g0 + g1 * D + g2 * x + g3 * D * x + epsilon
 
-# Fit linear regression model 
-rd <- lm(y ~ x + D + x:D)
-summary(rd)
+# Fit linear regression model, centering X around the cutoff
+xtilde <- x - cutoff
+rd <- lm(y ~ D + xtilde + xtilde:D)
+coef(rd)
 
-# Estimated lines before and after cutoff
-a0hat <- coef(rd)[1]
-a1hat <- coef(rd)[2]
-b0hat <- coef(rd)[3] + coef(rd)[1]
-b1hat <- coef(rd)[4] + coef(rd)[2]
 
 # Plot raw data
 plot(x, y)
 abline(v = cutoff, lty = 2)
 
-# Add regression line before the cutoff
-clip(min(x), cutoff, min(y), max(y))
-abline(a0hat, a1hat, col = 'blue', lwd = 2)
-clip(cutoff, max(x), min(y), max(y))
-abline(b0hat, b1hat, col = 'red', lwd = 2)
+# Regression line before cutoff 
+xbefore <- seq(0, cutoff - 0.01, 0.01)
+ybefore <- predict(rd, newdata = data.frame(xtilde = xbefore - cutoff,
+                                         D = 1 * (xbefore >= cutoff)))
+points(xbefore, ybefore, type = 'l', col = 'blue', lwd = 2)
 
+# Plot regression line after cutoff
+xafter <- seq(cutoff, 1, 0.01)
+yafter <- predict(rd, newdata = data.frame(xtilde = xafter - cutoff,
+                                         D = 1 * (xafter >= cutoff)))
+points(xafter, yafter, type = 'l', col = 'red', lwd = 2)
+
+# Does the true causal effect lie in the 95% confidence interval?
+RD_true <- (b0 - a0) + (b1 - a1) * cutoff
+RD_true
+summary(rd)
 
 ```
 <!-- ANS_END -->
-
-## Exercise C
-Create an example where non-linearity masquerades as a discontinuity. Then have them repeat 2 but with a *quadratic* regression. Maybe talk about the non-parametric version?
