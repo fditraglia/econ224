@@ -10,12 +10,9 @@ knitr::opts_chunk$set(comment=NA, fig.width=8, fig.height=6, fig.align = 'center
 ```
 
 # Introduction
-
-1. Start with a varying slopes, varying intercepts model from Econ 103. Make sure they know how to simulate, fit, plot, and interpret
-2. Then move on to a regression with a *break*, in other words there is one linear regression to the left of a cutoff and another to the right of that cutoff. Have them figure out how to write this as a *single* linear regression. Then simulate, fit, plot, and interpret.
-3. Talk about the basic regression discontinuity idea: the only thing that jumps at the cutoff is treatment allocation.
-4. Create an example where non-linearity masquerades as a discontinuity.
-5. Have them repeat 2 but with a *quadratic* regression. Maybe talk about the non-parametric version?
+Today we'll go through some nuts-and-bolts of sharp regression discontinuity.
+I'll begin by providing some details of the RD approach that go beyond the explanation in MM.
+We'll then look at how to carry out RD analysis in R.  
 
 # "Sharp" Regression Discontinuity
 Suppose we are interested in learning the causal effect of a binary treatment $D$ on an outcome $Y$.
@@ -107,3 +104,10 @@ But since $E[Y_i|x_i]$ equals $E[Y_{0i}|x_i]$ for $x$ above the threshold and $E
 $$\lim_{\Delta \rightarrow 0} E[Y_i|x_i = x_0 + \Delta] - E[Y_i|x_i = x_0 - \Delta] = E[Y_{1i} - Y_{0i}|x_i = x_0] = \mbox{ATE}(x_0)$$
 So by using predictive regression to estimate $E[Y_i|x_i]$ for $x_i$ *just below* $x_0$ and comparing it to an estimate of $E[Y_i|x_i]$ for $x_i$ *just above* $x_0$, RD allows us to learn the average treatment effect for individuals with $x = x_0$.
 
+# RD Analysis in R 
+
+1. Start with a varying slopes, varying intercepts model from Econ 103. Make sure they know how to simulate, fit, plot, and interpret
+2. Then move on to a regression with a *break*, in other words there is one linear regression to the left of a cutoff and another to the right of that cutoff. Have them figure out how to write this as a *single* linear regression. Then simulate, fit, plot, and interpret.
+3. Talk about the basic regression discontinuity idea: the only thing that jumps at the cutoff is treatment allocation.
+4. Create an example where non-linearity masquerades as a discontinuity.
+5. Have them repeat 2 but with a *quadratic* regression. Maybe talk about the non-parametric version?
