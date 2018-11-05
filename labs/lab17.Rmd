@@ -105,9 +105,35 @@ $$\lim_{\Delta \rightarrow 0} E[Y_i|x_i = c + \Delta] - E[Y_i|x_i = c - \Delta] 
 So by using predictive regression to estimate $E[Y_i|x_i]$ for $x_i$ *just below* $c$ and comparing it to an estimate of $E[Y_i|x_i]$ for $x_i$ *just above* $c$, RD allows us to learn the average treatment effect for individuals with $x = c$.
 
 # RD Analysis in R 
+To understand how to carry out RD analysis in R, we first need to review some regression basics that should be familiar from Econ 103. 
+If the following warmup exercise looks unfamiliar to you, I suggest consulting [lecture25_child_test.pdf](http://ditraglia.com/Econ103Public/slides/lecture25_child_test.pdf) from the Econ 103 course website.
 
+## Exercise A
+Suppose we wanted to use linear regression to predict $Y_i$ using $X_i$ allowing a different slope and intercept for males and females. Let $W_i$ be a dummy variable that equals $1$ if person $i$ is female.
+
+1. Write down a *single* linear regression model that can make the desired predictions for both groups. Explain how to interpret the coefficients of this regression
+2. Simulate 500 observations from the regression model from part 1. Choose values of the parameters in your simulation that imply visibly different slopes and intercepts for males and females and an error variance that is small enough that these differences are visible in the data.
+3. Use the simulated data from part 2 to fit the regression model from part 1. Plot the raw data along with the regression lines for males and females.
+
+## Exercise B
+In this exercise you will derive Equation 4.3 from MM -- albeit with slightly different notation -- by drawing a connection with Exercise A above.
+Suppose that we want to predict $Y$ using $X$ while allowing a difference slope and intercept for $X >c$ compared to $X \leq c$, in particular:
+\[
+Y_i = \left\{ \begin{array}{ll}
+\alpha_0 + \alpha_1 X_i  + \epsilon, & \mbox{for } X_i \leq c\\
+\beta_0 + \beta_1 X_i  + \epsilon, & \mbox{for } X_i \leq c\\
+\end{array}
+\right.
+\]
+
+1. Show how to write the above as a *single* linear regression equation of the form 
+\[
+   Y_i = \gamma_0 + \gamma_1 X_i + \gamma_2 D_i + \gamma_3 D_i X_i + \epsilon
+\]
+where $D_i$ is an appropriate dummy variable. How do $(\gamma_0, \gamma_1, \gamma_2, \gamma_3)$ relate to $(\alpha_0, \alpha_1)$ and $(\beta_0, \beta_1)$?
+2. hi hi hi
+
+## Exercise
 1. Start with a varying slopes, varying intercepts model from Econ 103. Make sure they know how to simulate, fit, plot, and interpret
 2. Then move on to a regression with a *break*, in other words there is one linear regression to the left of a cutoff and another to the right of that cutoff. Have them figure out how to write this as a *single* linear regression. Then simulate, fit, plot, and interpret.
-3. Talk about the basic regression discontinuity idea: the only thing that jumps at the cutoff is treatment allocation.
-4. Create an example where non-linearity masquerades as a discontinuity.
-5. Have them repeat 2 but with a *quadratic* regression. Maybe talk about the non-parametric version?
+3. Create an example where non-linearity masquerades as a discontinuity. Then have them repeat 2 but with a *quadratic* regression. Maybe talk about the non-parametric version?
