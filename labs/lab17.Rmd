@@ -109,8 +109,8 @@ The following exercises guide you through the process of estimating and interpre
 In particular, we work with the following model, in which $Y_i$ depends linearly on $X_i$ but with a different slope and intercept on each side of a cutoff $c$:
 \[
 Y_i = \left\{ \begin{array}{ll}
-\alpha_0 + \alpha_1 X_i  + \epsilon, & \mbox{for } X_i \leq c\\
-\beta_0 + \beta_1 X_i  + \epsilon, & \mbox{for } X_i \leq c\\
+\alpha_0 + \alpha_1 X_i  + \epsilon, & \mbox{for } X_i < c\\
+\beta_0 + \beta_1 X_i  + \epsilon, & \mbox{for } X_i \geq c\\
 \end{array}
 \right.
 \]
