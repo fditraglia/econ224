@@ -1,0 +1,26 @@
+---
+title: "Lab #18 - More on Regression Discontinuity"
+author: "Econ 224"
+date: "November 8th, 2018"
+---
+
+<!-- knitr global options -->
+```{r, include = FALSE}
+knitr::opts_chunk$set(comment=NA, fig.width=5, fig.height=5, fig.align = 'center')
+```
+
+# Introduction
+First download the MLDA dataset `deaths.dta` [Mastering 'Metrics website](http://masteringmetrics.com/resources) and use an appropriate package to convert this file and load it in R.
+
+
+```{r,message = FALSE}
+library(tidyverse)
+library(haven)
+mlda <- read_dta('~/econ224/labs/deaths.dta')
+mlda
+
+# Create dummy variable that equals 1 if older than 21, 0 otherwise
+mlda <- mlda %>% mutate(age = agecell - 21,
+                        over21 = 1 * (agecell >= 21))
+```
+<!-- ANS_END -->
