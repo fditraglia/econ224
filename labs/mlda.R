@@ -1,3 +1,30 @@
+# An example where you really need the quadratic to avoid screwing up!
+set.seed(1234)
+n <- 100
+x <- runif(n)
+y <- pnorm(x, 0.5, 0.1) + rnorm(n, sd = 0.1)
+
+D <- 1 * (x >= 0.5)
+xtilde <- x - 0.5
+rd1 <- lm(y ~ D + xtilde + xtilde:D)
+rd2 <- lm(y ~ D + xtilde + I(xtilde^2) + xtilde:D + I(xtilde^2):D)
+summary(rd1)
+summary(rd2)
+
+plot(x, y, pch = 20, col = 'blue')
+xseq <- seq(0, 1, 0.01)
+points(xseq, pnorm(xseq, 0.5, 0.1), type = 'l', lty = 2)
+abline(v = 0.5, lty = 2)
+x_before <- seq(0, 0.5 - 0.01, 0.01)
+y_before <- predict(rd1, data.frame(xtilde = x_before - 0.5, 
+                                    D = 1 * (x_before >= 0.5)))
+x_after <- seq(0.5, 1, 0.01)
+y_after <- predict(rd1, data.frame(xtilde = x_after - 0.5, 
+                                   D = 1 * (x_after >= 0.5)))
+points(x_before, y_before, type = 'l', lwd = 2)
+points(x_after, y_after, type = 'l', lwd = 2)
+
+# MLDA example
 library(tidyverse)
 library(haven)
 mlda <- read_dta('~/econ224/labs/mlda.dta')
