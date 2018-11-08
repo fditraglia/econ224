@@ -69,17 +69,24 @@ When you see a pair of variables in the table below, e.g.\ `fte`/`fte2`, both me
 # Solutions
 <!-- ANS_START -->
 ```{r, message = FALSE}
+# 1 - Preliminaries
 library(tidyverse)
 library(haven)
 ak <- read_dta('~/econ224/labs/minwage.dta')
 ak <- ak %>% filter(sample == 1)
 
-DinD <- ak %>% group_by(state) %>% 
+# 2 - Baseline Diff-in-Diff: starting wages 
+DinD_wage <- ak %>% group_by(state) %>% 
   summarize(mean_wage_st = mean(wage_st), 
             mean_wage_st2 = mean(wage_st2)) %>%
   mutate(diff = mean_wage_st2 - mean_wage_st)
-DinD
-names(ak)
-table(ak$chain)
+DinD_wage
+
+# 2 - Baseline Diff-in-Diff: starting wages 
+DinD_emp <- ak %>% group_by(state) %>% 
+  summarize(mean_fte = mean(fte), 
+            mean_fte2 = mean(fte2)) %>%
+  mutate(diff = mean_fte - mean_fte2)
+DinD_emp
 ```
 <!-- ANS_END -->
