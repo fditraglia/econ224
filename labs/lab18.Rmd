@@ -6,21 +6,135 @@ date: "November 8th, 2018"
 
 <!-- knitr global options -->
 ```{r, include = FALSE}
-knitr::opts_chunk$set(comment=NA, fig.width=5, fig.height=5, fig.align = 'center')
+knitr::opts_chunk$set(comment=NA, fig.width=5, fig.height=3.5, fig.align = 'center')
 ```
 
-# Introduction
-First download the MLDA dataset `deaths.dta` [Mastering 'Metrics website](http://masteringmetrics.com/resources) and use an appropriate package to convert this file and load it in R.
+# Part I: Handling Non-linearity
+A problem with the linear RD model that we used in our last lab is that it can be "fooled" by a non-linear trend.
+As we discussed last time, RD relies on the fact that any discontinuity in the relationship between $X$ and $Y$ at the cutoff $c$ indicates a causal effect of $D$ on $Y$.
+This is because we assume that both $\mathbb{E}[Y_0|X]$ and $\mathbb{E}[Y_1|X]$ are continuous when $X$ is close to $c$. 
+A rapid change in $Y$ near the cutoff is *not* the same thing as a discontinuity and provides no evidence of a causal effect.
+But a linear RD model can have a hard time distinguishing such a non-linear relationship from a genuine discontinuity.
+You will explore this problem along with a simple solution to it in the following exercise.
 
+# Exercise 1
+This exercise relies on the following simulation code:
+```{r}
+set.seed(1234)
+n <- 100
+x <- runif(n)
+y <- pnorm(x, 0.5, 0.1) + rnorm(n, sd = 0.1)
+D <- 1 * (x >= 0.5)
+```
+(a) What is the RD cutoff in the simulation design?
+(b) What are $E[Y_0|X]$ and $E[Y_1|X]$ in the simulation design?
+(c) What is the true value of the RD causal effect in the simulation design?
+(d) Use the data from the simulation experiment to fit a linear RD model. Summarize your results. Do you find evidence of a causal effect of $D$ on $Y$? Calculate a 95\% confidence interval for this effect.
+(e) Make a plot of your results from (d) along with $E[Y_0|X]$ and $E[Y_1|X]$. Comment on your findings.
+(f) Building on your derivations in Lab 17, figure out how to fit a *quadratic* RD model in R; rather than fitting two different linear relationships, fit two different *quadratic* relationships.
+(g) How do your results from (f) change if you use a quadratic rather than linear RD specification?
 
-```{r,message = FALSE}
-library(tidyverse)
-library(haven)
-mlda <- read_dta('~/econ224/labs/deaths.dta')
-mlda
+# Solutions
+<!-- ANS_START -->
+(a) The cutoff is $0.5$.
+(b) These two functions are identical: $\texttt{pnorm}(x, 0.5, 0.1)$ i.e. the CDF of a normal RV with mean 0.5 and standard deviation 0.1.
+(c) Zero since $E[Y_0|X] = E[Y_1|X]$.
 
-# Create dummy variable that equals 1 if older than 21, 0 otherwise
-mlda <- mlda %>% mutate(age = agecell - 21,
-                        over21 = 1 * (agecell >= 21))
+```{r, message = FALSE}
+
+# Linear RD results
+xtilde <- x - 0.5
+rd1 <- lm(y ~ D + xtilde + xtilde:D)
+summary(rd1)
+
+# Plot of linear RD along with E[Y0|X] and E[Y1|X] which are the same!
+plot(x, y, pch = 20, col = 'blue')
+xseq <- seq(0, 1, 0.01)
+points(xseq, pnorm(xseq, 0.5, 0.1), type = 'l', lty = 2)
+abline(v = 0.5, lty = 2)
+x_before <- seq(0, 0.5 - 0.01, 0.01)
+y_before <- predict(rd1, data.frame(xtilde = x_before - 0.5, 
+                                    D = 1 * (x_before >= 0.5)))
+x_after <- seq(0.5, 1, 0.01)
+y_after <- predict(rd1, data.frame(xtilde = x_after - 0.5, 
+                                   D = 1 * (x_after >= 0.5)))
+points(x_before, y_before, type = 'l', lwd = 2)
+points(x_after, y_after, type = 'l', lwd = 2)
+
+# Quadratic RD results
+rd2 <- lm(y ~ D + xtilde + I(xtilde^2) + xtilde:D + I(xtilde^2):D)
+summary(rd2)
+
 ```
 <!-- ANS_END -->
+
+# Part II: Empirical Exercise
+
+In this part you will apply what you have learned above to data from the MLDA example from MM.
+Before beginning the following exercises, first download the MLDA dataset `AEJfigs.dta` from the [Mastering 'Metrics website](http://masteringmetrics.com/resources) under "Chapter 4" and use an appropriate package to convert this file and load it in R.
+The only two variables you will need for your analysis are `agecell` which gives age in years (with a decimal point since the ages are binned) and `all` which gives mortality rates per 100,000 individuals.
+
+# Exercise
+(a) Use a linear RD model to estimate the causal effect of legal access to alcohol on death rates. Plot your results and carry out appropriate present appropriate statistical inference. Discuss your findings. 
+(b) Repeat (a) using a *quadratic* rather than linear specification. Compare and contrast your findings.
+(c) RD analysis is fundamentally *local* in nature: the mortality rates of individuals far from the cutoff should not inform us about the causal effect for 21 year olds. Check the sensitivity of your results from parts (a) and (b) by restricting your sample to ages between 20 and 22, inclusive. Discuss your findings.
+
+<!-- ANS_START -->
+```{r, message = FALSE}
+
+# Load data
+library(tidyverse)
+library(haven)
+mlda <- read_dta('~/econ224/labs/mlda.dta')
+mlda
+
+# Center age around the cutoff and create treatment indicator
+mlda <- mlda %>% mutate(age = agecell - 21,
+                        over21 = 1 * (agecell >= 21))
+
+# Linear RD model 
+linear <-  lm(all ~ over21 + age + age:over21, mlda)
+summary(linear)
+
+# Function for making an RD plot 
+make_RD_plot <- function(reg, dat, inc = 0.01) {
+  plot(all ~ agecell, dat, xlab = 'Age', 
+       ylab = 'Mortality Rate (per 100,000)',
+       pch = 20, col = 'blue')
+  abline(v = 21, lty = 2)
+  x_min <- min(dat$agecell)
+  x_max <- max(dat$agecell)
+  x_before <- seq(x_min, 21 - inc, inc)
+  x_after <- seq(21, x_max, inc)
+  y_before <- predict(reg, data.frame(age = x_before - 21,  
+                                         over21 = 1 * (x_before >= 21)))
+  y_after <- predict(reg, data.frame(age = x_after - 21,  
+                                        over21 = 1 * (x_after >= 21)))
+  points(x_before, y_before, type = 'l', lwd = 2)
+  points(x_after, y_after, type = 'l', lwd = 2)
+}
+
+make_RD_plot(linear, mlda)
+
+# Quadratic RD Model
+quadratic <-  lm(all ~ over21 + age + I(age^2) +  
+                   age:over21 + I(age^2):over21, mlda)
+summary(quadratic)
+make_RD_plot(quadratic, mlda)
+
+
+# Sensitivity Analysis: what changes if we restrict to ages 20-22?
+mlda_subset <- mlda %>% filter(agecell >= 20 & agecell <= 22)
+
+linear2 <-  lm(all ~ over21 + age + age:over21, mlda_subset)
+summary(linear2)
+make_RD_plot(linear2, mlda_subset)
+
+quadratic2 <-  lm(all ~ over21 + age + I(age^2) + 
+                    age:over21 + I(age^2):over21, mlda_subset)
+summary(quadratic2)
+make_RD_plot(quadratic2, mlda_subset)
+```
+<!-- ANS_END -->
+
+
