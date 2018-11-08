@@ -1,0 +1,53 @@
+---
+title: "Lab #19 - Differences-in-Differences"
+author: "Econ 224"
+date: "November 13th, 2018"
+---
+
+<!-- knitr global options -->
+```{r, include = FALSE}
+knitr::opts_chunk$set(comment=NA, fig.width=4.5, fig.height=3.5, fig.align = 'center')
+```
+
+# Introduction
+The exercises in this lab are adapted from a problem set by Steve Pischke.
+In the first part, you'll look at a conceptual example to improve your understanding of how and when diff-in-diff works and its relation to other methods of causal inference.
+In the second part, you'll work through an extended empirical example about the effect of raising the minimum wage. 
+My expectation is that you will need to work on this lab on both Tuesday and Thursday.
+Please submit it as your final problem set, just as we did with the RD labs last week.
+
+# Exercise I: Conceptual
+Suppose we observe a dataset with information on a sample of $i = 1,...,N$ farms over $t = 1, ..., T$ years:
+
+| Name | Description |
+|-----|-----------------------------------------------|
+| yield | yield of wheat (bushels/acre) on farm $i$ in year $t$ | 
+| capital | value of machinery (in constant dollars) used on farm $i$ in year $t$ |
+| labor | number of workers employed on farm $i$ in year $t$ |
+| rain |  rainfall (inches) on farm $i$ in year $t$ |
+| fertilizer | amount of fertilizer (1000 of pounds) used on farm $i$ in year $t$|
+| size | size in acres of farm $i$ |
+
+
+# Solutions
+<!-- ANS_START -->
+<!-- ANS_END -->
+
+# Exercise II: Applied
+Introductory paragraph and data description.
+
+
+1. Preliminaries:
+      (a) Blah 
+      (b) Blah
+      (c) Blah
+2. Next step: 
+      (a) Blah 
+      (b) Blah
+      (c) Blah
+
+
+
+# Solutions
+<!-- ANS_START -->
+<!-- ANS_END -->
