@@ -9,30 +9,6 @@ date: "November 13th, 2018"
 knitr::opts_chunk$set(comment=NA, fig.width=4.5, fig.height=3.5, fig.align = 'center')
 ```
 
-# Introduction
-The exercises in this lab are adapted from a problem set by Steve Pischke.
-In the first part, you'll look at a conceptual example to improve your understanding of how and when diff-in-diff works and its relation to other methods of causal inference.
-In the second part, you'll work through an extended empirical example about the effect of raising the minimum wage. 
-My expectation is that you will need to work on this lab on both Tuesday and Thursday.
-Please submit it as your final problem set, just as we did with the RD labs last week.
-
-# Exercise I: Conceptual
-Suppose we observe a dataset with information on a sample of $i = 1,...,N$ farms over $t = 1, ..., T$ years:
-
-| Name | Description |
-|-----|-----------------------------------------------|
-| yield | yield of wheat (bushels/acre) on farm $i$ in year $t$ | 
-| capital | value of machinery (in constant dollars) used on farm $i$ in year $t$ |
-| labor | number of workers employed on farm $i$ in year $t$ |
-| rain |  rainfall (inches) on farm $i$ in year $t$ |
-| fertilizer | amount of fertilizer (1000 of pounds) used on farm $i$ in year $t$|
-| size | size in acres of farm $i$ |
-
-
-# Solutions
-<!-- ANS_START -->
-<!-- ANS_END -->
-
 # Exercise II: Applied
 The following questions are based on a dataset called `minwage.dta` that you can download from the Mastering 'Metrics website: click on "Instructor's Corner," then scroll down to the bottom of the page.
 This dataset contains information collected from fast food restaurants in New Jersey and eastern Pennsylvania during two interview waves, the first in March of 1992 and the second in November-December of the same year.
@@ -46,16 +22,18 @@ When you see a pair of variables in the table below, e.g.\ `fte`/`fte2`, both me
 
 | Name | Description |
 |---------------|-----------------------------------------------|
+| `state` | Dummy variable =1 for NJ, =0 for PA |
 | `wage_st`/`wage_st2` | Starting wage in dollars/hour at the restaurant|
 | `fte`/`fte2` | Full-time equiv. employment = \#(Full time employees) + \#(Part-time Employees)/2. Excludes managers. |
-| `chain` | Categorical variable taking values in $\{1, 2, 3, 4\}$ to indicate the four different chains in the dataset: Burger King, KFC, Roy Rogers, and Wendy's |
-| `co_owned` | Dummy variable (=1 if restaurant is company-owned; =0 if it is franchised) |
-| `sample` | Dummy variable (=1 if wage and employment data are available for both survey waves at this restaurant)|
-
+| `chain` | Categorical variable taking values in $\{1, 2, 3, 4\}$ to indicate the four chains in the dataset: Burger King, KFC, Roy Rogers, and Wendy's |
+| `co_owned` | Dummy variable =1 if restaurant is company-owned, =0 if franchised |
+| `sample` | Dummy variable =1 if wage and employment data are available for both survey waves at this restaurant|
 
 1. Preliminaries:
-      (a) Download the data and convert it to a format that R can understand, using an appropriate package.
-      (b) Restrict the sample to only those restaurants with `sample` equal to 1 to ensure that we are making an apples-to-apples comparison throughout the remainder of this exercise.
+      (a) Download the data and load it in R using an appropriate package.
+      (b) Restrict the sample to only those restaurants with `sample` equal to 1 to ensure that we are making an apples-to-apples comparison throughout the remainder of this lab.
+      (c) Rename the column `state` to `treat`.
+      (d) Create a *new* column called `state` that equals `PA` if `treat` is `0` and `NJ` if `treat` is `1`.
 2. Baseline Diff-in-Diff Estimate: starting wages
       (a) Calculate the average wage in each survey wave separately for each state.
       (b) Calculate the within-state time-differences based on (a).
@@ -63,6 +41,11 @@ When you see a pair of variables in the table below, e.g.\ `fte`/`fte2`, both me
       (d) Interpret your findings from (c). What do they tell us about the causal effect of increasing the minimum wage? What assumptions are required for this interpretation to be valid?
 3. Baseline Diff-in-Diff Estimate: full time equivalent employment
       (a) Repeat question 2 but using full-time equivalent employment as the outcome variable rather than starting wages.
+4. Reshape dataset for Diff-in-Diff Regression Estimation:
+      (a) Create a tibble called `wave1` containing only the columns `state`, `treat`, `wage_st`, `fte`, `chain`, and `co_owned`. Add a column walled `post` to `wave1` that equals `0` for every observation.
+      (b) Create a tibble called `wave2` containing only the columns `state`, `treat`, `wage_st2`, `fte2`, `chain`, and `co_owned`. Rename `wage_st2` to `wage_st` and `fte2` to `fte`. Then add a column walled `post` to `wave2` that equals `1` for every observation.
+      (c) Create a tibble called `both_waves` by *stacking* `wave1` on top of `wave2`. You can do this using the `bind_rows` command from `dplyr`. (Read the help file for more details.)
+5. Diff-in-Diff Regression Estimates:
 
 
 
@@ -73,7 +56,10 @@ When you see a pair of variables in the table below, e.g.\ `fte`/`fte2`, both me
 library(tidyverse)
 library(haven)
 ak <- read_dta('~/econ224/labs/minwage.dta')
-ak <- ak %>% filter(sample == 1)
+ak <- ak %>% filter(sample == 1) %>%
+  rename(treat = state) %>%
+  mutate(state = case_when(treat == 0 ~ 'PA',
+                           treat == 1 ~ 'NJ'))
 
 # 2 - Baseline Diff-in-Diff: starting wages 
 DinD_wage <- ak %>% group_by(state) %>% 
@@ -81,12 +67,33 @@ DinD_wage <- ak %>% group_by(state) %>%
             mean_wage_st2 = mean(wage_st2)) %>%
   mutate(diff = mean_wage_st2 - mean_wage_st)
 DinD_wage
+with(DinD_wage, diff[1] - diff[2])
 
-# 2 - Baseline Diff-in-Diff: starting wages 
+# 3 - Baseline Diff-in-Diff: full-time equivalent employment 
 DinD_emp <- ak %>% group_by(state) %>% 
   summarize(mean_fte = mean(fte), 
             mean_fte2 = mean(fte2)) %>%
-  mutate(diff = mean_fte - mean_fte2)
+  mutate(diff = mean_fte2 - mean_fte)
 DinD_emp
+with(DinD_emp, diff[1] - diff[2])
+
+# Reshape dataset for Diff-in-Diff regression estimation
+wave1 <- ak %>% select(state, treat, wage_st, fte, chain, co_owned) %>%
+  mutate(post = 0)
+wave2 <- ak %>% select(state, treat, wage_st2, fte2, chain, co_owned) %>%
+  mutate(post = 1) %>%
+  rename(wage_st = wage_st2, fte = fte2)
+both_waves <- bind_rows(wave1, wave2)
+both_waves
+
+# Diff-in-Diff regression results: starting wages 
+# Should I add clustered standard errors?
+reg_wage1 <- lm(wage_st ~ treat + post + treat:post, both_waves)
+summary(reg_wage1)
+
+# Diff-in-Diff regression results: full-time equivalent employment
+# Should I add clustered standard errors?
+reg_emp1 <- lm(fte ~ treat + post + treat:post, both_waves)
+summary(reg_emp1)
 ```
 <!-- ANS_END -->
