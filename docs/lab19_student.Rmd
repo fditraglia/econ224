@@ -1,0 +1,72 @@
+---
+title: "Lab #19 - Minimum Wages and Unemployment"
+author: "Econ 224"
+date: "November 13th, 2018"
+---
+
+<!-- knitr global options -->
+```{r, include = FALSE}
+knitr::opts_chunk$set(comment=NA, fig.width=4.5, fig.height=3.5, fig.align = 'center')
+```
+
+# Introduction 
+The following questions are based on a dataset called `minwage.dta` that you can download from the Mastering 'Metrics website: click on "Instructor's Corner," then scroll down to the bottom of the page.
+This dataset contains information collected from fast food restaurants in New Jersey and eastern Pennsylvania during two interview waves, the first in March of 1992 and the second in November-December of the same year.
+Between these two interview waves -- on April 1st to be precise -- the New Jersey minimum wage increased by just under 19\%, from \$4.25 to \$5.05 per hour.
+The minimum wage in Pennsylvania was unchanged during this period: \$4.25 per hour. 
+The `minwage.dta` dataset is drawn from a famous but controversial study of the effects of minimum wages by Angrist \& Kreuger. 
+The study is so famous that there is even an oblique reference to it on the label of a certain brand of shampoo!
+(Sadly they do not provide the full citation.)
+Here is a description of the variables that you will need to carry out this exercise.
+When you see a pair of variables in the table below, e.g.\ `fte` / `fte2`, both measure the same thing but the one with the `2` is based on the *second* survey wave, while the one without the `2` is based on the *first* survey wave.
+
+| Name | Description |
+|---------------|-----------------------------------------------|
+| `state` | Dummy variable =1 for NJ, =0 for PA |
+| `wage_st` / `wage_st2` | Starting wage in dollars/hour at the restaurant|
+| `fte` / `fte2` | Full-time equiv. employment = \#(Full time employees) + \#(Part-time Employees)/2. Excludes managers. |
+| `chain` | Categorical variable taking values in $\{1, 2, 3, 4\}$ to indicate the four chains in the dataset: Burger King, KFC, Roy Rogers, and Wendy's |
+| `co_owned` | Dummy variable =1 if restaurant is company-owned, =0 if franchised |
+| `sample` | Dummy variable =1 if wage and employment data are available for both survey waves at this restaurant|
+
+# Exercises
+
+1. Preliminaries:
+      (a) Download the data and load it in R using an appropriate package.
+      (b) Restrict the sample to only those restaurants with `sample` equal to 1 to ensure that we are making an apples-to-apples comparison throughout the remainder of this lab.
+      (c) Rename the column `state` to `treat`.
+      (d) Create a *new* column called `state` that equals `PA` if `treat` is `0` and `NJ` if `treat` is `1`.
+      (e) Create a column called `low_wage` that takes the value `1` if `wage_st` is less than `5`.
+2. Baseline Diff-in-Diff Estimate: starting wages
+      (a) Calculate the average wage in each survey wave separately for each state.
+      (b) Calculate the within-state time-differences based on (a).
+      (c) Calculate the between-state difference-in-differences based on (c).
+      (d) Interpret your findings from (c). What do they tell us about the causal effect of increasing the minimum wage? What assumptions are required for this interpretation to be valid?
+3. Baseline Diff-in-Diff Estimate: full time equivalent employment
+      (a) Repeat question 2 but using full-time equivalent employment as the outcome variable rather than starting wages.
+4. Reshape `minwage` for Diff-in-Diff Regression Estimation:
+      (a) Create a tibble called `wave1` containing only the columns `state`, `treat`, `wage_st`, `fte`, `chain`, `co_owned`, and `low_wage`. Add a column walled `post` to `wave1` that equals `0` for every observation.
+      (b) Create a tibble called `wave2` containing only the columns `state`, `treat`, `wage_st2`, `fte2`, `chain`, `co_owned`, and `low_wage`. Rename `wage_st2` to `wage_st` and `fte2` to `fte`. Then add a column walled `post` to `wave2` that equals `1` for every observation.
+      (c) Create a tibble called `both_waves` by *stacking* `wave1` on top of `wave2`. You can do this using the `bind_rows` command from `dplyr`. (Read the help file for more details.)
+5. Diff-in-Diff Regression Estimates:
+      (a) Consider the following regression model using the variables `treat` and `post` constructed above: $$Y_{i,s,t} = \beta_0 + \beta_1 (\texttt{treat}_{i,s}) + \beta_2 (\texttt{post}_t) + \beta_3 (\texttt{treat}_{i,s} \times \texttt{post}_t) + \epsilon_{i,s,t}$$
+      where $i$ indexes *restaurants*, $s$ indexes *states*, and $t$ indexes *time periods*, i.e. the two survey waves.
+      Explain the meaning of each of the four regression coefficients.
+      Which one gives the Regression differences-in-differences effect?
+      (b) Estimate the regression from part (a) based on `both_waves` using `wage_st` as the outcome variable. Summarize your results, including appropriate statistical inference. How do they compare to those that you calculated in question 2 above? 
+      (c) Estimate the regression from part (a) based on `both_waves` using `fte` as the outcome variable. Summarize your results, including appropriate statistical inference. How do they compare to those that you calculated in question 3 above? 
+      (d) An advantage of the regression-based formulation of differences-in-differences is that it allows us to control for other variables that might affect wages and employment. Repeat parts (b) and (c) adding `co_owned` and dummy variables for each of the four restaurant chains to your regression.
+      Hint: rather than creating separate dummy variables from each of the values that `chain` can take, use `as.factor()` to convert `chain` to a factor. Then if you include `chain` in a regression, R will automatically create the dummy variables for you.
+      (e) How do your results from part (d) compare with those of parts (b) and (c)?
+6. Probing the Diff-in-Diff Assumption:
+      (a) What assumption is required for the diff-in-diff approach to provide a valid causal estimate of the effects of New Jersey raising its minimum wage? 
+      (b) An alternative to the comparison of NJ and PA restaurants is a *within* NJ comparison. 
+      The key insight here is that only restaurants with starting wages below \$5 per hour in the first wave will be affected by the change in minimum wages. 
+      Use the variable `low_wage` to run this alternative to the regression from 5(a) using only observations from NJ.
+      Discuss your findings.
+      (c) What assumption is needed for the DD estimate from (b) to be reliable? How plausible is this assumption compared to the assumption from (a)?
+      (d) Repeat part (b) but restrict attention to restaurants in `PA` where there was no change in minimum wages. Discuss your findings. What do these results suggest about the plausibility of the diff-in-diff assumption in part (b)?
+
+
+
+# Solutions
