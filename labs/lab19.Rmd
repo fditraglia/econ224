@@ -60,6 +60,12 @@ When you see a pair of variables in the table below, e.g.\ `fte` / `fte2`, both 
       (e) How do your results from part (d) compare with those of parts (b) and (c)?
 6. Probing the Diff-in-Diff Assumption:
       (a) What assumption is required for the diff-in-diff approach to provide a valid causal estimate of the effects of New Jersey raising its minimum wage? 
+      (b) An alternative to the comparison of NJ and PA restaurants is a *within* NJ comparison. 
+      The key insight here is that only restaurants with starting wages below \$5 per hour in the first wave will be affected by the change in minimum wages. 
+      Use the variable `low_wage` to run this alternative to the regression from 5(a) using only observations from NJ.
+      Discuss your findings.
+      (c) What assumption is needed for the DD estimate from (b) to be reliable? How plausible is this assumption compared to the assumption from (a)?
+      (d) Repeat part (b) but restrict attention to restaurants in `PA` where there was no change in minimum wages. Discuss your findings. What do these results suggest about the plausibility of the diff-in-diff assumption in part (b)?
 
 
 
@@ -127,14 +133,24 @@ stargazer(reg_wage2, reg_emp2, type = 'latex', header = FALSE, digits = 2,
           omit.stat = c('f', 'ser', 'adj.rsq', 'rsq'))
 ```
 
-```{r}
-# 6 - More stuff...
+```{r, results = 'asis'}
+# 6 - Probing the diff-in-diff assumption
 nj_only <- both_waves %>% filter(state == 'NJ')
 pa_only <- both_waves %>% filter(state == 'PA')
-summary(lm(wage_st ~ low_wage + post + low_wage:post, nj_only))
-summary(lm(fte ~ low_wage + post + low_wage:post, nj_only))
-summary(lm(wage_st ~ low_wage + post + low_wage:post, pa_only))
-summary(lm(fte ~ low_wage + post + low_wage:post, pa_only))
+
+# Within NJ comparison
+nj_wage <- lm(wage_st ~ low_wage + post + low_wage:post, nj_only)
+nj_fte <- lm(fte ~ low_wage + post + low_wage:post, nj_only)
+stargazer(nj_wage, nj_fte, type = 'latex', header = FALSE, digits = 2,
+          dep.var.labels = c('Starting Wage', 'Full-time Equiv. Employment'), omit.stat = c('f', 'ser', 'adj.rsq', 'rsq'),
+          title = 'Within NJ comparison')
+
+# Within PA comparison
+pa_wage <- lm(wage_st ~ low_wage + post + low_wage:post, pa_only)
+pa_fte <- lm(fte ~ low_wage + post + low_wage:post, pa_only)
+stargazer(pa_wage, pa_fte, type = 'latex', header = FALSE, digits = 2,
+          dep.var.labels = c('Starting Wage', 'Full-time Equiv. Employment'), omit.stat = c('f', 'ser', 'adj.rsq', 'rsq'), 
+          title = 'Within PA comparison')
 ```
 
 
