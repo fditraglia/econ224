@@ -32,7 +32,7 @@ Here is a description of the variables that you will need for this exercise:
       (a) Use an appropriate package to open `deaths.dta` in R.
       (b) Convert `year` to factor using `as.factor` 
       (c) Use `as.factor` to create a new variable called `year_factor` containing the same information as `year` but stored as a factor.  
-      (c) Restrict the sample to years before 1984, 18-20 year olds, and "all deaths" mortality rates.
+      (d) Restrict the sample to years before 1984, 18-20 year olds, and "all deaths" mortality rates.
 2.   
       (a) Use `lm_robust` to estimate the effect of `legal` on `mrate` including state and year effects. Use cluster robust standard errors by setting `clusters = state` and `se_type = 'stata'`. 
       (b) Repeat (a), but run a *weighted* regression by setting `weights = pop`.
