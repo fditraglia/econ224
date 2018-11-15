@@ -9,7 +9,7 @@ mlda <- read_dta('~/econ224/labs/deaths.dta')
 
 mlda <- mlda %>%
   filter(year <= 1983, agegr == 2, dtype == 1) %>%
-  mutate(year = factor(year), state = factor(state))
+  mutate(year = factor(year), state_factor = factor(state))
 
 # legal is the proportion of legal drinkers in the state/year
 
