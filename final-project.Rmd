@@ -21,7 +21,7 @@ I suggest that you install this now and make sure that you can generate pdf outp
 Note that you do not have to include all of your project code in the RMarkdown file used to generate your report.
 For example, if your project includes a substantial data cleaning component, you may want to include this code in a separate R file and store the cleaned dataset for later analysis.
 Your submission, however, must include all the code that you used to generate your results.
-The point is for your project to be *replicable*: if I run the files that you submit, I should be able to re-produce all of your results and generate your report.
+The point is for your project to be *replicable*: if I run the files that you submit, I should be able to reproduce all of your results and generate your report.
 
 # Grading
 Your grade will be calculated from the following five components: Mentor Evaluation, Code Review, Writing, Project Formatting, and Project Content.
@@ -54,11 +54,11 @@ This component of your grade will be based on the formatting of your final proje
 The formatting requirements are as follows:
 
 - **File type** - pdf document, generated from RMarkdown using `knitr`.
-- **Length** - at least 4 and no more than 6 pages in length, single-spaced, excluding tables, figures, and references.
-- References: follow [https://rmarkdown.rstudio.com/authoring_bibliographies_and_citations.html](https://rmarkdown.rstudio.com/authoring_bibliographies_and_citations.html). Make sure to cite R, and any R packages that you use. Citation information is available on CRAN.
+- **Length** - at least 4 and no more than 6 pages in length, single-spaced. This page count excludes tables, figures, and references.
+- **References** - follow [https://rmarkdown.rstudio.com/authoring_bibliographies_and_citations.html](https://rmarkdown.rstudio.com/authoring_bibliographies_and_citations.html). Make sure to cite R, and any R packages that you use. Citation information is available on CRAN.
 - **Tables** - Include a maximum of 5 tables. These should be generated using `stargazer` or a similar package. Include an appropriate number of decimal places (not too many!), appropriate labels for variables etc., and detailed captions for each table. 
-- **Figures** Include a maximum of 5 figures. These should be appropriately size, clearly labeled, easy to read, and include a detailed caption. You are welcome to use any graphics packages that you like. When in doubt, `ggplot2` is a good choice.
-- **R Code** - Your project write-up should *not* display any of your raw R code. It should display only the tables and figures that your code generates. To prevent your R code from displaying in the document, you will need to set the appropriate `knitr` chunk options, e.g. `echo` and `results`. For details, see  [https://yihui.name/knitr/options/](https://yihui.name/knitr/options/).
+- **Figures** Include a maximum of 5 figures. These should be appropriately sized, clearly labeled, easy to read, and include a detailed caption. You are welcome to use any graphics packages that you like. When in doubt, `ggplot2` is a good choice.
+- **R Code** - Your project report should *not* display any of your raw R code. It should display only the tables and figures that your code generates. To prevent your R code from displaying in the document, you will need to set the appropriate `knitr` chunk options, e.g. `echo` and `results`. For details, see  [https://yihui.name/knitr/options/](https://yihui.name/knitr/options/).
 
 ## Report Content
 The content of your report will depend to a certain extent on the specifics of your project.
@@ -68,6 +68,6 @@ I suggest that you organize your project roughly as follows:
 
 - **Question** - You should clearly indicate the question you seek to answer, and your approach.
 - **Literature Review** - You do not need to include a detailed literature review, but your project should include some discussion of relevant papers on which it builds. If your project is a replication, then you will need to explain the original paper in some detail.
-- **Data Description** - Your project should include a detailed description of the dataset used, including the source of the data, a list of the key variables, etc.
+- **Data Description** - Your project should include a detailed description of the dataset used, including the source of the data, a list or table of the key variables, etc.
 - **Methods** - If you use any statistical or econometric methods that we did not study in Econ 224, your project should include an overview of what they do and how they work. This should be written at a level that would be comprehensible to your Econ 224 classmates. For any methods that you use, including those we learned in class, you must clearly indicate how you used them. This includes specifying the packages you used, how your standard errors were calculated (e.g.\ robust or clustered), how you chose any tuning parameters such as $\lambda$ for Ridge or Lasso, etc.
 - **Results** - Your report should include a clear and succinct explanation of your findings. If your findings are ambiguous, this will not be counted against you provided that you document everything clearly: the point of the project is for you to learn, even if you don't end up with an exciting result.
