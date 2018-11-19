@@ -1,0 +1,73 @@
+---
+title: "Final Project Requirements"
+author: "Econ 224"
+date: "Fall 2018"
+---
+
+# Due Date
+Final projects must be submitted electronically to Canvas by **11am on Tuesday, December 18th**.
+Late submissions will be penalized by 0.21\% per hour (5\% per day), excluding exceptional cases such as a medical emergency.
+
+# Submission Requirements
+Your final project submission should comprise two components: 
+
+1. A pdf report generated using RMarkdown and `knitr` detailing your project and results. 
+2. All data and code files required to replicate your project results and generate your project report.
+
+For detailed guidelines on the format of your report, see "Report Formatting" below.
+To generate pdf documents using `knitr`, you will need a working LaTeX distribution.
+The easiest way to set this up is by installing the `tinytex` package in R.
+I suggest that you install this now and make sure that you can generate pdf output from `knitr` to prevent any last minute difficulties.
+Note that you do not have to include all of your project code in the RMarkdown file used to generate your report.
+For example, if your project includes a substantial data cleaning component, you may want to include this code in a separate R file and store the cleaned dataset for later analysis.
+Your submission, however, must include all the code that you used to generate your results.
+The point is for your project to be *replicable*: if I run the files that you submit, I should be able to re-produce all of your results and generate your report.
+
+# Grading
+Your grade will be calculated from the following five components: Mentor Evaluation, Code Review, Writing, Project Formatting, and Project Content.
+Each of these will receive equal weight.
+Details appear below.
+
+## Mentor Evaluation
+This component of your grade will be based on your project mentor's evaluation and is designed to measure effort. 
+If you stay on top of your project and make effective use of your mentor's advice and guidance, you should expect to get 100\% for this component of the grade.
+
+## Code Review
+This component of your grade will be based the quality of the code that you submit.
+To get full marks, your code should be cleanly formatted and well-documented using appropriate comments.
+This applies both to code contained within your RMarkdown document and to any other code files used to generate your results.
+The point is to write code that it would be easy for another person to understand.
+Writing clean code is as important as writing clean prose, which is why this will make up such a large portion of your grade.
+You are welcome to use any coding style that you prefer, provided that you are consistent.
+If you do not have a preferred code style, I suggest that you follow Hadley Wickham's guidelines: [http://adv-r.had.co.nz/Style.html](http://adv-r.had.co.nz/Style.html)
+
+## Writing
+This component of your grade will be based on the quality of your writing, including spelling, grammar, organization, and style.
+If you want to improve your writing skills, here are a few suggested references:
+
+- *The Elements of Style* by Strunk \& White
+- *Economical Writing* by Diedre McCloskey
+- John Cochrane's website: [https://faculty.chicagobooth.edu/john.cochrane/teaching/writing/](https://faculty.chicagobooth.edu/john.cochrane/teaching/writing/)
+
+## Project Formatting
+This component of your grade will be based on the formatting of your final project.
+The formatting requirements are as follows:
+
+- **File type** - pdf document, generated from RMarkdown using `knitr`.
+- **Length** - at least 4 and no more than 6 pages in length, single-spaced, excluding tables, figures, and references.
+- References: follow [https://rmarkdown.rstudio.com/authoring_bibliographies_and_citations.html](https://rmarkdown.rstudio.com/authoring_bibliographies_and_citations.html). Make sure to cite R, and any R packages that you use. Citation information is available on CRAN.
+- **Tables** - Include a maximum of 5 tables. These should be generated using `stargazer` or a similar package. Include an appropriate number of decimal places (not too many!), appropriate labels for variables etc., and detailed captions for each table. 
+- **Figures** Include a maximum of 5 figures. These should be appropriately size, clearly labeled, easy to read, and include a detailed caption. You are welcome to use any graphics packages that you like. When in doubt, `ggplot2` is a good choice.
+- **R Code** - Your project write-up should *not* display any of your raw R code. It should display only the tables and figures that your code generates. To prevent your R code from displaying in the document, you will need to set the appropriate `knitr` chunk options, e.g. `echo` and `results`. For details, see  [https://yihui.name/knitr/options/](https://yihui.name/knitr/options/).
+
+## Report Content
+The content of your report will depend to a certain extent on the specifics of your project.
+You should check with your mentor to verify what is expected in your particular case.
+Some general guidelines, however, apply to all projects.
+I suggest that you organize your project roughly as follows:
+
+- **Question** - You should clearly indicate the question you seek to answer, and your approach.
+- **Literature Review** - You do not need to include a detailed literature review, but your project should include some discussion of relevant papers on which it builds. If your project is a replication, then you will need to explain the original paper in some detail.
+- **Data Description** - Your project should include a detailed description of the dataset used, including the source of the data, a list of the key variables, etc.
+- **Methods** - If you use any statistical or econometric methods that we did not study in Econ 224, your project should include an overview of what they do and how they work. This should be written at a level that would be comprehensible to your Econ 224 classmates. For any methods that you use, including those we learned in class, you must clearly indicate how you used them. This includes specifying the packages you used, how your standard errors were calculated (e.g.\ robust or clustered), how you chose any tuning parameters such as $\lambda$ for Ridge or Lasso, etc.
+- **Results** - Your report should include a clear and succinct explanation of your findings. If your findings are ambiguous, this will not be counted against you provided that you document everything clearly: the point of the project is for you to learn, even if you don't end up with an exciting result.
