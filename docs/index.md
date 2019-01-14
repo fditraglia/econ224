@@ -10,6 +10,7 @@ title: Course Homepage
 - Solutions to Labs: [lab1](./lab01.pdf), [lab2](./lab02.pdf), [lab3](./lab03.pdf), [lab4](./lab04.pdf), [lab5](./lab05.pdf), [lab6](./lab06.pdf),  [lab7](./lab07.pdf), [lab8](./lab08.pdf), [lab9](./lab09.pdf), [lab10](./lab10.pdf), [lab11](./lab11.pdf), [lab12](./lab12.pdf), [lab13](./lab13.pdf), [lab14](./lab14.pdf), [lab15](./lab15.pdf), [lab16](./lab16.pdf), [lab17](./lab17.pdf), [lab18](./lab18.pdf), [lab19](./lab19.pdf), [lab20](./lab20.pdf)
 - Problem Sets: [ps1](./ps01-college.pdf), [ps2](./ps02-STAR.pdf), [ps3](./ps03-gpaKNN.pdf), [ps4](./ps04.pdf), Complete Lab 10 in lieu of ps5, Complete Lab 12 in lieu of ps6, [ps7](./ps07.pdf), [ps8](./ps08.pdf)
 - [Final Project Requirements](./final-project.pdf)
+- Example Final Projects: [example1](./tennis.pdf), [example2](./twitter.pdf), [example3](./classification.pdf), [example4](./microfinance.pdf)
 
 ## Course Description
 Econ 224 is an applied data analysis course that will introduce you to
